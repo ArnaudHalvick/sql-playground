@@ -1,19 +1,24 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { SqlEditor } from "@/components/ui/sql-editor";
-import { DataTable } from "@/components/ui/data-table";
-import { SchemaViewer } from "@/components/ui/schema-viewer";
+import { SqlEditor } from "@/components/ui/custom/sql-editor";
+import { DataTable } from "@/components/ui/data-display/data-table";
+import { SchemaViewer } from "@/components/ui/custom/schema-viewer";
 import { databaseSchema } from "@/lib/schema";
 import { executeQuery } from "@/lib/supabase";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ExerciseCard } from "@/components/ui/exercise-card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/navigation/tabs";
+import { ExerciseCard } from "@/components/ui/custom/exercise-card";
 import { exercises } from "@/lib/exercises";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
+} from "@/components/ui/layout/resizable";
 import { DatabaseIcon, CodeIcon, BookIcon } from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
 

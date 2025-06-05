@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,9 +8,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Skeleton } from '@/components/ui/skeleton';
+} from "@/components/ui/data-display/table";
+import { ScrollArea } from "@/components/ui/layout/scroll-area";
+import { Skeleton } from "@/components/ui/feedback/skeleton";
 
 interface DataTableProps {
   columns: string[];
@@ -62,7 +62,10 @@ export function DataTable({
               ))
             ) : rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center h-24 text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center h-24 text-muted-foreground"
+                >
                   No results found
                 </TableCell>
               </TableRow>
@@ -72,8 +75,10 @@ export function DataTable({
                   {columns.map((column, colIndex) => (
                     <TableCell key={colIndex}>
                       {row[column] === null ? (
-                        <span className="text-muted-foreground italic">NULL</span>
-                      ) : typeof row[column] === 'object' ? (
+                        <span className="text-muted-foreground italic">
+                          NULL
+                        </span>
+                      ) : typeof row[column] === "object" ? (
                         JSON.stringify(row[column])
                       ) : (
                         String(row[column])

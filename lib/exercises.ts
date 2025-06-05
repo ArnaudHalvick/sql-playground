@@ -1,4 +1,4 @@
-import { DifficultyLevel } from '@/components/ui/exercise-card';
+import { DifficultyLevel } from "@/components/ui/custom/exercise-card";
 
 export interface Exercise {
   id: string;
@@ -10,47 +10,49 @@ export interface Exercise {
 
 export const exercises: Exercise[] = [
   {
-    id: 'select-all-users',
-    title: 'Get all users',
-    description: 'Retrieve all columns for all users in the database.',
-    difficulty: 'beginner',
-    query: 'SELECT * FROM users;',
+    id: "select-all-users",
+    title: "Get all users",
+    description: "Retrieve all columns for all users in the database.",
+    difficulty: "beginner",
+    query: "SELECT * FROM users;",
   },
   {
-    id: 'select-specific-columns',
-    title: 'Select specific user columns',
-    description: 'Retrieve only first name, last name, and email for all users.',
-    difficulty: 'beginner',
-    query: 'SELECT first_name, last_name, email FROM users;',
+    id: "select-specific-columns",
+    title: "Select specific user columns",
+    description:
+      "Retrieve only first name, last name, and email for all users.",
+    difficulty: "beginner",
+    query: "SELECT first_name, last_name, email FROM users;",
   },
   {
-    id: 'limit-and-order',
-    title: 'Limit and order results',
-    description: 'Get the 5 most recently created users, ordered by creation date.',
-    difficulty: 'beginner',
-    query: 'SELECT * FROM users ORDER BY created_at DESC LIMIT 5;',
+    id: "limit-and-order",
+    title: "Limit and order results",
+    description:
+      "Get the 5 most recently created users, ordered by creation date.",
+    difficulty: "beginner",
+    query: "SELECT * FROM users ORDER BY created_at DESC LIMIT 5;",
   },
   {
-    id: 'filter-with-where',
-    title: 'Filter with WHERE clause',
-    description: 'Find all products with price greater than $50.',
-    difficulty: 'beginner',
-    query: 'SELECT * FROM products WHERE price > 50;',
+    id: "filter-with-where",
+    title: "Filter with WHERE clause",
+    description: "Find all products with price greater than $50.",
+    difficulty: "beginner",
+    query: "SELECT * FROM products WHERE price > 50;",
   },
   {
-    id: 'simple-join',
-    title: 'Join two tables',
-    description: 'Get all orders with the corresponding user information.',
-    difficulty: 'intermediate',
+    id: "simple-join",
+    title: "Join two tables",
+    description: "Get all orders with the corresponding user information.",
+    difficulty: "intermediate",
     query: `SELECT o.id, o.total_amount, o.status, u.first_name, u.last_name, u.email
 FROM orders o
 JOIN users u ON o.user_id = u.id;`,
   },
   {
-    id: 'multi-table-join',
-    title: 'Multi-table join',
-    description: 'Get order details with product information.',
-    difficulty: 'intermediate',
+    id: "multi-table-join",
+    title: "Multi-table join",
+    description: "Get order details with product information.",
+    difficulty: "intermediate",
     query: `SELECT o.id as order_id, u.first_name, u.last_name, 
        p.name as product_name, oi.quantity, oi.price
 FROM orders o
@@ -59,10 +61,10 @@ JOIN order_items oi ON oi.order_id = o.id
 JOIN products p ON oi.product_id = p.id;`,
   },
   {
-    id: 'group-by-aggregate',
-    title: 'Group By with aggregates',
-    description: 'Calculate total sales by country.',
-    difficulty: 'intermediate',
+    id: "group-by-aggregate",
+    title: "Group By with aggregates",
+    description: "Calculate total sales by country.",
+    difficulty: "intermediate",
     query: `SELECT c.name as country, SUM(o.total_amount) as total_sales
 FROM orders o
 JOIN users u ON o.user_id = u.id
@@ -71,10 +73,10 @@ GROUP BY c.name
 ORDER BY total_sales DESC;`,
   },
   {
-    id: 'having-clause',
-    title: 'HAVING clause',
-    description: 'Find countries with total sales over $1000.',
-    difficulty: 'intermediate',
+    id: "having-clause",
+    title: "HAVING clause",
+    description: "Find countries with total sales over $1000.",
+    difficulty: "intermediate",
     query: `SELECT c.name as country, SUM(o.total_amount) as total_sales
 FROM orders o
 JOIN users u ON o.user_id = u.id
@@ -84,10 +86,11 @@ HAVING SUM(o.total_amount) > 1000
 ORDER BY total_sales DESC;`,
   },
   {
-    id: 'subquery',
-    title: 'Subquery',
-    description: 'Find users who have placed orders with a total amount greater than the average order amount.',
-    difficulty: 'advanced',
+    id: "subquery",
+    title: "Subquery",
+    description:
+      "Find users who have placed orders with a total amount greater than the average order amount.",
+    difficulty: "advanced",
     query: `SELECT DISTINCT u.first_name, u.last_name, u.email
 FROM users u
 JOIN orders o ON u.id = o.user_id
@@ -96,19 +99,19 @@ WHERE o.total_amount > (
 );`,
   },
   {
-    id: 'window-function',
-    title: 'Window function',
-    description: 'Rank products by price within each category.',
-    difficulty: 'advanced',
+    id: "window-function",
+    title: "Window function",
+    description: "Rank products by price within each category.",
+    difficulty: "advanced",
     query: `SELECT name, category, price,
        RANK() OVER (PARTITION BY category ORDER BY price DESC) as price_rank
 FROM products;`,
   },
   {
-    id: 'case-expression',
-    title: 'CASE expression',
-    description: 'Categorize products by price range.',
-    difficulty: 'advanced',
+    id: "case-expression",
+    title: "CASE expression",
+    description: "Categorize products by price range.",
+    difficulty: "advanced",
     query: `SELECT name, price,
        CASE
          WHEN price < 25 THEN 'Budget'
@@ -119,10 +122,10 @@ FROM products
 ORDER BY price;`,
   },
   {
-    id: 'common-table-expression',
-    title: 'Common Table Expression (CTE)',
-    description: 'Find the most valuable customers using a CTE.',
-    difficulty: 'advanced',
+    id: "common-table-expression",
+    title: "Common Table Expression (CTE)",
+    description: "Find the most valuable customers using a CTE.",
+    difficulty: "advanced",
     query: `WITH customer_totals AS (
   SELECT u.id, u.first_name, u.last_name, SUM(o.total_amount) as total_spent
   FROM users u
@@ -135,10 +138,10 @@ ORDER BY total_spent DESC
 LIMIT 5;`,
   },
   {
-    id: 'count-distinct',
-    title: 'COUNT DISTINCT',
-    description: 'Find the number of unique products ordered by each user.',
-    difficulty: 'intermediate',
+    id: "count-distinct",
+    title: "COUNT DISTINCT",
+    description: "Find the number of unique products ordered by each user.",
+    difficulty: "intermediate",
     query: `SELECT u.first_name, u.last_name,
        COUNT(DISTINCT oi.product_id) as unique_products_ordered
 FROM users u
@@ -148,10 +151,10 @@ GROUP BY u.id, u.first_name, u.last_name
 ORDER BY unique_products_ordered DESC;`,
   },
   {
-    id: 'date-functions',
-    title: 'Date Functions',
-    description: 'Analyze orders by month and year.',
-    difficulty: 'intermediate',
+    id: "date-functions",
+    title: "Date Functions",
+    description: "Analyze orders by month and year.",
+    difficulty: "intermediate",
     query: `SELECT 
   EXTRACT(YEAR FROM created_at) as year,
   EXTRACT(MONTH FROM created_at) as month,
@@ -162,10 +165,10 @@ GROUP BY year, month
 ORDER BY year, month;`,
   },
   {
-    id: 'self-join',
-    title: 'Self Join',
-    description: 'Find cities in the same country.',
-    difficulty: 'intermediate',
+    id: "self-join",
+    title: "Self Join",
+    description: "Find cities in the same country.",
+    difficulty: "intermediate",
     query: `SELECT 
   c1.name as city1,
   c2.name as city2,
@@ -176,10 +179,10 @@ JOIN countries co ON c1.country_id = co.id
 ORDER BY country, city1, city2;`,
   },
   {
-    id: 'exists-subquery',
-    title: 'EXISTS Subquery',
-    description: 'Find users who have never placed an order.',
-    difficulty: 'advanced',
+    id: "exists-subquery",
+    title: "EXISTS Subquery",
+    description: "Find users who have never placed an order.",
+    difficulty: "advanced",
     query: `SELECT first_name, last_name, email
 FROM users u
 WHERE NOT EXISTS (
@@ -188,10 +191,11 @@ WHERE NOT EXISTS (
 );`,
   },
   {
-    id: 'union-query',
-    title: 'UNION Query',
-    description: 'Combine high-value customers and users from specific countries.',
-    difficulty: 'advanced',
+    id: "union-query",
+    title: "UNION Query",
+    description:
+      "Combine high-value customers and users from specific countries.",
+    difficulty: "advanced",
     query: `SELECT first_name, last_name, 'High Value' as category
 FROM users u
 WHERE EXISTS (
@@ -208,10 +212,10 @@ WHERE c.name IN ('United States', 'United Kingdom', 'Japan')
 ORDER BY first_name, last_name;`,
   },
   {
-    id: 'complex-aggregation',
-    title: 'Complex Aggregation',
-    description: 'Calculate product sales statistics.',
-    difficulty: 'advanced',
+    id: "complex-aggregation",
+    title: "Complex Aggregation",
+    description: "Calculate product sales statistics.",
+    difficulty: "advanced",
     query: `SELECT 
   p.category,
   COUNT(DISTINCT p.id) as unique_products,
@@ -226,10 +230,11 @@ GROUP BY p.category
 ORDER BY total_units_sold DESC;`,
   },
   {
-    id: 'nested-subqueries',
-    title: 'Nested Subqueries',
-    description: 'Find products that have sold more units than the average product in their category.',
-    difficulty: 'advanced',
+    id: "nested-subqueries",
+    title: "Nested Subqueries",
+    description:
+      "Find products that have sold more units than the average product in their category.",
+    difficulty: "advanced",
     query: `SELECT p.name, p.category, 
        SUM(oi.quantity) as total_sold
 FROM products p
@@ -248,10 +253,10 @@ HAVING SUM(oi.quantity) > (
 ORDER BY total_sold DESC;`,
   },
   {
-    id: 'string-functions',
-    title: 'String Functions',
-    description: 'Analyze and format user names.',
-    difficulty: 'intermediate',
+    id: "string-functions",
+    title: "String Functions",
+    description: "Analyze and format user names.",
+    difficulty: "intermediate",
     query: `SELECT 
   first_name,
   last_name,
@@ -261,5 +266,5 @@ ORDER BY total_sold DESC;`,
   CONCAT(LEFT(first_name, 1), '. ', last_name) as formatted_name
 FROM users
 ORDER BY name_length DESC;`,
-  }
+  },
 ];

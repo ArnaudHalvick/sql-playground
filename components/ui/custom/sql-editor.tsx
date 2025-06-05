@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { useTheme } from 'next-themes';
-import CodeMirror from '@uiw/react-codemirror';
-import { sql } from '@codemirror/lang-sql';
-import { dracula } from '@uiw/codemirror-theme-dracula';
-import { xcodeLight } from '@uiw/codemirror-theme-xcode';
-import { Button } from './button';
-import { PlayIcon, RotateCcwIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import CodeMirror from "@uiw/react-codemirror";
+import { sql } from "@codemirror/lang-sql";
+import { dracula } from "@uiw/codemirror-theme-dracula";
+import { xcodeLight } from "@uiw/codemirror-theme-xcode";
+import { Button } from "@/components/ui/inputs/button";
+import { PlayIcon, RotateCcwIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SqlEditorProps {
   defaultValue?: string;
@@ -27,7 +27,7 @@ export function SqlEditor({
 }: SqlEditorProps) {
   const [query, setQuery] = useState<string>(defaultValue);
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
 
   useEffect(() => {
     setQuery(defaultValue);

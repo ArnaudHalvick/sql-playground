@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { DatabaseIcon, KeyIcon } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { ScrollArea } from '@/components/ui/scroll-area';
+} from "@/components/ui/layout/accordion";
+import { Badge } from "@/components/ui/feedback/badge";
+import { DatabaseIcon, KeyIcon } from "lucide-react";
+import { Separator } from "@/components/ui/layout/separator";
+import { ScrollArea } from "@/components/ui/layout/scroll-area";
 
 export interface TableColumn {
   name: string;
@@ -40,7 +40,7 @@ export function SchemaViewer({
 
   const toggleTable = (tableName: string) => {
     if (expanded.includes(tableName)) {
-      setExpanded(expanded.filter(name => name !== tableName));
+      setExpanded(expanded.filter((name) => name !== tableName));
     } else {
       setExpanded([...expanded, tableName]);
     }
@@ -72,7 +72,7 @@ export function SchemaViewer({
                 onClick={() => toggleTable(table.name)}
                 className="py-2 text-sm hover:no-underline"
               >
-                <span 
+                <span
                   className="font-mono text-sm cursor-pointer hover:text-primary hover:underline"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -85,12 +85,18 @@ export function SchemaViewer({
               <AccordionContent className="pt-1 pb-2">
                 <ul className="space-y-1">
                   {table.columns.map((column) => (
-                    <li key={column.name} className="flex items-center text-xs pl-2">
+                    <li
+                      key={column.name}
+                      className="flex items-center text-xs pl-2"
+                    >
                       {column.isPrimary && (
                         <KeyIcon size={12} className="mr-1 text-yellow-500" />
                       )}
                       <span className="font-mono">{column.name}</span>
-                      <Badge variant="outline" className="ml-2 text-xs h-4 px-1">
+                      <Badge
+                        variant="outline"
+                        className="ml-2 text-xs h-4 px-1"
+                      >
                         {column.type}
                       </Badge>
                       {column.isForeign && column.references && (

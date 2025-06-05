@@ -1,13 +1,20 @@
 "use client";
 
-import React from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { PlayIcon } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/layout/card";
+import { Badge } from "@/components/ui/feedback/badge";
+import { Button } from "@/components/ui/inputs/button";
+import { PlayIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+export type DifficultyLevel = "beginner" | "intermediate" | "advanced";
 
 interface ExerciseCardProps {
   title: string;
@@ -20,9 +27,10 @@ interface ExerciseCardProps {
 }
 
 const difficultyColors: Record<DifficultyLevel, string> = {
-  beginner: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  intermediate: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  advanced: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+  beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+  intermediate: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
+  advanced:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
 };
 
 export function ExerciseCard({
@@ -35,7 +43,7 @@ export function ExerciseCard({
   className,
 }: ExerciseCardProps) {
   return (
-    <Card 
+    <Card
       className={cn(
         "w-full transition-all duration-200 cursor-pointer hover:shadow-md",
         isActive && "ring-2 ring-primary/50 shadow-sm",
@@ -56,9 +64,9 @@ export function ExerciseCard({
         <pre className="whitespace-pre-wrap">{query}</pre>
       </CardContent>
       <CardFooter className="pt-2 pb-3">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             onSelect(query);

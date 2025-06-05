@@ -1,18 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { SqlEditor } from '@/components/ui/sql-editor';
-import { DataTable } from '@/components/ui/data-table';
-import { SchemaViewer } from '@/components/ui/schema-viewer';
-import { databaseSchema } from '@/lib/schema';
-import { executeQuery } from '@/lib/supabase';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ExerciseCard } from '@/components/ui/exercise-card';
-import { exercises } from '@/lib/exercises';
-import { Separator } from '@/components/ui/separator';
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
-import { DatabaseIcon, CodeIcon, BookIcon } from 'lucide-react';
-import { ModeToggle } from '@/components/theme-toggle';
+import React, { useState, useEffect } from "react";
+import { SqlEditor } from "@/components/ui/sql-editor";
+import { DataTable } from "@/components/ui/data-table";
+import { SchemaViewer } from "@/components/ui/schema-viewer";
+import { databaseSchema } from "@/lib/schema";
+import { executeQuery } from "@/lib/supabase";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ExerciseCard } from "@/components/ui/exercise-card";
+import { exercises } from "@/lib/exercises";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { DatabaseIcon, CodeIcon, BookIcon } from "lucide-react";
+import { ModeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10;");
@@ -25,10 +28,10 @@ export default function Home() {
   const executeUserQuery = async (queryText: string) => {
     setIsExecuting(true);
     setError(null);
-    
+
     try {
       const { data, error } = await executeQuery(queryText);
-      
+
       if (error) {
         setError(error);
         setResults(null);
@@ -41,7 +44,7 @@ export default function Home() {
         setColumns([]);
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      setError(err.message || "An error occurred");
       setResults(null);
       setColumns([]);
     } finally {
@@ -62,11 +65,11 @@ export default function Home() {
   useEffect(() => {
     // Execute initial query on load
     executeUserQuery(query);
-  }, []);
+  }, [query]);
 
   useEffect(() => {
     // Find which exercise is active based on the current query
-    const exercise = exercises.find(ex => ex.query === query);
+    const exercise = exercises.find((ex) => ex.query === query);
     setActiveExercise(exercise?.id || null);
   }, [query]);
 
@@ -91,7 +94,10 @@ export default function Home() {
           <ResizablePanel defaultSize={25} minSize={20} maxSize={30}>
             <Tabs defaultValue="exercises" className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="exercises" className="flex gap-1 items-center">
+                <TabsTrigger
+                  value="exercises"
+                  className="flex gap-1 items-center"
+                >
                   <BookIcon size={16} />
                   Exercises
                 </TabsTrigger>
@@ -116,9 +122,9 @@ export default function Home() {
                 </div>
               </TabsContent>
               <TabsContent value="schema" className="flex-1 overflow-hidden">
-                <SchemaViewer 
-                  tables={databaseSchema} 
-                  onTableClick={handleTableClick} 
+                <SchemaViewer
+                  tables={databaseSchema}
+                  onTableClick={handleTableClick}
                   className="h-full"
                 />
               </TabsContent>

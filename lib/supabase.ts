@@ -1,24 +1,55 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createBrowserClient } from "@/utils/supabase/client";
+import { createClient as createServerClient } from "@/utils/supabase/server";
 
-// These will be automatically populated in the browser when using Supabase
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// For client-side usage
+export const supabase = createBrowserClient();
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// For server-side usage - this function should be called in server components
+export async function getServerSupabaseClient() {
+  return await createServerClient();
+}
 
-export async function executeQuery(query: string): Promise<{ data: any[] | null; error: any }> {
+export async function executeQuery(
+  query: string
+): Promise<{ data: any[] | null; error: any }> {
   try {
-    const { data, error } = await supabase.rpc('run_query', { query_text: query });
-    
+    // Use client-side supabase for now, but this could be adapted for server-side usage
+    const { data, error } = await supabase.rpc("run_query", {
+      query_text: query,
+    });
+
     if (error) {
       return { data: null, error: error.message };
     }
-    
+
     return { data, error: null };
   } catch (error: any) {
     return {
       data: null,
-      error: error.message || 'An error occurred while executing the query',
+      error: error.message || "An error occurred while executing the query",
+    };
+  }
+}
+
+// Server-side version of executeQuery
+export async function executeQueryServer(
+  query: string
+): Promise<{ data: any[] | null; error: any }> {
+  try {
+    const supabaseServer = await getServerSupabaseClient();
+    const { data, error } = await supabaseServer.rpc("run_query", {
+      query_text: query,
+    });
+
+    if (error) {
+      return { data: null, error: error.message };
+    }
+
+    return { data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || "An error occurred while executing the query",
     };
   }
 }

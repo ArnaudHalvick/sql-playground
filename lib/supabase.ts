@@ -15,6 +15,11 @@ export async function executeQuery(
       return { data: null, error: error.message };
     }
 
+    // Check if the RPC function returned an error in the data
+    if (data && typeof data === "object" && data.error) {
+      return { data: null, error: data.message || "Query execution failed" };
+    }
+
     return { data, error: null };
   } catch (error: any) {
     return {

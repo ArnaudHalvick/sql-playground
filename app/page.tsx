@@ -59,18 +59,20 @@ export default function Home() {
 
   const handleExerciseSelect = (exerciseQuery: string) => {
     setQuery(exerciseQuery);
-    // Optional: auto-execute the query when selecting an exercise
-    // executeUserQuery(exerciseQuery);
+    // Auto-execute the query when selecting an exercise
+    executeUserQuery(exerciseQuery);
   };
 
   const handleTableClick = (tableName: string) => {
-    setQuery(`SELECT * FROM ${tableName} LIMIT 10;`);
+    const newQuery = `SELECT * FROM ${tableName} LIMIT 10;`;
+    setQuery(newQuery);
+    executeUserQuery(newQuery);
   };
 
   useEffect(() => {
     // Execute initial query on load
     executeUserQuery(query);
-  }, [query]);
+  }, []); // Only run once on mount
 
   useEffect(() => {
     // Find which exercise is active based on the current query
@@ -151,6 +153,7 @@ export default function Home() {
                   <SqlEditor
                     defaultValue={query}
                     onExecute={executeUserQuery}
+                    onChange={setQuery}
                     isExecuting={isExecuting}
                     className="flex-1"
                   />

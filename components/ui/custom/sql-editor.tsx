@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 interface SqlEditorProps {
   defaultValue?: string;
   onExecute: (query: string) => void;
+  onChange?: (query: string) => void;
   isExecuting: boolean;
   className?: string;
   resetQuery?: () => void;
@@ -21,6 +22,7 @@ interface SqlEditorProps {
 export function SqlEditor({
   defaultValue = "SELECT * FROM users LIMIT 10;",
   onExecute,
+  onChange,
   isExecuting,
   className,
   resetQuery,
@@ -33,6 +35,13 @@ export function SqlEditor({
     setQuery(defaultValue);
   }, [defaultValue]);
 
+  const handleQueryChange = (value: string) => {
+    setQuery(value);
+    if (onChange) {
+      onChange(value);
+    }
+  };
+
   const handleExecute = () => {
     if (!isExecuting && query.trim()) {
       onExecute(query);
@@ -44,6 +53,9 @@ export function SqlEditor({
       resetQuery();
     } else {
       setQuery(defaultValue);
+      if (onChange) {
+        onChange(defaultValue);
+      }
     }
   };
 
@@ -54,7 +66,7 @@ export function SqlEditor({
           value={query}
           height="200px"
           extensions={[sql()]}
-          onChange={(value) => setQuery(value)}
+          onChange={handleQueryChange}
           theme={isDark ? dracula : xcodeLight}
           className="text-base"
         />

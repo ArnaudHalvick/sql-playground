@@ -7,8 +7,11 @@ export async function executeQuery(
   query: string
 ): Promise<{ data: any[] | null; error: any }> {
   try {
+    // Remove trailing semicolons as they cause syntax errors in Supabase RPC
+    const cleanQuery = query.trim().replace(/;+$/, "");
+
     const { data, error } = await supabase.rpc("run_query", {
-      query_text: query,
+      query_text: cleanQuery,
     });
 
     if (error) {

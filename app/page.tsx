@@ -72,7 +72,7 @@ export default function Home() {
   useEffect(() => {
     // Execute initial query on load
     executeUserQuery(query);
-  }, []); // Only run once on mount
+  }, [query]); // Only run once on mount
 
   useEffect(() => {
     // Find which exercise is active based on the current query

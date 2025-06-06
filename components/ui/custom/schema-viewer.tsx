@@ -8,7 +8,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/layout/accordion";
 import { Badge } from "@/components/ui/feedback/badge";
-import { DatabaseIcon, KeyIcon } from "lucide-react";
+import { Button } from "@/components/ui/inputs/button";
+import { DatabaseIcon, KeyIcon, ExternalLinkIcon } from "lucide-react";
 import { Separator } from "@/components/ui/layout/separator";
 import { ScrollArea } from "@/components/ui/layout/scroll-area";
 
@@ -55,10 +56,23 @@ export function SchemaViewer({
   return (
     <ScrollArea className={className}>
       <div className="p-2">
-        <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
-          <DatabaseIcon size={16} />
-          Database Schema
-        </h3>
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-medium text-sm flex items-center gap-2">
+            <DatabaseIcon size={16} />
+            Database Schema
+          </h3>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              window.open("/supabase-schema-fdhqqarfkamvcaueiiqa.png", "_blank")
+            }
+            className="h-6 px-2 text-xs"
+          >
+            <ExternalLinkIcon size={12} className="mr-1" />
+            View Full Schema
+          </Button>
+        </div>
         <Separator className="my-2" />
         <Accordion
           type="multiple"

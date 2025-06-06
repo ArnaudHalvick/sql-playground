@@ -14,13 +14,15 @@ import {
 } from "@/components/ui/navigation/tabs";
 import { ExerciseCard } from "@/components/ui/custom/exercise-card";
 import { exercises } from "@/lib/exercises";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/layout/resizable";
 import { DatabaseIcon, CodeIcon, BookIcon } from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/layout/card";
+import { ScrollArea } from "@/components/ui/layout/scroll-area";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10;");
@@ -59,7 +61,6 @@ export default function Home() {
 
   const handleExerciseSelect = (exerciseQuery: string) => {
     setQuery(exerciseQuery);
-    // Auto-execute the query when selecting an exercise
     executeUserQuery(exerciseQuery);
   };
 
@@ -70,19 +71,18 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // Execute initial query on load
     executeUserQuery(query);
-  }, [query]); // Only run once on mount
+  }, []);
 
   useEffect(() => {
-    // Find which exercise is active based on the current query
     const exercise = exercises.find((ex) => ex.query === query);
     setActiveExercise(exercise?.id || null);
   }, [query]);
 
   return (
-    <main className="min-h-screen bg-background flex flex-col">
-      <header className="border-b">
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header */}
+      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <DatabaseIcon size={24} className="text-primary" />
@@ -92,103 +92,113 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="container mx-auto p-4 flex-1 flex flex-col">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="min-h-[calc(100vh-8rem)]"
-        >
-          {/* Left sidebar */}
-          <ResizablePanel defaultSize={25} minSize={20} maxSize={30}>
-            <Tabs defaultValue="exercises" className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger
-                  value="exercises"
-                  className="flex gap-1 items-center"
-                >
-                  <BookIcon size={16} />
-                  Exercises
-                </TabsTrigger>
-                <TabsTrigger value="schema" className="flex gap-1 items-center">
-                  <DatabaseIcon size={16} />
-                  Schema
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="exercises" className="flex-1 overflow-auto">
-                <div className="grid gap-4 p-1">
-                  {exercises.map((exercise) => (
-                    <ExerciseCard
-                      key={exercise.id}
-                      title={exercise.title}
-                      description={exercise.description}
-                      difficulty={exercise.difficulty}
-                      query={exercise.query}
-                      onSelect={handleExerciseSelect}
-                      isActive={activeExercise === exercise.id}
-                    />
-                  ))}
-                </div>
-              </TabsContent>
-              <TabsContent value="schema" className="flex-1 overflow-hidden">
-                <SchemaViewer
-                  tables={databaseSchema}
-                  onTableClick={handleTableClick}
-                  className="h-full"
+      {/* Main Content Grid */}
+      <div className="flex-1 container mx-auto p-4">
+        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-8rem)]">
+          {/* Left Sidebar - Exercises & Schema */}
+          <div className="col-span-3">
+            <Card className="h-full">
+              <CardHeader className="pb-3">
+                <Tabs defaultValue="exercises" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger
+                      value="exercises"
+                      className="flex gap-1 items-center text-xs"
+                    >
+                      <BookIcon size={14} />
+                      Exercises
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="schema"
+                      className="flex gap-1 items-center text-xs"
+                    >
+                      <DatabaseIcon size={14} />
+                      Schema
+                    </TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="exercises" className="mt-4">
+                    <ScrollArea className="h-[calc(100vh-12rem)]">
+                      <div className="space-y-3 pr-2">
+                        {exercises.map((exercise) => (
+                          <ExerciseCard
+                            key={exercise.id}
+                            title={exercise.title}
+                            description={exercise.description}
+                            difficulty={exercise.difficulty}
+                            query={exercise.query}
+                            onSelect={handleExerciseSelect}
+                            isActive={activeExercise === exercise.id}
+                          />
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+
+                  <TabsContent value="schema" className="mt-4">
+                    <div className="h-[calc(100vh-12rem)]">
+                      <SchemaViewer
+                        tables={databaseSchema}
+                        onTableClick={handleTableClick}
+                        className="h-full"
+                      />
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardHeader>
+            </Card>
+          </div>
+
+          {/* Right Content - Editor & Results */}
+          <div className="col-span-9 flex flex-col gap-4">
+            {/* SQL Editor */}
+            <Card className="flex-none">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-medium flex items-center gap-2">
+                  <CodeIcon size={18} />
+                  SQL Editor
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SqlEditor
+                  defaultValue={query}
+                  onExecute={executeUserQuery}
+                  onChange={setQuery}
+                  isExecuting={isExecuting}
                 />
-              </TabsContent>
-            </Tabs>
-          </ResizablePanel>
+              </CardContent>
+            </Card>
 
-          <ResizableHandle />
-
-          {/* Main content */}
-          <ResizablePanel defaultSize={75}>
-            <ResizablePanelGroup direction="vertical">
-              {/* Editor panel */}
-              <ResizablePanel defaultSize={40} minSize={30}>
-                <div className="p-4 h-full flex flex-col">
-                  <div className="flex items-center gap-2 mb-3">
-                    <CodeIcon size={18} />
-                    <h2 className="text-lg font-medium">SQL Editor</h2>
-                  </div>
-                  <SqlEditor
-                    defaultValue={query}
-                    onExecute={executeUserQuery}
-                    onChange={setQuery}
-                    isExecuting={isExecuting}
-                    className="flex-1"
-                  />
+            {/* Results */}
+            <Card className="flex-1 min-h-0">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-lg font-medium flex items-center gap-2">
+                    <DatabaseIcon size={18} />
+                    Results
+                  </CardTitle>
+                  {results && !error && (
+                    <span className="text-sm text-muted-foreground">
+                      {results.length} rows returned
+                    </span>
+                  )}
                 </div>
-              </ResizablePanel>
-
-              <ResizableHandle />
-
-              {/* Results panel */}
-              <ResizablePanel defaultSize={60}>
-                <div className="p-4 h-full flex flex-col">
-                  <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-lg font-medium flex items-center gap-2">
-                      <DatabaseIcon size={18} />
-                      Results
-                    </h2>
-                    {results && !error && (
-                      <span className="text-sm text-muted-foreground">
-                        {results.length} rows returned
-                      </span>
-                    )}
-                  </div>
+              </CardHeader>
+              <CardContent className="flex-1 min-h-0">
+                <div className="h-full">
                   <DataTable
                     columns={columns}
                     rows={results || []}
                     isLoading={isExecuting}
                     error={error || undefined}
-                    className="flex-1"
+                    className="h-full"
                   />
                 </div>
-              </ResizablePanel>
-            </ResizablePanelGroup>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

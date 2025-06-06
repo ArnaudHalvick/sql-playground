@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { SqlEditor } from "@/components/ui/custom/sql-editor";
 import { DataTable } from "@/components/ui/data-display/data-table";
 import { SchemaViewer } from "@/components/ui/custom/schema-viewer";
@@ -12,9 +12,18 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/navigation/tabs";
-import { ExerciseCard } from "@/components/ui/custom/exercise-card";
+import {
+  ExerciseCard,
+  DifficultyLevel,
+} from "@/components/ui/custom/exercise-card";
 import { exercises } from "@/lib/exercises";
-import { DatabaseIcon, CodeIcon, BookIcon } from "lucide-react";
+import {
+  DatabaseIcon,
+  CodeIcon,
+  BookIcon,
+  SearchIcon,
+  FilterIcon,
+} from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
 import {
   Card,
@@ -23,6 +32,15 @@ import {
   CardTitle,
 } from "@/components/ui/layout/card";
 import { ScrollArea } from "@/components/ui/layout/scroll-area";
+import { Input } from "@/components/ui/forms/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/forms/select";
+import { Badge } from "@/components/ui/feedback/badge";
 
 export default function Home() {
   const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10;");
@@ -31,6 +49,10 @@ export default function Home() {
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [activeExercise, setActiveExercise] = useState<string | null>(null);
+
+  // Filter and search state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
 
   const executeUserQuery = async (queryText: string) => {
     setIsExecuting(true);
@@ -61,17 +83,40 @@ export default function Home() {
 
   const handleExerciseSelect = (exerciseQuery: string) => {
     setQuery(exerciseQuery);
-    executeUserQuery(exerciseQuery);
+    // Don't auto-execute - let user click Run Query button
   };
 
   const handleTableClick = (tableName: string) => {
     const newQuery = `SELECT * FROM ${tableName} LIMIT 10;`;
     setQuery(newQuery);
-    executeUserQuery(newQuery);
+    // Don't auto-execute - let user click Run Query button
   };
 
-  useEffect(() => {
-    executeUserQuery(query);
+  // Filtered exercises based on search and difficulty
+  const filteredExercises = useMemo(() => {
+    return exercises.filter((exercise) => {
+      const matchesSearch =
+        exercise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exercise.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDifficulty =
+        difficultyFilter === "all" || exercise.difficulty === difficultyFilter;
+
+      return matchesSearch && matchesDifficulty;
+    });
+  }, [searchTerm, difficultyFilter]);
+
+  // Get difficulty counts for the filter badges
+  const difficultyCounts = useMemo(() => {
+    const counts = {
+      all: exercises.length,
+      beginner: 0,
+      intermediate: 0,
+      advanced: 0,
+    };
+    exercises.forEach((exercise) => {
+      counts[exercise.difficulty]++;
+    });
+    return counts;
   }, []);
 
   useEffect(() => {
@@ -83,7 +128,7 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+        <div className="px-6 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <DatabaseIcon size={24} className="text-primary" />
             <h1 className="text-xl font-semibold">SQL Playground</h1>
@@ -92,11 +137,11 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main Content Grid */}
-      <div className="flex-1 container mx-auto p-4">
-        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-8rem)]">
+      {/* Main Content Grid - Full Width */}
+      <div className="flex-1 px-6 py-4">
+        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-8rem)]">
           {/* Left Sidebar - Exercises & Schema */}
-          <div className="col-span-3">
+          <div className="col-span-4 xl:col-span-3">
             <Card className="h-full">
               <CardHeader className="pb-3">
                 <Tabs defaultValue="exercises" className="w-full">
@@ -117,20 +162,110 @@ export default function Home() {
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="exercises" className="mt-4">
-                    <ScrollArea className="h-[calc(100vh-12rem)]">
+                  <TabsContent value="exercises" className="mt-4 space-y-4">
+                    {/* Search and Filter Controls */}
+                    <div className="space-y-3">
+                      {/* Search Input */}
+                      <div className="relative">
+                        <SearchIcon
+                          size={16}
+                          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                        />
+                        <Input
+                          placeholder="Search exercises..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-9 h-8 text-sm"
+                        />
+                      </div>
+
+                      {/* Difficulty Filter */}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <FilterIcon size={14} />
+                          <span>Filter by difficulty</span>
+                        </div>
+                        <Select
+                          value={difficultyFilter}
+                          onValueChange={setDifficultyFilter}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">
+                              <div className="flex items-center gap-2">
+                                All Levels
+                                <Badge variant="outline" className="text-xs">
+                                  {difficultyCounts.all}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="beginner">
+                              <div className="flex items-center gap-2">
+                                Beginner
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-green-100 text-green-800"
+                                >
+                                  {difficultyCounts.beginner}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="intermediate">
+                              <div className="flex items-center gap-2">
+                                Intermediate
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-blue-100 text-blue-800"
+                                >
+                                  {difficultyCounts.intermediate}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="advanced">
+                              <div className="flex items-center gap-2">
+                                Advanced
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs bg-purple-100 text-purple-800"
+                                >
+                                  {difficultyCounts.advanced}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Exercise List */}
+                    <ScrollArea className="h-[calc(100vh-18rem)]">
                       <div className="space-y-3 pr-2">
-                        {exercises.map((exercise) => (
-                          <ExerciseCard
-                            key={exercise.id}
-                            title={exercise.title}
-                            description={exercise.description}
-                            difficulty={exercise.difficulty}
-                            query={exercise.query}
-                            onSelect={handleExerciseSelect}
-                            isActive={activeExercise === exercise.id}
-                          />
-                        ))}
+                        {filteredExercises.length > 0 ? (
+                          filteredExercises.map((exercise) => (
+                            <ExerciseCard
+                              key={exercise.id}
+                              title={exercise.title}
+                              description={exercise.description}
+                              difficulty={exercise.difficulty}
+                              query={exercise.query}
+                              onSelect={handleExerciseSelect}
+                              isActive={activeExercise === exercise.id}
+                            />
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <BookIcon
+                              size={32}
+                              className="mx-auto mb-2 opacity-50"
+                            />
+                            <p className="text-sm">No exercises found</p>
+                            <p className="text-xs">
+                              Try adjusting your search or filter
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </ScrollArea>
                   </TabsContent>
@@ -150,7 +285,7 @@ export default function Home() {
           </div>
 
           {/* Right Content - Editor & Results */}
-          <div className="col-span-9 flex flex-col gap-4">
+          <div className="col-span-8 xl:col-span-9 flex flex-col gap-4">
             {/* SQL Editor */}
             <Card className="flex-none">
               <CardHeader className="pb-3">

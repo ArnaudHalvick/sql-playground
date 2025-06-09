@@ -63,20 +63,7 @@ export function ExerciseCard({
       <CardContent className="text-xs font-mono bg-muted/50 p-2 rounded overflow-x-auto">
         <pre className="whitespace-pre-wrap">{query}</pre>
       </CardContent>
-      <CardFooter className="pt-2 pb-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onSelect(query);
-          }}
-          className="ml-auto gap-1 text-xs"
-        >
-          <PlayIcon size={14} />
-          Try it
-        </Button>
-      </CardFooter>
+      <CardFooter className="pt-2 pb-3"></CardFooter>
     </Card>
   );
 }

@@ -11,7 +11,6 @@ The `ExerciseCard` is a React component designed for displaying SQL exercises or
 - **Interactive Selection**: Click-to-select functionality with visual feedback
 - **Query Preview**: Shows the SQL query in a formatted code block
 - **Active State**: Visual indication when an exercise is currently selected
-- **Action Button**: Dedicated "Try it" button for exercise execution
 
 ## Props Interface
 
@@ -119,7 +118,6 @@ const difficultyColors = {
 ### Interactive Elements
 
 - **Card Click**: Selects the entire exercise
-- **Try it Button**: Alternative selection method with play icon
 - **Hover Effects**: Smooth transitions and visual feedback
 
 ## Card Structure
@@ -137,14 +135,12 @@ const difficultyColors = {
    - Muted background for code area
 
 3. **Footer Section**:
-   - "Try it" button with play icon
    - Right-aligned for consistent layout
 
 ## Key Components Used
 
 - **Card Components**: CardHeader, CardContent, CardFooter from layout
 - **Badge**: For difficulty level display
-- **Button**: For the "Try it" action
 - **PlayIcon**: From Lucide React for visual cue
 
 ## Styling Features

@@ -81,20 +81,6 @@ export function SeparatorDemo() {
 </div>
 ```
 
-## API Reference
-
-### Separator
-
-The separator component.
-
-| Prop          | Type                         | Default        | Description                                     |
-| ------------- | ---------------------------- | -------------- | ----------------------------------------------- |
-| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | The orientation of the separator                |
-| `decorative`  | `boolean`                    | `true`         | Whether the separator is decorative or semantic |
-| `className`   | `string`                     | -              | Additional CSS classes                          |
-
-## Examples
-
 ### Navigation Menu
 
 ```tsx
@@ -186,9 +172,6 @@ function Toolbar() {
       <button className="p-2 hover:bg-muted rounded">
         <span className="text-sm">Italic</span>
       </button>
-      <button className="p-2 hover:bg-muted rounded">
-        <span className="text-sm">Underline</span>
-      </button>
 
       <Separator orientation="vertical" className="h-6" />
 
@@ -198,178 +181,32 @@ function Toolbar() {
       <button className="p-2 hover:bg-muted rounded">
         <span className="text-sm">Center</span>
       </button>
-      <button className="p-2 hover:bg-muted rounded">
-        <span className="text-sm">Right</span>
-      </button>
-
-      <Separator orientation="vertical" className="h-6" />
-
-      <button className="p-2 hover:bg-muted rounded">
-        <span className="text-sm">Link</span>
-      </button>
-      <button className="p-2 hover:bg-muted rounded">
-        <span className="text-sm">Image</span>
-      </button>
     </div>
   );
 }
 ```
 
-### Sidebar Layout
+## API Reference
 
-```tsx
-function SidebarLayout() {
-  return (
-    <div className="flex h-screen">
-      <aside className="w-64 p-4 bg-muted">
-        <h2 className="font-semibold mb-4">Navigation</h2>
-        <nav className="space-y-2">
-          <a href="#" className="block p-2 hover:bg-background rounded">
-            Dashboard
-          </a>
-          <a href="#" className="block p-2 hover:bg-background rounded">
-            Users
-          </a>
-          <a href="#" className="block p-2 hover:bg-background rounded">
-            Settings
-          </a>
-        </nav>
-      </aside>
+### Separator
 
-      <Separator orientation="vertical" />
-
-      <main className="flex-1 p-4">
-        <h1 className="text-2xl font-bold mb-4">Main Content</h1>
-        <p>This is the main content area.</p>
-      </main>
-    </div>
-  );
-}
-```
-
-### Form Sections
-
-```tsx
-function FormWithSections() {
-  return (
-    <form className="space-y-6 max-w-md">
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Personal Details</h3>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">First Name</label>
-          <input className="w-full p-2 border rounded" />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Last Name</label>
-          <input className="w-full p-2 border rounded" />
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Contact Information</h3>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Email</label>
-          <input type="email" className="w-full p-2 border rounded" />
-        </div>
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Phone</label>
-          <input type="tel" className="w-full p-2 border rounded" />
-        </div>
-      </div>
-
-      <Separator />
-
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium">Preferences</h3>
-        <div className="space-y-2">
-          <label className="flex items-center space-x-2">
-            <input type="checkbox" />
-            <span className="text-sm">Subscribe to newsletter</span>
-          </label>
-          <label className="flex items-center space-x-2">
-            <input type="checkbox" />
-            <span className="text-sm">Enable notifications</span>
-          </label>
-        </div>
-      </div>
-    </form>
-  );
-}
-```
-
-### Breadcrumb Navigation
-
-```tsx
-function BreadcrumbNavigation() {
-  return (
-    <nav className="flex items-center space-x-2 text-sm text-muted-foreground">
-      <a href="#" className="hover:text-foreground">
-        Home
-      </a>
-      <Separator orientation="vertical" className="h-4" />
-      <a href="#" className="hover:text-foreground">
-        Products
-      </a>
-      <Separator orientation="vertical" className="h-4" />
-      <a href="#" className="hover:text-foreground">
-        Electronics
-      </a>
-      <Separator orientation="vertical" className="h-4" />
-      <span className="text-foreground">Smartphones</span>
-    </nav>
-  );
-}
-```
-
-## Styling
-
-The component uses Tailwind CSS classes for styling. You can customize the appearance by:
-
-1. Adding custom className props
-2. Modifying the default styles
-3. Using CSS custom properties
-
-### Custom Styling Examples
-
-```tsx
-// Thick separator
-<Separator className="h-1 bg-primary" />
-
-// Dashed separator
-<Separator className="border-dashed border-t border-muted-foreground" />
-
-// Gradient separator
-<Separator className="h-px bg-gradient-to-r from-transparent via-muted-foreground to-transparent" />
-
-// Colored separator
-<Separator className="bg-red-500" />
-```
+| Prop          | Type                         | Default        | Description                                     |
+| ------------- | ---------------------------- | -------------- | ----------------------------------------------- |
+| `orientation` | `"horizontal" \| "vertical"` | `"horizontal"` | The orientation of the separator                |
+| `decorative`  | `boolean`                    | `true`         | Whether the separator is decorative or semantic |
+| `className`   | `string`                     | -              | Additional CSS classes                          |
 
 ## Accessibility
 
-- Uses proper ARIA attributes for screen readers
-- Semantic separation when `decorative={false}`
-- Maintains proper focus order
-- Follows WAI-ARIA Separator pattern
+- Built on Radix UI primitives
+- Proper ARIA roles for semantic separation
+- Screen reader support
+- Decorative vs semantic separation options
 
-### Semantic vs Decorative
+## Best Practices
 
-```tsx
-// Decorative separator (default) - purely visual
-<Separator decorative />
-
-// Semantic separator - meaningful separation for screen readers
-<Separator decorative={false} />
-```
-
-## Use Cases
-
-- **Content sections**: Separating different sections of content
-- **Navigation menus**: Dividing menu items
-- **Toolbars**: Grouping related actions
-- **Forms**: Separating form sections
-- **Sidebars**: Dividing sidebar content
-- **Cards**: Creating visual breaks within cards
-- **Lists**: Separating list items or groups
+- Use horizontal separators to divide content sections
+- Use vertical separators in navigation or toolbars
+- Set appropriate height for vertical separators
+- Consider semantic vs decorative usage
+- Maintain consistent spacing around separators

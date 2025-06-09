@@ -4,18 +4,16 @@ A vertically stacked set of interactive headings that each reveal a section of c
 
 ## Features
 
-- Full keyboard navigation
-- Supports single or multiple items open at the same time
-- Can be controlled or uncontrolled
-- Smooth animations with CSS transitions
-- Built on top of Radix UI Accordion primitive
+- Collapsible content sections
+- Single or multiple items open
+- Keyboard accessible
+- Smooth animations
+- Built on Radix UI primitives
 
 ## Installation
 
-This component is built using Radix UI. Make sure you have the required dependencies:
-
 ```bash
-npm install @radix-ui/react-accordion lucide-react
+npm install @radix-ui/react-accordion
 ```
 
 ## Usage
@@ -42,14 +40,7 @@ export function AccordionDemo() {
       <AccordionItem value="item-2">
         <AccordionTrigger>Is it styled?</AccordionTrigger>
         <AccordionContent>
-          Yes. It comes with default styles that matches the other components'
-          aesthetic.
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-3">
-        <AccordionTrigger>Is it animated?</AccordionTrigger>
-        <AccordionContent>
-          Yes. It's animated by default, but you can disable it if you prefer.
+          Yes. It comes with default styles that matches the other components.
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -60,109 +51,89 @@ export function AccordionDemo() {
 ### Multiple Items Open
 
 ```tsx
-<Accordion type="multiple" className="w-full">
-  <AccordionItem value="item-1">
-    <AccordionTrigger>Section 1</AccordionTrigger>
-    <AccordionContent>Content for section 1</AccordionContent>
-  </AccordionItem>
-  <AccordionItem value="item-2">
-    <AccordionTrigger>Section 2</AccordionTrigger>
-    <AccordionContent>Content for section 2</AccordionContent>
-  </AccordionItem>
-</Accordion>
-```
-
-## API Reference
-
-### Accordion
-
-The root component that manages the state of the accordion.
-
-| Prop            | Type                                  | Default | Description                                                                        |
-| --------------- | ------------------------------------- | ------- | ---------------------------------------------------------------------------------- |
-| `type`          | `"single" \| "multiple"`              | -       | Whether one or multiple items can be opened at the same time                       |
-| `collapsible`   | `boolean`                             | `false` | When `type="single"`, allows closing content when clicking trigger of an open item |
-| `defaultValue`  | `string \| string[]`                  | -       | The default active item(s)                                                         |
-| `value`         | `string \| string[]`                  | -       | The controlled active item(s)                                                      |
-| `onValueChange` | `(value: string \| string[]) => void` | -       | Callback fired when the active item(s) change                                      |
-
-### AccordionItem
-
-Contains all the parts of a collapsible section.
-
-| Prop       | Type      | Default | Description                  |
-| ---------- | --------- | ------- | ---------------------------- |
-| `value`    | `string`  | -       | A unique value for the item  |
-| `disabled` | `boolean` | `false` | Whether the item is disabled |
-
-### AccordionTrigger
-
-The button that toggles the collapsed state of its associated item.
-
-| Prop       | Type              | Default | Description                |
-| ---------- | ----------------- | ------- | -------------------------- |
-| `children` | `React.ReactNode` | -       | The content of the trigger |
-
-### AccordionContent
-
-Contains the collapsible content for an item.
-
-| Prop       | Type              | Default | Description                          |
-| ---------- | ----------------- | ------- | ------------------------------------ |
-| `children` | `React.ReactNode` | -       | The content to be collapsed/expanded |
-
-## Styling
-
-The component uses Tailwind CSS classes and CSS custom properties for styling. You can customize the appearance by:
-
-1. Modifying the className props
-2. Updating the CSS custom properties
-3. Overriding the default styles in your CSS
-
-## Accessibility
-
-- Uses proper ARIA attributes for screen readers
-- Supports keyboard navigation (Space, Enter, Arrow keys)
-- Focus management is handled automatically
-- Follows WAI-ARIA Accordion pattern
-
-## Examples
-
-### With Custom Styling
-
-```tsx
-<Accordion type="single" collapsible className="w-full max-w-md">
-  <AccordionItem value="item-1" className="border-b-2 border-blue-200">
-    <AccordionTrigger className="text-blue-600 hover:text-blue-800">
-      Custom Styled Item
-    </AccordionTrigger>
-    <AccordionContent className="text-gray-600 bg-blue-50 p-4 rounded">
-      This accordion item has custom styling applied.
-    </AccordionContent>
-  </AccordionItem>
-</Accordion>
-```
-
-### Controlled Accordion
-
-```tsx
-function ControlledAccordion() {
-  const [value, setValue] = React.useState<string>("");
-
+function MultipleAccordion() {
   return (
-    <Accordion
-      type="single"
-      value={value}
-      onValueChange={setValue}
-      className="w-full"
-    >
+    <Accordion type="multiple" className="w-full">
       <AccordionItem value="item-1">
-        <AccordionTrigger>Controlled Item</AccordionTrigger>
+        <AccordionTrigger>Can multiple items be open?</AccordionTrigger>
         <AccordionContent>
-          This accordion is controlled by external state.
+          Yes, when using type="multiple", multiple items can be open.
+        </AccordionContent>
+      </AccordionItem>
+      <AccordionItem value="item-2">
+        <AccordionTrigger>How do I control the state?</AccordionTrigger>
+        <AccordionContent>
+          Use the value and onValueChange props to control open items.
         </AccordionContent>
       </AccordionItem>
     </Accordion>
   );
 }
 ```
+
+### FAQ Example
+
+```tsx
+function FAQAccordion() {
+  const faqs = [
+    { question: "What payment methods?", answer: "Credit cards, PayPal." },
+    { question: "Shipping time?", answer: "3-5 business days." },
+  ];
+
+  return (
+    <Accordion type="single" collapsible className="w-full">
+      {faqs.map((faq, index) => (
+        <AccordionItem key={index} value={`item-${index}`}>
+          <AccordionTrigger>{faq.question}</AccordionTrigger>
+          <AccordionContent>{faq.answer}</AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  );
+}
+```
+
+## API Reference
+
+### Accordion
+
+| Prop            | Type                                  | Default | Description                                |
+| --------------- | ------------------------------------- | ------- | ------------------------------------------ |
+| `type`          | `"single" \| "multiple"`              | -       | Whether one or multiple items can be open  |
+| `collapsible`   | `boolean`                             | `false` | Allow closing all items (single type only) |
+| `value`         | `string \| string[]`                  | -       | Controlled open items                      |
+| `defaultValue`  | `string \| string[]`                  | -       | Default open items                         |
+| `onValueChange` | `(value: string \| string[]) => void` | -       | Value change handler                       |
+
+### AccordionItem
+
+| Prop       | Type      | Default | Description                  |
+| ---------- | --------- | ------- | ---------------------------- |
+| `value`    | `string`  | -       | Unique identifier (required) |
+| `disabled` | `boolean` | `false` | Disable the item             |
+
+### AccordionTrigger
+
+| Prop       | Type              | Default | Description     |
+| ---------- | ----------------- | ------- | --------------- |
+| `children` | `React.ReactNode` | -       | Trigger content |
+
+### AccordionContent
+
+| Prop       | Type              | Default | Description        |
+| ---------- | ----------------- | ------- | ------------------ |
+| `children` | `React.ReactNode` | -       | Content to display |
+
+## Accessibility
+
+- Built on Radix UI primitives
+- Keyboard navigation (Enter/Space to toggle, Arrow keys to navigate)
+- Screen reader support
+- Proper ARIA attributes
+
+## Best Practices
+
+- Use descriptive trigger text
+- Group related content logically
+- Consider single vs multiple open behavior
+- Test keyboard navigation

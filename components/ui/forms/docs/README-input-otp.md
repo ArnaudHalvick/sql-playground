@@ -11,7 +11,6 @@ The Input OTP component is a specialized input for one-time passwords and verifi
 - **Keyboard Navigation**: Arrow keys and backspace handling
 - **Paste Support**: Automatic distribution of pasted values
 - **Validation**: Built-in pattern validation and error states
-- **Customizable**: Flexible slot count and styling
 
 ## Components
 
@@ -97,34 +96,6 @@ function GroupedOTP() {
 }
 ```
 
-## Pattern Validation
-
-```tsx
-function PatternOTP() {
-  const [value, setValue] = useState("");
-
-  return (
-    <div className="space-y-2">
-      <label className="text-sm font-medium">Enter numeric code</label>
-      <InputOTP
-        maxLength={4}
-        pattern="[0-9]*"
-        value={value}
-        onChange={setValue}
-      >
-        <InputOTPGroup>
-          <InputOTPSlot index={0} />
-          <InputOTPSlot index={1} />
-          <InputOTPSlot index={2} />
-          <InputOTPSlot index={3} />
-        </InputOTPGroup>
-      </InputOTP>
-      <p className="text-xs text-muted-foreground">Numbers only</p>
-    </div>
-  );
-}
-```
-
 ## Form Integration
 
 ```tsx
@@ -185,7 +156,7 @@ function OTPForm() {
 }
 ```
 
-## OTP Variants
+## Variants
 
 ```tsx
 function OTPVariants() {
@@ -200,21 +171,6 @@ function OTPVariants() {
             <InputOTPSlot index={1} />
             <InputOTPSlot index={2} />
             <InputOTPSlot index={3} />
-          </InputOTPGroup>
-        </InputOTP>
-      </div>
-
-      {/* 6-digit code */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">6-digit verification</label>
-        <InputOTP maxLength={6}>
-          <InputOTPGroup>
-            <InputOTPSlot index={0} />
-            <InputOTPSlot index={1} />
-            <InputOTPSlot index={2} />
-            <InputOTPSlot index={3} />
-            <InputOTPSlot index={4} />
-            <InputOTPSlot index={5} />
           </InputOTPGroup>
         </InputOTP>
       </div>
@@ -244,7 +200,6 @@ function OTPVariants() {
 - **Pattern validation** for specific input types
 - **Keyboard navigation** with arrow keys
 - **Disabled state** support
-- **Customizable slot count** and grouping
 
 ## Common Patterns
 
@@ -252,7 +207,6 @@ function OTPVariants() {
 2. **Group slots logically** for better UX
 3. **Provide clear labels** and instructions
 4. **Handle validation errors** appropriately
-5. **Consider pattern restrictions** for security
 
 ## Accessibility
 

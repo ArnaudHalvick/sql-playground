@@ -10,7 +10,6 @@ The Checkbox component is a customizable checkbox input built on Radix UI primit
 - **Keyboard Navigation**: Tab navigation and space/enter activation
 - **Visual States**: Clear checked/unchecked states with smooth transitions
 - **Customizable**: Flexible styling through className props
-- **Icon Integration**: Uses Lucide React Check icon for checked state
 - **Focus Management**: Proper focus ring and outline handling
 
 ## Props Interface
@@ -80,7 +79,6 @@ function CheckboxGroup() {
     { id: "react", label: "React" },
     { id: "vue", label: "Vue" },
     { id: "angular", label: "Angular" },
-    { id: "svelte", label: "Svelte" },
   ];
 
   return (
@@ -98,47 +96,6 @@ function CheckboxGroup() {
           </label>
         </div>
       ))}
-    </div>
-  );
-}
-```
-
-## Indeterminate Checkbox
-
-```tsx
-function IndeterminateCheckbox() {
-  const [checkedItems, setCheckedItems] = useState([false, false, false]);
-
-  const allChecked = checkedItems.every(Boolean);
-  const isIndeterminate = checkedItems.some(Boolean) && !allChecked;
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          checked={allChecked}
-          ref={(ref) => {
-            if (ref) ref.indeterminate = isIndeterminate;
-          }}
-          onCheckedChange={(value) => setCheckedItems([value, value, value])}
-        />
-        <label className="text-sm font-medium">Select all</label>
-      </div>
-      <div className="ml-6 space-y-2">
-        {checkedItems.map((checked, index) => (
-          <div key={index} className="flex items-center space-x-2">
-            <Checkbox
-              checked={checked}
-              onCheckedChange={(value) =>
-                setCheckedItems((prev) =>
-                  prev.map((item, i) => (i === index ? value : item))
-                )
-              }
-            />
-            <label className="text-sm">Option {index + 1}</label>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -226,15 +183,13 @@ function CheckboxForm() {
 - **Visual feedback** with smooth transitions
 - **Form validation** support with error states
 - **Disabled state** support
-- **Custom styling** via className prop
 
 ## Common Patterns
 
 1. **Always associate with labels** using htmlFor/id
 2. **Use controlled state** for dynamic behavior
 3. **Group related checkboxes** logically
-4. **Handle indeterminate state** for "select all" functionality
-5. **Provide clear descriptions** for complex options
+4. **Provide clear descriptions** for complex options
 
 ## Accessibility
 

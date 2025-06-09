@@ -11,7 +11,6 @@ The Label component is a form label built on Radix UI primitives. It provides pr
 - **Focus Management**: Clicking label focuses associated input
 - **Consistent Styling**: Unified appearance across forms
 - **Error States**: Visual feedback for validation errors
-- **Customizable**: Flexible styling through className props
 
 ## Props Interface
 
@@ -55,24 +54,6 @@ function RequiredLabel() {
 }
 ```
 
-## Label with Description
-
-```tsx
-function LabelWithDescription() {
-  return (
-    <div className="space-y-2">
-      <Label htmlFor="username" className="text-base font-medium">
-        Username
-      </Label>
-      <p className="text-sm text-muted-foreground">
-        Choose a unique username for your account
-      </p>
-      <Input id="username" placeholder="Enter username" />
-    </div>
-  );
-}
-```
-
 ## Form Integration
 
 ```tsx
@@ -83,7 +64,6 @@ import * as z from "zod";
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   email: z.string().email("Invalid email address"),
-  bio: z.string().optional(),
 });
 
 function LabelForm() {
@@ -92,7 +72,6 @@ function LabelForm() {
     defaultValues: {
       firstName: "",
       email: "",
-      bio: "",
     },
   });
 
@@ -130,20 +109,6 @@ function LabelForm() {
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="bio"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Bio (Optional)</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Tell us about yourself..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <Button type="submit">Submit</Button>
       </form>
     </Form>
@@ -151,7 +116,7 @@ function LabelForm() {
 }
 ```
 
-## Label Variants
+## Variants
 
 ```tsx
 function LabelVariants() {
@@ -169,22 +134,6 @@ function LabelVariants() {
           Large Label
         </Label>
         <Input id="large" placeholder="Large label input" />
-      </div>
-
-      {/* Small */}
-      <div className="space-y-2">
-        <Label htmlFor="small" className="text-xs">
-          Small Label
-        </Label>
-        <Input id="small" placeholder="Small label input" />
-      </div>
-
-      {/* Disabled */}
-      <div className="space-y-2">
-        <Label htmlFor="disabled" className="text-muted-foreground">
-          Disabled Label
-        </Label>
-        <Input id="disabled" placeholder="Disabled input" disabled />
       </div>
 
       {/* Error State */}
@@ -221,21 +170,6 @@ function ComplexLabels() {
         </Label>
       </div>
 
-      {/* Radio Group with Labels */}
-      <div className="space-y-3">
-        <Label className="text-base font-medium">Preferred Contact</Label>
-        <RadioGroup defaultValue="email">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="email" id="email" />
-            <Label htmlFor="email">Email</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="phone" id="phone" />
-            <Label htmlFor="phone">Phone</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
       {/* Switch with Label */}
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
@@ -260,7 +194,6 @@ function ComplexLabels() {
 - **Consistent typography** and spacing
 - **Error state styling** support
 - **Screen reader compatibility**
-- **Flexible sizing** and styling options
 - **Required field indicators**
 
 ## Common Patterns
@@ -269,7 +202,6 @@ function ComplexLabels() {
 2. **Use consistent font weights** for hierarchy
 3. **Add required indicators** for mandatory fields
 4. **Provide helpful descriptions** when needed
-5. **Handle error states** appropriately
 
 ## Accessibility
 

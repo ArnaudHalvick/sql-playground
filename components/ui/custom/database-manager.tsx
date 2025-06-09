@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/layout/card";
-import { Badge } from "@/components/ui/feedback/badge";
 import { Alert, AlertDescription } from "@/components/ui/feedback/alert";
 import {
   DatabaseIcon,
@@ -16,15 +15,7 @@ import {
   PlayIcon,
   CheckCircleIcon,
   XCircleIcon,
-  AlertCircleIcon,
-  InfoIcon,
 } from "lucide-react";
-import {
-  setupDatabase,
-  resetDatabase,
-  getDatabaseInfo,
-  fixRunQueryFunction,
-} from "@/utils/supabase/database-manager";
 
 interface DatabaseManagerProps {
   className?: string;
@@ -35,11 +26,10 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
   const [operation, setOperation] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
-  const [dbInfo, setDbInfo] = useState<any>(null);
 
   const handleOperation = async (
-    operationType: "setup" | "reset" | "info" | "fix",
-    operationFn: () => Promise<any>
+    operationType: "setup" | "reset",
+    endpoint: string
   ) => {
     setIsLoading(true);
     setOperation(operationType);
@@ -47,26 +37,21 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
     setMessage("");
 
     try {
-      const result = await operationFn();
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (operationType === "info") {
-        setDbInfo(result);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || `${operationType} operation failed`);
       }
 
       setStatus("success");
       setMessage(getSuccessMessage(operationType));
-
-      // Auto-refresh info after setup/reset
-      if (operationType === "setup" || operationType === "reset") {
-        setTimeout(async () => {
-          try {
-            const info = await getDatabaseInfo();
-            setDbInfo(info);
-          } catch (error) {
-            console.error("Failed to refresh database info:", error);
-          }
-        }, 1000);
-      }
     } catch (error: any) {
       setStatus("error");
       setMessage(error.message || `${operationType} operation failed`);
@@ -83,17 +68,13 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
         return "Database setup completed successfully! All tables and sample data have been created.";
       case "reset":
         return "Database reset completed successfully! All data has been refreshed.";
-      case "info":
-        return "Database information retrieved successfully.";
-      case "fix":
-        return "run_query function has been fixed and should now work properly.";
       default:
         return "Operation completed successfully.";
     }
   };
 
   const handleSetup = () => {
-    handleOperation("setup", setupDatabase);
+    handleOperation("setup", "/api/database/setup");
   };
 
   const handleReset = () => {
@@ -102,16 +83,8 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
         "⚠️ This will delete ALL data and recreate the database. Are you sure?"
       )
     ) {
-      handleOperation("reset", resetDatabase);
+      handleOperation("reset", "/api/database/reset");
     }
-  };
-
-  const handleInfo = () => {
-    handleOperation("info", getDatabaseInfo);
-  };
-
-  const handleFix = () => {
-    handleOperation("fix", fixRunQueryFunction);
   };
 
   const getStatusIcon = () => {
@@ -121,7 +94,7 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
       case "error":
         return <XCircleIcon className="h-4 w-4 text-red-600" />;
       default:
-        return <InfoIcon className="h-4 w-4 text-blue-600" />;
+        return null;
     }
   };
 
@@ -168,28 +141,6 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
             <RefreshCwIcon className="h-4 w-4" />
             {isLoading && operation === "reset" ? "Resetting..." : "Reset DB"}
           </Button>
-
-          <Button
-            onClick={handleInfo}
-            disabled={isLoading}
-            variant="outline"
-            size="sm"
-            className="gap-2"
-          >
-            <InfoIcon className="h-4 w-4" />
-            {isLoading && operation === "info" ? "Checking..." : "Check Status"}
-          </Button>
-
-          <Button
-            onClick={handleFix}
-            disabled={isLoading}
-            variant="secondary"
-            size="sm"
-            className="gap-2"
-          >
-            <AlertCircleIcon className="h-4 w-4" />
-            {isLoading && operation === "fix" ? "Fixing..." : "Fix Query Fn"}
-          </Button>
         </div>
 
         {/* Status Message */}
@@ -202,32 +153,6 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
           </Alert>
         )}
 
-        {/* Database Info */}
-        {dbInfo && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Database Status:</h4>
-            <div className="grid grid-cols-2 gap-2">
-              {Object.entries(dbInfo).map(([table, info]: [string, any]) => (
-                <div
-                  key={table}
-                  className="flex items-center justify-between p-2 border rounded text-xs"
-                >
-                  <span className="font-medium">{table}</span>
-                  {info.error ? (
-                    <Badge variant="destructive" className="text-xs">
-                      Error
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-xs">
-                      {info.count} rows
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Help Text */}
         <div className="text-xs text-muted-foreground space-y-1">
           <p>
@@ -236,13 +161,6 @@ export function DatabaseManager({ className }: DatabaseManagerProps) {
           <p>
             <strong>Reset DB:</strong> Drop all tables and recreate with fresh
             data
-          </p>
-          <p>
-            <strong>Check Status:</strong> View current table counts
-          </p>
-          <p>
-            <strong>Fix Query Fn:</strong> Fix the run_query function if queries
-            aren't working
           </p>
         </div>
       </CardContent>

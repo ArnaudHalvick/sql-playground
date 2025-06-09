@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:setup": "node supabase/scripts/manage-db.js setup",
+    "db:reset": "node supabase/scripts/manage-db.js reset",
+    "db:info": "node supabase/scripts/manage-db.js info",
+    "db:query": "node supabase/scripts/manage-db.js query"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.5.4",
@@ -52,9 +56,10 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.3.0",
-    "eslint": "8.49.0",
-    "eslint-config-next": "13.5.1",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "^15.3.3",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.446.0",
     "next": "^15.3.3",
@@ -73,5 +78,8 @@
     "typescript": "5.2.2",
     "vaul": "^0.9.9",
     "zod": "^3.23.8"
+  },
+  "overrides": {
+    "punycode": "npm:punycode.js@^2.3.1"
   }
 }

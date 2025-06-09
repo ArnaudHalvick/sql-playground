@@ -13,7 +13,6 @@
  */
 
 const { createClient } = require("@supabase/supabase-js");
-const fs = require("fs");
 const path = require("path");
 const readline = require("readline");
 
@@ -39,57 +38,6 @@ function createAdminClient() {
       persistSession: false,
     },
   });
-}
-
-// Read migration files
-function getMigrationContent(filename) {
-  try {
-    const migrationPath = path.join(__dirname, "..", "migrations", filename);
-    return fs.readFileSync(migrationPath, "utf-8");
-  } catch (error) {
-    throw new Error(
-      `Failed to read migration file ${filename}: ${error.message}`
-    );
-  }
-}
-
-// Execute SQL with error handling
-async function executeSql(client, sql, description) {
-  try {
-    console.log(`🔄 ${description}...`);
-
-    // Split SQL into individual statements and execute them one by one
-    const statements = sql
-      .split(";")
-      .map((stmt) => stmt.trim())
-      .filter((stmt) => stmt.length > 0 && !stmt.startsWith("--"));
-
-    for (const statement of statements) {
-      if (statement.trim()) {
-        try {
-          // Use run_query for individual statements
-          const { error } = await client.rpc("run_query", {
-            query_text: statement,
-          });
-          if (error) {
-            console.warn(`⚠️  Statement warning: ${error.message}`);
-            // Don't throw for warnings, continue with next statement
-          }
-        } catch (stmtError) {
-          // Some statements might fail (like DROP IF EXISTS on non-existent tables)
-          // This is expected behavior, so we'll log but continue
-          console.warn(
-            `⚠️  Statement skipped: ${stmtError.message.substring(0, 100)}...`
-          );
-        }
-      }
-    }
-
-    console.log(`✅ ${description} completed`);
-  } catch (error) {
-    console.error(`❌ ${description} failed:`, error.message);
-    throw error;
-  }
 }
 
 // Execute a single SQL statement using run_query
@@ -133,7 +81,6 @@ async function fixRunQueryFunction() {
     SECURITY DEFINER
     AS $$
     DECLARE
-      result JSONB;
       rec RECORD;
       results JSONB := '[]'::JSONB;
     BEGIN

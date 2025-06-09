@@ -44,7 +44,9 @@ import {
 import { Badge } from "@/components/ui/feedback/badge";
 
 export default function Home() {
-  const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10");
+  const [query, setQuery] = useState<string>(
+    "SELECT id, first_name, last_name, email, country_id, city_id FROM users LIMIT 10"
+  );
   const [results, setResults] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
@@ -68,7 +70,42 @@ export default function Home() {
         setColumns([]);
       } else if (data && data.length > 0) {
         setResults(data);
-        setColumns(Object.keys(data[0]));
+
+        // Try to order columns based on schema if this is a simple SELECT from a single table
+        const extractedColumns = Object.keys(data[0]);
+        let orderedColumns = extractedColumns;
+
+        // Check if this looks like a simple table query
+        const tableMatch = queryText.match(/FROM\s+(\w+)/i);
+        if (tableMatch) {
+          const tableName = tableMatch[1].toLowerCase();
+          const tableSchema = databaseSchema.find(
+            (table) => table.name.toLowerCase() === tableName
+          );
+
+          if (tableSchema) {
+            // Order columns according to schema, but only include columns that exist in results
+            const schemaColumnOrder = tableSchema.columns.map(
+              (col) => col.name
+            );
+            const columnsInSchema = extractedColumns.filter((col) =>
+              schemaColumnOrder.includes(col)
+            );
+            const columnsNotInSchema = extractedColumns.filter(
+              (col) => !schemaColumnOrder.includes(col)
+            );
+
+            // Combine: schema-ordered columns first, then any additional columns
+            orderedColumns = [
+              ...schemaColumnOrder.filter((col) =>
+                extractedColumns.includes(col)
+              ),
+              ...columnsNotInSchema,
+            ];
+          }
+        }
+
+        setColumns(orderedColumns);
       } else {
         setResults([]);
         setColumns([]);
@@ -88,8 +125,21 @@ export default function Home() {
   };
 
   const handleTableClick = (tableName: string) => {
-    const newQuery = `SELECT * FROM ${tableName} LIMIT 10;`;
-    setQuery(newQuery);
+    // Get the table schema to determine proper column order
+    const tableSchema = databaseSchema.find(
+      (table) => table.name === tableName
+    );
+
+    if (tableSchema) {
+      // Use explicit column order from schema
+      const columnNames = tableSchema.columns.map((col) => col.name).join(", ");
+      const newQuery = `SELECT ${columnNames} FROM ${tableName} LIMIT 10;`;
+      setQuery(newQuery);
+    } else {
+      // Fallback to SELECT * if schema not found
+      const newQuery = `SELECT * FROM ${tableName} LIMIT 10;`;
+      setQuery(newQuery);
+    }
     // Don't auto-execute - let user click Run Query button
   };
 

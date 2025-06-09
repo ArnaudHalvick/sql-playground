@@ -2,35 +2,31 @@
 
 ## Overview
 
-The Switch component is a toggle control built on Radix UI primitives. It provides a binary on/off state with smooth animations and accessibility features, commonly used for settings and preferences.
+The Switch component is a toggle control built on Radix UI primitives. It provides a binary on/off state with smooth animations and full accessibility support.
 
 ## Features
 
 - **Binary State**: Clear on/off toggle functionality
-- **Smooth Animation**: Fluid thumb transition between states
 - **Accessible**: Built with Radix UI for screen reader support
-- **Keyboard Navigation**: Space/Enter key activation
-- **Touch Support**: Works on touch devices
-- **Custom Styling**: Flexible appearance customization
-- **Form Integration**: Works with form libraries
+- **Keyboard Navigation**: Space/Enter to toggle, Tab for focus
+- **Smooth Animation**: Fluid transition between states
+- **Form Integration**: Works seamlessly with form libraries
+- **Customizable**: Flexible styling through className props
 
 ## Props Interface
 
 ```typescript
 interface SwitchProps
-  extends React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> {
+  extends React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root> {
   className?: string;
   checked?: boolean;
-  defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   disabled?: boolean;
   // ... all other Radix Switch props
 }
 ```
 
-## Usage Examples
-
-### Basic Switch
+## Basic Usage
 
 ```tsx
 import { Switch } from "@/components/ui/forms/switch";
@@ -40,56 +36,115 @@ function BasicSwitch() {
   return (
     <div className="flex items-center space-x-2">
       <Switch id="airplane-mode" />
-      <Label htmlFor="airplane-mode">Airplane mode</Label>
+      <Label htmlFor="airplane-mode">Airplane Mode</Label>
     </div>
   );
 }
 ```
 
-### Controlled Switch
+## Controlled Switch
 
 ```tsx
 function ControlledSwitch() {
-  const [enabled, setEnabled] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-2">
-        <Switch
-          id="notifications"
-          checked={enabled}
-          onCheckedChange={setEnabled}
-        />
-        <Label htmlFor="notifications">Enable notifications</Label>
+    <div className="flex items-center justify-between">
+      <div className="space-y-0.5">
+        <Label htmlFor="notifications" className="text-base">
+          Push Notifications
+        </Label>
+        <p className="text-sm text-muted-foreground">
+          Receive notifications about your account activity.
+        </p>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Notifications are {enabled ? "enabled" : "disabled"}
-      </p>
+      <Switch
+        id="notifications"
+        checked={isEnabled}
+        onCheckedChange={setIsEnabled}
+      />
     </div>
   );
 }
 ```
 
-### Form Integration
+## Switch with Description
+
+```tsx
+function SwitchWithDescription() {
+  const [settings, setSettings] = useState({
+    marketing: false,
+    analytics: true,
+    functional: true,
+  });
+
+  const updateSetting = (key: string, value: boolean) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label htmlFor="marketing">Marketing emails</Label>
+          <p className="text-sm text-muted-foreground">
+            Receive emails about new products, features, and more.
+          </p>
+        </div>
+        <Switch
+          id="marketing"
+          checked={settings.marketing}
+          onCheckedChange={(value) => updateSetting("marketing", value)}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label htmlFor="analytics">Analytics cookies</Label>
+          <p className="text-sm text-muted-foreground">
+            Help us improve our service by allowing analytics tracking.
+          </p>
+        </div>
+        <Switch
+          id="analytics"
+          checked={settings.analytics}
+          onCheckedChange={(value) => updateSetting("analytics", value)}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## Form Integration
 
 ```tsx
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const formSchema = z.object({
+  marketingEmails: z.boolean().default(false),
+  securityAlerts: z.boolean().default(true),
+  productUpdates: z.boolean().default(false),
+});
 
 function SwitchForm() {
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      marketing: false,
-      analytics: true,
-      functional: true,
+      marketingEmails: false,
+      securityAlerts: true,
+      productUpdates: false,
     },
   });
 
   return (
     <Form {...form}>
-      <form className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="marketing"
+          name="marketingEmails"
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
@@ -110,13 +165,13 @@ function SwitchForm() {
 
         <FormField
           control={form.control}
-          name="analytics"
+          name="securityAlerts"
           render={({ field }) => (
             <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
               <div className="space-y-0.5">
-                <FormLabel className="text-base">Analytics</FormLabel>
+                <FormLabel className="text-base">Security alerts</FormLabel>
                 <FormDescription>
-                  Help us improve our product with usage analytics.
+                  Receive alerts about your account security.
                 </FormDescription>
               </div>
               <FormControl>
@@ -128,94 +183,15 @@ function SwitchForm() {
             </FormItem>
           )}
         />
+
+        <Button type="submit">Save preferences</Button>
       </form>
     </Form>
   );
 }
 ```
 
-### Settings Panel
-
-```tsx
-function SettingsPanel() {
-  const [settings, setSettings] = useState({
-    darkMode: false,
-    notifications: true,
-    autoSave: true,
-    soundEffects: false,
-  });
-
-  const updateSetting = (key: string, value: boolean) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  };
-
-  return (
-    <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Preferences</h3>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Dark mode</Label>
-            <p className="text-sm text-muted-foreground">
-              Use dark theme across the application
-            </p>
-          </div>
-          <Switch
-            checked={settings.darkMode}
-            onCheckedChange={(checked) => updateSetting("darkMode", checked)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Push notifications</Label>
-            <p className="text-sm text-muted-foreground">
-              Receive push notifications on your device
-            </p>
-          </div>
-          <Switch
-            checked={settings.notifications}
-            onCheckedChange={(checked) =>
-              updateSetting("notifications", checked)
-            }
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Auto-save</Label>
-            <p className="text-sm text-muted-foreground">
-              Automatically save your work
-            </p>
-          </div>
-          <Switch
-            checked={settings.autoSave}
-            onCheckedChange={(checked) => updateSetting("autoSave", checked)}
-          />
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="space-y-0.5">
-            <Label>Sound effects</Label>
-            <p className="text-sm text-muted-foreground">
-              Play sounds for interactions
-            </p>
-          </div>
-          <Switch
-            checked={settings.soundEffects}
-            onCheckedChange={(checked) =>
-              updateSetting("soundEffects", checked)
-            }
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-### Disabled Switch
+## Disabled Switch
 
 ```tsx
 function DisabledSwitch() {
@@ -225,7 +201,6 @@ function DisabledSwitch() {
         <Switch id="disabled-off" disabled />
         <Label htmlFor="disabled-off">Disabled (Off)</Label>
       </div>
-
       <div className="flex items-center space-x-2">
         <Switch id="disabled-on" disabled checked />
         <Label htmlFor="disabled-on">Disabled (On)</Label>
@@ -235,29 +210,27 @@ function DisabledSwitch() {
 }
 ```
 
-## Use Cases
+## Key Features
 
-- **Settings**: Theme, notifications, or feature toggles
-- **Preferences**: User preference controls
-- **Feature Flags**: Enable/disable application features
-- **Privacy Controls**: Data sharing or tracking preferences
-- **Accessibility**: Screen reader or high contrast mode
-- **Permissions**: Grant or revoke access permissions
-- **Status Controls**: Online/offline or active/inactive states
+- **Binary toggle** with clear on/off states
+- **Smooth animations** with CSS transitions
+- **Keyboard accessible** with space/enter activation
+- **Touch-friendly** for mobile devices
+- **Form validation** support
+- **Disabled state** support
+- **Custom styling** via className prop
 
-## Best Practices
+## Common Patterns
 
-- Always provide clear, descriptive labels
-- Use consistent switch placement (typically right-aligned)
-- Provide immediate feedback when state changes
-- Group related switches logically
-- Consider the impact of state changes on the user
-- Test keyboard navigation thoroughly
-- Ensure sufficient color contrast for accessibility
-- Use switches for binary states, not multi-option selections
+1. **Always associate with labels** using htmlFor/id
+2. **Use controlled state** for dynamic behavior
+3. **Provide clear descriptions** for complex settings
+4. **Group related switches** logically
+5. **Handle form validation** appropriately
 
-## Dependencies
+## Accessibility
 
-- **@radix-ui/react-switch**: Core switch functionality
-- **Tailwind CSS**: Styling system
-- **React**: Component framework
+- Full keyboard navigation support
+- Screen reader announcements for state changes
+- Proper ARIA attributes and roles
+- Focus management with visible focus rings

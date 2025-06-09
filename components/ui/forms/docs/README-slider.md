@@ -2,24 +2,21 @@
 
 ## Overview
 
-The Slider component is a range input control built on Radix UI primitives. It allows users to select a value or range of values by dragging a thumb along a track, providing an intuitive interface for numeric input.
+The Slider component is a range input control built on Radix UI primitives. It allows users to select a value or range of values by dragging a thumb along a track.
 
 ## Features
 
-- **Touch Support**: Works on touch devices with gesture support
-- **Keyboard Navigation**: Arrow keys for precise value adjustment
+- **Single/Range Values**: Support for single value or range selection
 - **Accessible**: Built with Radix UI for screen reader support
-- **Range Support**: Single value or range selection
-- **Custom Styling**: Flexible appearance customization
-- **Smooth Animation**: Fluid thumb movement and transitions
-- **Value Constraints**: Min, max, and step value support
+- **Keyboard Navigation**: Arrow keys for precise value adjustment
+- **Touch Support**: Works on touch devices with drag gestures
+- **Customizable**: Flexible styling and step configuration
+- **Form Integration**: Works seamlessly with form libraries
 
 ## Props Interface
 
 ```typescript
-interface SliderProps
-  extends React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> {
-  className?: string;
+interface SliderProps {
   value?: number[];
   defaultValue?: number[];
   onValueChange?: (value: number[]) => void;
@@ -28,23 +25,38 @@ interface SliderProps
   step?: number;
   disabled?: boolean;
   orientation?: "horizontal" | "vertical";
-  // ... all other Radix Slider props
+  className?: string;
 }
 ```
 
-## Usage Examples
-
-### Basic Slider
+## Basic Usage
 
 ```tsx
 import { Slider } from "@/components/ui/forms/slider";
+import { Label } from "@/components/ui/forms/label";
 
 function BasicSlider() {
-  const [value, setValue] = useState([50]);
+  return (
+    <div className="space-y-4">
+      <Label>Volume</Label>
+      <Slider defaultValue={[50]} max={100} step={1} className="w-full" />
+    </div>
+  );
+}
+```
+
+## Controlled Slider
+
+```tsx
+function ControlledSlider() {
+  const [value, setValue] = useState([25]);
 
   return (
     <div className="space-y-4">
-      <Label>Volume: {value[0]}%</Label>
+      <div className="flex justify-between">
+        <Label>Brightness</Label>
+        <span className="text-sm text-muted-foreground">{value[0]}%</span>
+      </div>
       <Slider
         value={value}
         onValueChange={setValue}
@@ -57,7 +69,7 @@ function BasicSlider() {
 }
 ```
 
-### Range Slider
+## Range Slider
 
 ```tsx
 function RangeSlider() {
@@ -65,9 +77,12 @@ function RangeSlider() {
 
   return (
     <div className="space-y-4">
-      <Label>
-        Price Range: ${range[0]} - ${range[1]}
-      </Label>
+      <div className="flex justify-between">
+        <Label>Price Range</Label>
+        <span className="text-sm text-muted-foreground">
+          ${range[0]} - ${range[1]}
+        </span>
+      </div>
       <Slider
         value={range}
         onValueChange={setRange}
@@ -81,117 +96,159 @@ function RangeSlider() {
 }
 ```
 
-### Form Integration
+## Form Integration
 
 ```tsx
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+
+const formSchema = z.object({
+  volume: z.array(z.number()).length(1),
+  priceRange: z.array(z.number()).length(2),
+  quality: z.array(z.number()).length(1),
+});
 
 function SliderForm() {
-  const form = useForm({
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      volume: [75],
-      brightness: [50],
-      range: [25, 75],
+      volume: [50],
+      priceRange: [20, 80],
+      quality: [75],
     },
   });
 
   return (
     <Form {...form}>
-      <form className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="volume"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Volume ({field.value[0]}%)</FormLabel>
+              <div className="flex justify-between">
+                <FormLabel>Volume</FormLabel>
+                <span className="text-sm text-muted-foreground">
+                  {field.value[0]}%
+                </span>
+              </div>
               <FormControl>
                 <Slider
-                  value={field.value}
                   onValueChange={field.onChange}
+                  defaultValue={field.value}
                   max={100}
                   step={1}
+                  className="w-full"
                 />
               </FormControl>
-              <FormDescription>Adjust the audio volume level</FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
 
         <FormField
           control={form.control}
-          name="range"
+          name="priceRange"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                Price Range (${field.value[0]} - ${field.value[1]})
-              </FormLabel>
+              <div className="flex justify-between">
+                <FormLabel>Price Range</FormLabel>
+                <span className="text-sm text-muted-foreground">
+                  ${field.value[0]} - ${field.value[1]}
+                </span>
+              </div>
               <FormControl>
                 <Slider
-                  value={field.value}
                   onValueChange={field.onChange}
+                  defaultValue={field.value}
                   min={0}
-                  max={1000}
-                  step={10}
+                  max={100}
+                  step={5}
+                  className="w-full"
                 />
               </FormControl>
+              <FormDescription>
+                Select your preferred price range
+              </FormDescription>
+              <FormMessage />
             </FormItem>
           )}
         />
+
+        <Button type="submit">Save Settings</Button>
       </form>
     </Form>
   );
 }
 ```
 
-### Custom Step Values
+## Slider Variants
 
 ```tsx
-function StepSlider() {
-  const [value, setValue] = useState([0]);
-
-  const stepLabels = {
-    0: "Off",
-    25: "Low",
-    50: "Medium",
-    75: "High",
-    100: "Maximum",
-  };
-
+function SliderVariants() {
   return (
-    <div className="space-y-4">
-      <Label>Performance: {stepLabels[value[0]] || value[0]}</Label>
-      <Slider
-        value={value}
-        onValueChange={setValue}
-        min={0}
-        max={100}
-        step={25}
-        className="w-full"
-      />
-      <div className="flex justify-between text-xs text-muted-foreground">
-        <span>Off</span>
-        <span>Low</span>
-        <span>Medium</span>
-        <span>High</span>
-        <span>Max</span>
+    <div className="space-y-8">
+      {/* Default */}
+      <div className="space-y-2">
+        <Label>Default Slider</Label>
+        <Slider defaultValue={[50]} max={100} step={1} />
+      </div>
+
+      {/* With Steps */}
+      <div className="space-y-2">
+        <Label>Step Slider (10)</Label>
+        <Slider defaultValue={[50]} max={100} step={10} />
+      </div>
+
+      {/* Disabled */}
+      <div className="space-y-2">
+        <Label>Disabled Slider</Label>
+        <Slider defaultValue={[30]} max={100} step={1} disabled />
+      </div>
+
+      {/* Vertical */}
+      <div className="space-y-2">
+        <Label>Vertical Slider</Label>
+        <div className="h-48">
+          <Slider
+            defaultValue={[50]}
+            max={100}
+            step={1}
+            orientation="vertical"
+            className="h-full"
+          />
+        </div>
       </div>
     </div>
   );
 }
 ```
 
-### Disabled Slider
+## Key Features
 
-```tsx
-function DisabledSlider() {
-  return (
-    <div className="space-y-4">
-      <Label>Disabled Slider</Label>
-      <Slider value={[30]} disabled max={100} className="w-full" />
-    </div>
-  );
-}
-```
+- **Single or range selection** with one or two thumbs
+- **Keyboard accessible** with arrow key navigation
+- **Touch and mouse support** for all devices
+- **Step configuration** for discrete value selection
+- **Min/max bounds** with validation
+- **Vertical orientation** support
+- **Disabled state** support
+
+## Common Patterns
+
+1. **Always provide labels** for accessibility
+2. **Show current values** for user feedback
+3. **Use appropriate step sizes** for the use case
+4. **Set reasonable min/max bounds**
+5. **Handle form validation** appropriately
+
+## Accessibility
+
+- Full keyboard navigation with arrow keys
+- Screen reader announcements for value changes
+- Proper ARIA attributes and roles
+- Focus management with visible focus indicators
 
 ## Use Cases
 

@@ -1,4 +1,4 @@
-git s# Checkbox Component
+# Checkbox Component
 
 ## Overview
 
@@ -23,9 +23,7 @@ interface CheckboxProps
 }
 ```
 
-## Usage Examples
-
-### Basic Checkbox
+## Basic Usage
 
 ```tsx
 import { Checkbox } from "@/components/ui/forms/checkbox";
@@ -45,7 +43,7 @@ function BasicCheckbox() {
 }
 ```
 
-### Controlled Checkbox
+## Controlled Checkbox
 
 ```tsx
 function ControlledCheckbox() {
@@ -66,7 +64,7 @@ function ControlledCheckbox() {
 }
 ```
 
-### Checkbox Group
+## Checkbox Group
 
 ```tsx
 function CheckboxGroup() {
@@ -105,7 +103,7 @@ function CheckboxGroup() {
 }
 ```
 
-### Indeterminate Checkbox
+## Indeterminate Checkbox
 
 ```tsx
 function IndeterminateCheckbox() {
@@ -146,30 +144,7 @@ function IndeterminateCheckbox() {
 }
 ```
 
-### Disabled Checkbox
-
-```tsx
-function DisabledCheckbox() {
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center space-x-2">
-        <Checkbox id="disabled-unchecked" disabled />
-        <label htmlFor="disabled-unchecked" className="text-sm">
-          Disabled unchecked
-        </label>
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox id="disabled-checked" disabled checked />
-        <label htmlFor="disabled-checked" className="text-sm">
-          Disabled checked
-        </label>
-      </div>
-    </div>
-  );
-}
-```
-
-### Form Integration
+## Form Integration
 
 ```tsx
 import { useForm } from "react-hook-form";
@@ -192,33 +167,9 @@ function CheckboxForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
-
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="marketing"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Marketing emails</FormLabel>
-                <FormDescription>
-                  Receive emails about new products, features, and more.
-                </FormDescription>
-              </div>
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="terms"
@@ -235,11 +186,32 @@ function CheckboxForm() {
                 <FormDescription>
                   You agree to our Terms of Service and Privacy Policy.
                 </FormDescription>
-                <FormMessage />
               </div>
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="marketing"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>Marketing emails</FormLabel>
+                <FormDescription>
+                  Receive emails about new products and features.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+
         <Button type="submit">Submit</Button>
       </form>
     </Form>
@@ -247,183 +219,26 @@ function CheckboxForm() {
 }
 ```
 
-## Styling Features
+## Key Features
 
-### Default Styling
-
-- **Size**: 16px × 16px (h-4 w-4)
-- **Border**: Primary color border with rounded corners
-- **Background**: Transparent when unchecked, primary when checked
-- **Icon**: Check icon from Lucide React
-- **Focus Ring**: 2px ring with offset for accessibility
-
-### Customization Options
-
-```tsx
-// Custom size
-<Checkbox className="h-6 w-6" />
-
-// Custom colors
-<Checkbox className="border-red-500 data-[state=checked]:bg-red-500" />
-
-// Custom styling
-<Checkbox className="rounded-full border-2" />
-```
-
-## Accessibility Features
-
-### ARIA Support
-
-- **Role**: Proper checkbox role from Radix UI
-- **States**: aria-checked attribute for screen readers
-- **Labels**: Can be associated with labels via htmlFor/id
-- **Descriptions**: Supports aria-describedby for additional context
-
-### Keyboard Navigation
-
-- **Tab**: Focus navigation between checkboxes
-- **Space**: Toggle checkbox state
-- **Enter**: Alternative toggle activation
-
-### Screen Reader Support
-
-- **State Announcement**: "Checked" or "Unchecked" states
-- **Label Reading**: Associated label text is read
-- **Group Context**: Proper grouping for checkbox lists
-
-## Advanced Usage
-
-### Custom Check Icon
-
-```tsx
-import { Star } from "lucide-react";
-
-function CustomIconCheckbox() {
-  return (
-    <Checkbox className="[&>*]:hidden [&[data-state=checked]>*]:block">
-      <Star className="h-4 w-4 fill-current" />
-    </Checkbox>
-  );
-}
-```
-
-### Animated Checkbox
-
-```tsx
-function AnimatedCheckbox() {
-  return (
-    <Checkbox className="transition-all duration-200 hover:scale-105 data-[state=checked]:animate-pulse" />
-  );
-}
-```
-
-### Checkbox with Description
-
-```tsx
-function DescriptiveCheckbox() {
-  return (
-    <div className="flex items-start space-x-3">
-      <Checkbox id="notifications" className="mt-1" />
-      <div className="space-y-1">
-        <label
-          htmlFor="notifications"
-          className="text-sm font-medium leading-none"
-        >
-          Push notifications
-        </label>
-        <p className="text-sm text-muted-foreground">
-          Get notified when someone mentions you in a comment.
-        </p>
-      </div>
-    </div>
-  );
-}
-```
+- **Three states**: unchecked, checked, and indeterminate
+- **Keyboard accessible** with space/enter activation
+- **Visual feedback** with smooth transitions
+- **Form validation** support with error states
+- **Disabled state** support
+- **Custom styling** via className prop
 
 ## Common Patterns
 
-### Select All Pattern
+1. **Always associate with labels** using htmlFor/id
+2. **Use controlled state** for dynamic behavior
+3. **Group related checkboxes** logically
+4. **Handle indeterminate state** for "select all" functionality
+5. **Provide clear descriptions** for complex options
 
-```tsx
-function SelectAllPattern() {
-  const [items, setItems] = useState([
-    { id: 1, name: "Item 1", selected: false },
-    { id: 2, name: "Item 2", selected: false },
-    { id: 3, name: "Item 3", selected: false },
-  ]);
+## Accessibility
 
-  const selectedCount = items.filter((item) => item.selected).length;
-  const allSelected = selectedCount === items.length;
-  const someSelected = selectedCount > 0 && selectedCount < items.length;
-
-  const toggleAll = () => {
-    setItems((prev) =>
-      prev.map((item) => ({ ...item, selected: !allSelected }))
-    );
-  };
-
-  const toggleItem = (id: number) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, selected: !item.selected } : item
-      )
-    );
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          checked={allSelected}
-          ref={(ref) => {
-            if (ref) ref.indeterminate = someSelected;
-          }}
-          onCheckedChange={toggleAll}
-        />
-        <label className="text-sm font-medium">
-          Select all ({selectedCount}/{items.length})
-        </label>
-      </div>
-      <div className="ml-6 space-y-2">
-        {items.map((item) => (
-          <div key={item.id} className="flex items-center space-x-2">
-            <Checkbox
-              checked={item.selected}
-              onCheckedChange={() => toggleItem(item.id)}
-            />
-            <label className="text-sm">{item.name}</label>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-## Use Cases
-
-- **Terms and Conditions**: Agreement checkboxes
-- **Preferences**: Settings and configuration options
-- **Multi-Selection**: Lists with multiple selectable items
-- **Permissions**: Role and permission management
-- **Filters**: Search and filter interfaces
-- **Todo Lists**: Task completion tracking
-- **Form Validation**: Required field acknowledgments
-
-## Best Practices
-
-- Always provide clear, descriptive labels
-- Use proper label association with htmlFor/id
-- Group related checkboxes logically
-- Provide feedback for form validation errors
-- Consider indeterminate state for parent/child relationships
-- Ensure sufficient color contrast for accessibility
-- Test keyboard navigation thoroughly
-- Use consistent spacing and alignment
-
-## Dependencies
-
-- **@radix-ui/react-checkbox**: Core checkbox functionality
-- **lucide-react**: Check icon
-- **Tailwind CSS**: Styling system
-- **React**: Component framework
+- Full keyboard navigation support
+- Screen reader announcements
+- Proper ARIA attributes
+- Focus management with visible focus rings

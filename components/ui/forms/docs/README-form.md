@@ -1,74 +1,28 @@
-git# Form Component
+# Form Component
 
 ## Overview
 
-The Form component is a comprehensive form management system built on React Hook Form and Radix UI primitives. It provides a complete solution for form handling with validation, error management, and accessibility features.
+The Form component is a comprehensive form management system built on React Hook Form and Radix UI primitives. It provides form handling with validation, error management, and accessibility features.
 
 ## Features
 
-- **React Hook Form Integration**: Built on top of React Hook Form for performance
+- **React Hook Form Integration**: Built on React Hook Form for performance
 - **Validation Support**: Works with Zod, Yup, and other validation libraries
 - **Accessibility**: Proper ARIA attributes and screen reader support
 - **Error Handling**: Automatic error display and management
-- **Field Context**: Shared context for form field components
-- **TypeScript Support**: Full type safety with TypeScript
-- **Flexible Layout**: Supports various form layouts and patterns
+- **TypeScript Support**: Full type safety
 
 ## Components
 
-### Form
+- **Form**: Root form provider component (wraps React Hook Form's FormProvider)
+- **FormField**: Connects form fields to React Hook Form's Controller
+- **FormItem**: Container for individual form fields with proper spacing
+- **FormLabel**: Label component with automatic error state styling
+- **FormControl**: Wrapper for form inputs with proper ARIA attributes
+- **FormDescription**: Helper text component for additional field context
+- **FormMessage**: Error message component that displays validation errors
 
-Root form provider component that wraps React Hook Form's FormProvider.
-
-### FormField
-
-Wrapper component that connects form fields to React Hook Form's Controller.
-
-### FormItem
-
-Container component for individual form fields with proper spacing.
-
-### FormLabel
-
-Label component with automatic error state styling.
-
-### FormControl
-
-Wrapper for form input components with proper ARIA attributes.
-
-### FormDescription
-
-Helper text component for providing additional field context.
-
-### FormMessage
-
-Error message component that displays validation errors.
-
-## Props Interfaces
-
-```typescript
-interface FormFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> extends ControllerProps<TFieldValues, TName> {}
-
-interface FormItemProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-interface FormLabelProps
-  extends React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> {}
-
-interface FormControlProps
-  extends React.ComponentPropsWithoutRef<typeof Slot> {}
-
-interface FormDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-interface FormMessageProps extends React.HTMLAttributes<HTMLParagraphElement> {}
-```
-
-## Usage Examples
-
-### Basic Form
+## Basic Usage
 
 ```tsx
 import { useForm } from "react-hook-form";
@@ -143,18 +97,14 @@ function BasicForm() {
 }
 ```
 
-### Complex Form with Multiple Field Types
+## Complex Form Example
 
 ```tsx
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email address"),
   bio: z.string().max(500, "Bio cannot exceed 500 characters").optional(),
-  country: z.string().min(1, "Please select a country"),
   notifications: z.boolean().default(false),
-  theme: z.enum(["light", "dark", "system"]),
-  interests: z.array(z.string()).min(1, "Select at least one interest"),
 });
 
 function ProfileForm() {
@@ -162,313 +112,40 @@ function ProfileForm() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: "",
-      lastName: "",
       email: "",
       bio: "",
-      country: "",
       notifications: false,
-      theme: "system",
-      interests: [],
     },
   });
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
-    console.log(values);
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        {/* Personal Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Personal Information</h3>
-
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="john@example.com"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Tell us about yourself..."
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Brief description for your profile (optional)
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Location */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="country"
+          name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Country</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a country" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="us">United States</SelectItem>
-                  <SelectItem value="ca">Canada</SelectItem>
-                  <SelectItem value="uk">United Kingdom</SelectItem>
-                  <SelectItem value="de">Germany</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Preferences */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Preferences</h3>
-
-          <FormField
-            control={form.control}
-            name="theme"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Theme</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="light" id="light" />
-                      <Label htmlFor="light">Light</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="dark" id="dark" />
-                      <Label htmlFor="dark">Dark</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="system" id="system" />
-                      <Label htmlFor="system">System</Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="notifications"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Email notifications</FormLabel>
-                  <FormDescription>
-                    Receive email notifications about account activity
-                  </FormDescription>
-                </div>
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <Button type="submit">Save Profile</Button>
-      </form>
-    </Form>
-  );
-}
-```
-
-### Dynamic Form Fields
-
-```tsx
-function DynamicForm() {
-  const form = useForm({
-    defaultValues: {
-      items: [{ name: "", quantity: 1 }],
-    },
-  });
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "items",
-  });
-
-  return (
-    <Form {...form}>
-      <form className="space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium">Items</h3>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => append({ name: "", quantity: 1 })}
-            >
-              Add Item
-            </Button>
-          </div>
-
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex items-end space-x-4">
-              <FormField
-                control={form.control}
-                name={`items.${index}.name`}
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Item Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter item name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name={`items.${index}.quantity`}
-                render={({ field }) => (
-                  <FormItem className="w-24">
-                    <FormLabel>Qty</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="1"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => remove(index)}
-                disabled={fields.length === 1}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
-        </div>
-
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
-  );
-}
-```
-
-### Form with Custom Validation
-
-```tsx
-function CustomValidationForm() {
-  const form = useForm({
-    defaultValues: {
-      password: "",
-      confirmPassword: "",
-    },
-    mode: "onChange",
-  });
-
-  const password = form.watch("password");
-
-  return (
-    <Form {...form}>
-      <form className="space-y-6">
         <FormField
           control={form.control}
-          name="password"
-          rules={{
-            required: "Password is required",
-            minLength: {
-              value: 8,
-              message: "Password must be at least 8 characters",
-            },
-            pattern: {
-              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-              message: "Password must contain uppercase, lowercase, and number",
-            },
-          }}
+          name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Bio</FormLabel>
               <FormControl>
-                <Input type="password" {...field} />
+                <Textarea placeholder="Tell us about yourself..." {...field} />
               </FormControl>
               <FormDescription>
-                Must be at least 8 characters with uppercase, lowercase, and
-                number
+                Brief description for your profile (optional)
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -477,98 +154,47 @@ function CustomValidationForm() {
 
         <FormField
           control={form.control}
-          name="confirmPassword"
-          rules={{
-            required: "Please confirm your password",
-            validate: (value) => value === password || "Passwords do not match",
-          }}
+          name="notifications"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <FormLabel className="text-base">Email Notifications</FormLabel>
+                <FormDescription>
+                  Receive emails about your account activity.
+                </FormDescription>
+              </div>
               <FormControl>
-                <Input type="password" {...field} />
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Create Account</Button>
+        <Button type="submit">Update profile</Button>
       </form>
     </Form>
   );
 }
 ```
 
-## Advanced Usage
+## Key Patterns
 
-### Form with Loading States
+1. **Always wrap forms with `<Form {...form}>`**
+2. **Use FormField for each input with render prop pattern**
+3. **Include FormLabel, FormControl, and FormMessage for each field**
+4. **Use FormDescription for helpful hints**
+5. **Validation errors automatically appear in FormMessage**
 
-```tsx
-function LoadingForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const form = useForm();
+## TypeScript
 
-  const onSubmit = async (data) => {
-    setIsLoading(true);
-    try {
-      await submitData(data);
-      form.reset();
-    } catch (error) {
-      form.setError("root", { message: "Submission failed" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+The Form components are fully typed. Use `z.infer<typeof schema>` to get TypeScript types from your Zod schema.
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Form fields */}
+## Accessibility
 
-        {form.formState.errors.root && (
-          <div className="text-sm text-destructive">
-            {form.formState.errors.root.message}
-          </div>
-        )}
-
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Submitting..." : "Submit"}
-        </Button>
-      </form>
-    </Form>
-  );
-}
-```
-
-## Use Cases
-
-- **User Registration**: Account creation forms
-- **Profile Management**: User profile editing
-- **Contact Forms**: Customer inquiry forms
-- **Settings**: Application configuration
-- **Data Entry**: Content creation and editing
-- **Surveys**: Feedback and survey forms
-- **E-commerce**: Checkout and order forms
-- **Authentication**: Login and password reset
-
-## Best Practices
-
-- Use TypeScript with Zod for type-safe validation
-- Provide clear, helpful error messages
-- Group related fields logically
-- Use appropriate field types for better UX
-- Implement proper loading and error states
-- Test form accessibility with screen readers
-- Validate on both client and server
-- Provide helpful descriptions for complex fields
-- Use consistent spacing and layout
-- Handle form submission errors gracefully
-
-## Dependencies
-
-- **react-hook-form**: Form state management
-- **@radix-ui/react-label**: Label component
-- **@radix-ui/react-slot**: Slot component for FormControl
-- **Tailwind CSS**: Styling system
-- **React**: Component framework
+- Automatic ARIA attributes
+- Proper label associations
+- Error announcements for screen readers
+- Keyboard navigation support

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `SqlEditor` is a React component that provides a code editor specifically designed for writing and executing SQL queries. It features syntax highlighting, theme support, and execution controls.
+The `SqlEditor` is a React component that provides a code editor specifically designed for writing and executing SQL queries. It features syntax highlighting, theme support, execution controls, and a resizable interface for better usability with large queries.
 
 ## Features
 
@@ -12,7 +12,9 @@ The `SqlEditor` is a React component that provides a code editor specifically de
 - **Query Reset**: Reset button to restore default or clear current query
 - **Real-time Changes**: Optional callback for query changes
 - **Execution State**: Visual feedback during query execution
-- **Responsive Design**: Fixed height with proper styling
+- **Resizable Interface**: Drag handle to adjust editor height for large queries
+- **Height Constraints**: Configurable minimum and maximum height limits
+- **Responsive Design**: Adaptive layout with proper styling
 
 ## Props Interface
 
@@ -24,6 +26,8 @@ interface SqlEditorProps {
   isExecuting: boolean; // Whether query is currently executing
   className?: string; // Optional CSS classes
   resetQuery?: () => void; // Optional custom reset function
+  minHeight?: number; // Minimum editor height in pixels (default: 150)
+  maxHeight?: number; // Maximum editor height in pixels (default: 600)
 }
 ```
 
@@ -65,6 +69,8 @@ function MyComponent() {
       onChange={handleQueryChange}
       isExecuting={isExecuting}
       resetQuery={handleReset}
+      minHeight={200}
+      maxHeight={800}
       className="w-full"
     />
   );
@@ -82,13 +88,23 @@ function MyComponent() {
 
 ## Visual Elements
 
-- **Code Editor**: 200px height with syntax highlighting
+- **Code Editor**: Resizable height (default 200px) with syntax highlighting
+- **Resize Handle**: Draggable grip at the bottom of the editor for height adjustment
 - **Control Buttons**:
   - Reset button (left) with rotate icon
   - Run Query button (right) with play icon
+- **Height Indicator**: Shows current editor height in pixels
 - **Button States**:
   - Run button disabled during execution or when query is empty
   - Visual feedback for execution state
+
+## Resizing Functionality
+
+- **Drag to Resize**: Users can drag the grip handle at the bottom to adjust editor height
+- **Height Constraints**: Respects minimum and maximum height limits
+- **Visual Feedback**: Hover effects and cursor changes during resize operations
+- **Smooth Interaction**: Real-time height updates while dragging
+- **Height Display**: Current height shown next to the Run Query button
 
 ## Theme Integration
 
@@ -98,10 +114,11 @@ function MyComponent() {
 
 ## State Management
 
-- Internal state for current query value
+- Internal state for current query value and editor height
 - Syncs with external state through callbacks
-- Preserves query content during theme changes
+- Preserves query content and height during theme changes
 - Resets to default value when reset is triggered
+- Maintains resize state during drag operations
 
 ## Keyboard Shortcuts
 
@@ -116,18 +133,20 @@ function MyComponent() {
 - Rounded borders with proper visual hierarchy
 - Responsive button layout
 - Consistent spacing and typography
+- Hover effects for interactive elements
 
 ## Error Handling
 
 - Gracefully handles empty queries (disables execution)
 - Prevents execution during ongoing operations
 - Maintains editor state during errors
+- Proper cleanup of event listeners
 
 ## Use Cases
 
-- SQL learning platforms
-- Database query tools
-- Interactive SQL tutorials
+- SQL learning platforms with varying query sizes
+- Database query tools requiring flexible editor space
+- Interactive SQL tutorials with complex queries
 - Database administration interfaces
 - Code playground applications
 
@@ -135,6 +154,14 @@ function MyComponent() {
 
 - Custom default queries
 - Custom reset behavior
+- Configurable height constraints
 - Flexible styling through className
 - Configurable execution handling
 - Optional change tracking
+
+## Accessibility
+
+- Proper cursor indicators during resize operations
+- Keyboard navigation support through CodeMirror
+- Screen reader compatible
+- Focus management during interactions

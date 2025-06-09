@@ -134,60 +134,6 @@ function ProductCarousel() {
 }
 ```
 
-### Testimonial Carousel
-
-```tsx
-function TestimonialCarousel() {
-  const testimonials = [
-    {
-      quote: "This product changed my life!",
-      author: "John Doe",
-      role: "CEO, Company A",
-    },
-    {
-      quote: "Incredible experience and support.",
-      author: "Jane Smith",
-      role: "Designer, Company B",
-    },
-    {
-      quote: "Highly recommend to everyone.",
-      author: "Bob Johnson",
-      role: "Developer, Company C",
-    },
-  ];
-
-  return (
-    <Carousel
-      opts={{
-        align: "start",
-        loop: true,
-      }}
-      className="w-full max-w-lg mx-auto"
-    >
-      <CarouselContent>
-        {testimonials.map((testimonial, index) => (
-          <CarouselItem key={index}>
-            <div className="p-6 text-center">
-              <blockquote className="text-lg italic mb-4">
-                "{testimonial.quote}"
-              </blockquote>
-              <div>
-                <p className="font-semibold">{testimonial.author}</p>
-                <p className="text-sm text-muted-foreground">
-                  {testimonial.role}
-                </p>
-              </div>
-            </div>
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
-  );
-}
-```
-
 ### Vertical Carousel
 
 ```tsx
@@ -202,7 +148,7 @@ function VerticalCarousel() {
     >
       <CarouselContent className="-mt-1 h-[200px]">
         {Array.from({ length: 5 }).map((_, index) => (
-          <CarouselItem key={index} className="pt-1 md:basis-1/3">
+          <CarouselItem key={index} className="pt-1 md:basis-1/2">
             <div className="flex items-center justify-center p-6">
               <span className="text-3xl font-semibold">{index + 1}</span>
             </div>
@@ -216,45 +162,7 @@ function VerticalCarousel() {
 }
 ```
 
-## Advanced Configuration
-
-### Custom Options
-
-```tsx
-<Carousel
-  opts={{
-    align: "start",        // Alignment of slides
-    loop: true,           // Infinite loop
-    skipSnaps: false,     // Skip snap points
-    dragFree: true,       // Free drag without snapping
-    containScroll: "trimSnaps", // Contain scroll behavior
-  }}
->
-```
-
-### Plugin Integration
-
-```tsx
-import Autoplay from "embla-carousel-autoplay";
-
-function AutoplayCarousel() {
-  return (
-    <Carousel
-      plugins={[
-        Autoplay({
-          delay: 2000,
-          stopOnInteraction: true,
-        }),
-      ]}
-      className="w-full max-w-xs"
-    >
-      {/* Carousel content */}
-    </Carousel>
-  );
-}
-```
-
-### API Access
+### Carousel with API Control
 
 ```tsx
 function ControlledCarousel() {
@@ -274,12 +182,23 @@ function ControlledCarousel() {
   }, [api]);
 
   return (
-    <div>
+    <div className="space-y-4">
       <Carousel setApi={setApi} className="w-full max-w-xs">
-        <CarouselContent>{/* Items */}</CarouselContent>
+        <CarouselContent>
+          {Array.from({ length: 5 }).map((_, index) => (
+            <CarouselItem key={index}>
+              <div className="p-1">
+                <div className="flex aspect-square items-center justify-center p-6">
+                  <span className="text-4xl font-semibold">{index + 1}</span>
+                </div>
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />
       </Carousel>
+
       <div className="py-2 text-center text-sm text-muted-foreground">
         Slide {current} of {count}
       </div>
@@ -288,96 +207,63 @@ function ControlledCarousel() {
 }
 ```
 
-## Responsive Behavior
+## Configuration Options
 
-### Responsive Item Sizing
+### Embla Options
 
 ```tsx
-<CarouselItem className="basis-full md:basis-1/2 lg:basis-1/3">
-  {/* Content adapts to screen size */}
-</CarouselItem>
+<Carousel
+  opts={{
+    align: "start" | "center" | "end",
+    loop: true,
+    skipSnaps: false,
+    dragFree: true,
+    containScroll: "trimSnaps",
+  }}
+>
 ```
 
-### Mobile Optimization
-
-- **Touch Gestures**: Native swipe support
-- **Momentum Scrolling**: Smooth touch interactions
-- **Responsive Navigation**: Buttons adapt to screen size
-- **Performance**: Optimized for mobile devices
-
-## Styling Features
-
-### Default Styling
-
-- **Navigation Buttons**: Positioned absolutely with proper spacing
-- **Smooth Transitions**: CSS transitions for interactions
-- **Focus States**: Keyboard navigation indicators
-- **Responsive Design**: Adapts to container size
-
-### Customization Options
+### Common Configurations
 
 ```tsx
-// Custom navigation button styling
-<CarouselPrevious className="left-2 bg-primary text-primary-foreground" />
-<CarouselNext className="right-2 bg-primary text-primary-foreground" />
+// Auto-play carousel
+<Carousel
+  plugins={[Autoplay({ delay: 2000 })]}
+  className="w-full max-w-xs"
+>
 
-// Custom item spacing
-<CarouselContent className="-ml-2">
-  <CarouselItem className="pl-2">
-    {/* Content */}
-  </CarouselItem>
-</CarouselContent>
+// Multiple items per view
+<CarouselItem className="md:basis-1/2 lg:basis-1/3">
+
+// Responsive breakpoints
+<CarouselItem className="basis-full md:basis-1/2 lg:basis-1/3">
 ```
 
 ## Accessibility Features
 
-### Keyboard Navigation
+- **Keyboard Navigation**: Arrow keys for navigation
+- **ARIA Labels**: Proper labeling for screen readers
+- **Focus Management**: Keyboard focus handling
+- **Touch Support**: Mobile-friendly swipe gestures
+- **Screen Reader**: Announces current slide information
 
-- **Arrow Keys**: Navigate between slides
-- **Tab Navigation**: Focus management for interactive elements
-- **Enter/Space**: Activate navigation buttons
+## Best Practices
 
-### Screen Reader Support
-
-- **ARIA Labels**: Proper labeling for navigation
-- **Role Attributes**: Semantic carousel structure
-- **Live Regions**: Announce slide changes
-- **Focus Management**: Logical focus flow
-
-### Visual Accessibility
-
-- **High Contrast**: Clear button visibility
-- **Focus Indicators**: Visible focus states
-- **Motion Preferences**: Respects reduced motion settings
-
-## Performance Considerations
-
-### Optimization Features
-
-- **Lazy Loading**: Only render visible slides
-- **Virtual Scrolling**: For large datasets
-- **Efficient Re-renders**: Minimal DOM updates
-- **Memory Management**: Proper cleanup on unmount
-
-### Best Practices
-
-- Use `key` props for dynamic content
-- Implement image lazy loading
-- Consider virtualization for many items
-- Optimize images for web
+- Provide clear navigation controls
+- Use appropriate slide indicators for longer carousels
+- Ensure touch targets are large enough for mobile
+- Test keyboard navigation thoroughly
+- Consider auto-play timing for accessibility
+- Provide pause controls for auto-playing carousels
+- Use semantic HTML structure
 
 ## Common Use Cases
 
-- **Image Galleries**: Photo slideshows
-- **Product Showcases**: E-commerce carousels
-- **Testimonials**: Customer review displays
-- **Feature Highlights**: Product feature tours
-- **Content Sliders**: Blog post previews
-- **Media Players**: Video/audio playlists
-
-## Dependencies
-
-- **embla-carousel-react**: Core carousel functionality
-- **lucide-react**: Navigation icons
-- **React**: Component framework
-- **Tailwind CSS**: Styling system
+- Image galleries and portfolios
+- Product showcases and catalogs
+- Testimonials and reviews
+- Feature highlights
+- News and article previews
+- Team member profiles
+- Before/after comparisons
+- Step-by-step tutorials

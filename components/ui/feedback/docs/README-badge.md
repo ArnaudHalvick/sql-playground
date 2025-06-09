@@ -63,33 +63,6 @@ function CountBadges() {
         <span>Notifications</span>
         <Badge variant="destructive">3</Badge>
       </div>
-      <div className="flex items-center gap-2">
-        <span>Drafts</span>
-        <Badge variant="secondary">5</Badge>
-      </div>
-    </div>
-  );
-}
-```
-
-### Category Badges
-
-```tsx
-function CategoryBadges() {
-  const categories = [
-    { name: "React", variant: "default" },
-    { name: "TypeScript", variant: "secondary" },
-    { name: "CSS", variant: "outline" },
-    { name: "JavaScript", variant: "default" },
-  ];
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      {categories.map((category) => (
-        <Badge key={category.name} variant={category.variant}>
-          {category.name}
-        </Badge>
-      ))}
     </div>
   );
 }
@@ -157,24 +130,18 @@ function InteractiveBadges() {
 
 - **Background**: Primary color
 - **Text**: Primary foreground color
-- **Border**: Transparent
-- **Hover**: Slightly darker primary
 - **Use Case**: Primary status, important labels
 
 ### Secondary
 
 - **Background**: Secondary color
 - **Text**: Secondary foreground color
-- **Border**: Transparent
-- **Hover**: Slightly darker secondary
 - **Use Case**: Secondary information, neutral status
 
 ### Destructive
 
 - **Background**: Destructive/error color
 - **Text**: Destructive foreground color
-- **Border**: Transparent
-- **Hover**: Slightly darker destructive
 - **Use Case**: Errors, warnings, critical status
 
 ### Outline
@@ -182,202 +149,23 @@ function InteractiveBadges() {
 - **Background**: Transparent
 - **Text**: Foreground color
 - **Border**: Current text color
-- **Hover**: No background change
 - **Use Case**: Subtle labels, tags, categories
 
 ## Styling Features
 
-### Layout
+- **Layout**: Inline flex with horizontal content alignment
+- **Shape**: Full border radius for pill appearance
+- **Typography**: Small, semibold text for readability
+- **Interactive States**: Focus ring and hover transitions
+- **Spacing**: Compact padding for minimal footprint
 
-- **Inline Flex**: Horizontal layout for content
-- **Rounded**: Full border radius for pill shape
-- **Padding**: Compact horizontal and vertical spacing
-- **Font**: Small, semibold text for readability
+## Common Use Cases
 
-### Interactive States
-
-- **Focus**: Ring outline for keyboard navigation
-- **Hover**: Color transitions for interactive badges
-- **Transitions**: Smooth color changes
-
-### Typography
-
-- **Size**: Extra small (xs) for compact appearance
-- **Weight**: Semibold for better readability
-- **Alignment**: Centered content alignment
-
-## Customization Options
-
-### Custom Colors
-
-```tsx
-// Custom success badge
-<Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-  Success
-</Badge>
-
-// Custom warning badge
-<Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200">
-  Warning
-</Badge>
-
-// Custom info badge
-<Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-  Info
-</Badge>
-```
-
-### Size Variations
-
-```tsx
-// Large badge
-<Badge className="px-3 py-1 text-sm">
-  Large Badge
-</Badge>
-
-// Extra small badge
-<Badge className="px-1.5 py-0.5 text-xs">
-  XS
-</Badge>
-
-// Square badge (for single characters/numbers)
-<Badge className="h-6 w-6 rounded-full p-0 flex items-center justify-center">
-  5
-</Badge>
-```
-
-### Shape Variations
-
-```tsx
-// Rounded rectangle
-<Badge className="rounded-md">
-  Rounded
-</Badge>
-
-// Square
-<Badge className="rounded-none">
-  Square
-</Badge>
-
-// Circular (for single characters)
-<Badge className="rounded-full h-8 w-8 p-0 flex items-center justify-center">
-  A
-</Badge>
-```
-
-## Common Patterns
-
-### Notification Badge
-
-```tsx
-function NotificationBadge({ count }: { count: number }) {
-  if (count === 0) return null;
-
-  return (
-    <div className="relative">
-      <BellIcon className="h-6 w-6" />
-      <Badge
-        variant="destructive"
-        className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
-      >
-        {count > 99 ? "99+" : count}
-      </Badge>
-    </div>
-  );
-}
-```
-
-### Status Indicator
-
-```tsx
-function StatusIndicator({
-  status,
-}: {
-  status: "online" | "offline" | "away";
-}) {
-  const variants = {
-    online: { variant: "default", color: "bg-green-500" },
-    offline: { variant: "secondary", color: "bg-gray-500" },
-    away: { variant: "secondary", color: "bg-yellow-500" },
-  };
-
-  return (
-    <Badge variant={variants[status].variant} className="gap-2">
-      <div className={`h-2 w-2 rounded-full ${variants[status].color}`} />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </Badge>
-  );
-}
-```
-
-### Removable Tag
-
-```tsx
-function RemovableTag({
-  tag,
-  onRemove,
-}: {
-  tag: string;
-  onRemove: () => void;
-}) {
-  return (
-    <Badge variant="secondary" className="gap-1 pr-1">
-      {tag}
-      <button
-        onClick={onRemove}
-        className="ml-1 rounded-full hover:bg-secondary-foreground/20 p-0.5"
-      >
-        <XIcon className="h-3 w-3" />
-      </button>
-    </Badge>
-  );
-}
-```
-
-## Accessibility Features
-
-### Keyboard Navigation
-
-- **Focus States**: Clear focus indicators
-- **Tab Navigation**: Proper tab order for interactive badges
-- **Enter/Space**: Activation for clickable badges
-
-### Screen Reader Support
-
-- **Semantic HTML**: Uses div with proper ARIA attributes
-- **Text Content**: Clear, descriptive text
-- **Context**: Meaningful labels for status badges
-
-### Visual Accessibility
-
-- **Contrast**: Sufficient color contrast ratios
-- **Size**: Minimum touch target size for interactive badges
-- **Focus Indicators**: Visible focus rings
-
-## Use Cases
-
-- **Status Indicators**: Show current state or condition
-- **Category Labels**: Tag content with categories
-- **Count Displays**: Show numbers, quantities, or counts
-- **Notification Badges**: Indicate new or unread items
-- **Filter Tags**: Display active filters or selections
-- **Skill Tags**: Show technologies, skills, or attributes
-- **Priority Levels**: Indicate importance or urgency
-- **Version Labels**: Show software versions or releases
-
-## Best Practices
-
-- Keep text short and descriptive
-- Use consistent variants for similar types of information
-- Ensure sufficient color contrast for accessibility
-- Consider using icons for better visual communication
-- Group related badges logically
-- Use appropriate variants for semantic meaning
-- Test with screen readers for accessibility
-- Avoid overusing badges to prevent visual clutter
-
-## Dependencies
-
-- **class-variance-authority**: For variant management
-- **Tailwind CSS**: For styling system
-- **React**: Component framework
+- Status indicators (active, pending, error)
+- Category tags and labels
+- Notification counts
+- User roles and permissions
+- Content metadata
+- Filter tags
+- Achievement badges
+- Priority levels

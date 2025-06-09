@@ -2,253 +2,305 @@
 
 ## Overview
 
-The Chart components provide a comprehensive charting solution built on top of Recharts. They offer a flexible, themeable, and accessible way to display data visualizations with built-in support for tooltips, legends, and responsive design.
+The Chart components provide a comprehensive charting solution built on Recharts. They offer various chart types including bar charts, line charts, pie charts, and area charts with responsive design and customizable styling.
 
 ## Features
 
 - **Recharts Integration**: Built on the powerful Recharts library
-- **Theme Support**: Automatic light/dark theme switching
+- **Multiple Chart Types**: Bar, line, pie, area, and more
 - **Responsive Design**: Automatically adapts to container size
-- **Custom Tooltips**: Rich, customizable tooltip content
-- **Configuration System**: Flexible chart configuration with colors and labels
-- **Accessibility**: Screen reader friendly with proper ARIA attributes
+- **Customizable**: Flexible styling and theming options
+- **Interactive**: Hover effects and tooltips
+- **Accessible**: Screen reader friendly with proper ARIA labels
+- **Animation**: Smooth chart animations and transitions
 
-## Core Components
+## Chart Types
 
-### ChartContainer
-
-The main wrapper component that provides context and theming for all chart types.
-
-```typescript
-interface ChartContainerProps {
-  config: ChartConfig; // Chart configuration object
-  children: React.ReactNode; // Chart components (Bar, Line, etc.)
-  className?: string; // Optional CSS classes
-  id?: string; // Optional unique identifier
-}
-```
-
-### ChartConfig
-
-Configuration object that defines chart appearance and behavior:
-
-```typescript
-type ChartConfig = {
-  [key: string]: {
-    label?: React.ReactNode; // Display label for the data series
-    icon?: React.ComponentType; // Optional icon component
-  } & (
-    | { color?: string; theme?: never } // Single color for all themes
-    | { color?: never; theme: Record<"light" | "dark", string> }
-  ); // Theme-specific colors
-};
-```
-
-## Usage Examples
-
-### Basic Bar Chart
+### Bar Chart
 
 ```tsx
 import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/data-display/chart";
-import { Bar, BarChart, XAxis, YAxis } from "recharts";
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-const chartData = [
-  { month: "Jan", sales: 1200, profit: 400 },
-  { month: "Feb", sales: 1900, profit: 600 },
-  { month: "Mar", sales: 1600, profit: 500 },
+const data = [
+  { name: "Jan", value: 400 },
+  { name: "Feb", value: 300 },
+  { name: "Mar", value: 600 },
+  { name: "Apr", value: 800 },
+  { name: "May", value: 500 },
 ];
 
-const chartConfig = {
-  sales: {
-    label: "Sales",
-    color: "#3b82f6",
-  },
-  profit: {
-    label: "Profit",
-    color: "#10b981",
-  },
-};
-
-function SalesChart() {
+function SimpleBarChart() {
   return (
-    <ChartContainer config={chartConfig} className="h-[400px]">
-      <BarChart data={chartData}>
-        <XAxis dataKey="month" />
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
         <YAxis />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="sales" fill="var(--color-sales)" />
-        <Bar dataKey="profit" fill="var(--color-profit)" />
+        <Tooltip />
+        <Bar dataKey="value" fill="hsl(var(--primary))" />
       </BarChart>
-    </ChartContainer>
+    </ResponsiveContainer>
   );
 }
 ```
 
-### Line Chart with Theme Support
+### Line Chart
 
 ```tsx
-const chartConfig = {
-  users: {
-    label: "Active Users",
-    theme: {
-      light: "#2563eb",
-      dark: "#60a5fa",
-    },
-  },
-  sessions: {
-    label: "Sessions",
-    theme: {
-      light: "#dc2626",
-      dark: "#f87171",
-    },
-  },
-};
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-function AnalyticsChart() {
+function SimpleLineChart() {
   return (
-    <ChartContainer config={chartConfig} className="h-[300px]">
-      <LineChart data={analyticsData}>
-        <XAxis dataKey="date" />
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
         <YAxis />
-        <ChartTooltip content={<ChartTooltipContent />} />
+        <Tooltip />
         <Line
           type="monotone"
-          dataKey="users"
-          stroke="var(--color-users)"
-          strokeWidth={2}
-        />
-        <Line
-          type="monotone"
-          dataKey="sessions"
-          stroke="var(--color-sessions)"
+          dataKey="value"
+          stroke="hsl(var(--primary))"
           strokeWidth={2}
         />
       </LineChart>
-    </ChartContainer>
+    </ResponsiveContainer>
   );
 }
 ```
 
-## ChartTooltip Components
-
-### ChartTooltip
-
-Wrapper component for Recharts Tooltip with enhanced functionality.
-
-### ChartTooltipContent
-
-Customizable tooltip content with rich formatting options:
-
-```typescript
-interface ChartTooltipContentProps {
-  hideLabel?: boolean; // Hide the tooltip label
-  hideIndicator?: boolean; // Hide color indicators
-  indicator?: "line" | "dot" | "dashed"; // Indicator style
-  nameKey?: string; // Custom name key for data
-  labelKey?: string; // Custom label key for data
-  formatter?: Function; // Custom value formatter
-  labelFormatter?: Function; // Custom label formatter
-}
-```
-
-## Theming System
-
-The chart components automatically generate CSS custom properties for colors:
-
-```css
-/* Light theme */
-[data-chart="chart-id"] {
-  --color-sales: #3b82f6;
-  --color-profit: #10b981;
-}
-
-/* Dark theme */
-.dark [data-chart="chart-id"] {
-  --color-sales: #60a5fa;
-  --color-profit: #34d399;
-}
-```
-
-## Supported Chart Types
-
-All Recharts chart types are supported:
-
-- **BarChart**: Vertical and horizontal bar charts
-- **LineChart**: Line and area charts
-- **PieChart**: Pie and donut charts
-- **ScatterChart**: Scatter plot visualizations
-- **RadarChart**: Radar/spider charts
-- **ComposedChart**: Mixed chart types
-
-## Styling Features
-
-### Default Styling
-
-- Responsive aspect ratio (16:9 by default)
-- Proper text sizing and colors
-- Grid line styling
-- Hover and focus states
-
-### Customization
-
-- Custom CSS classes via className
-- Theme-aware color schemes
-- Configurable tooltip appearance
-- Flexible layout options
-
-## Accessibility Features
-
-- Proper ARIA labels and roles
-- Keyboard navigation support
-- Screen reader compatibility
-- High contrast mode support
-- Focus management
-
-## Advanced Features
-
-### Custom Indicators
+### Pie Chart
 
 ```tsx
-<ChartTooltipContent
-  indicator="dashed"
-  hideLabel={false}
-  formatter={(value, name) => [`$${value}`, name]}
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+
+const pieData = [
+  { name: "Desktop", value: 60, color: "hsl(var(--primary))" },
+  { name: "Mobile", value: 30, color: "hsl(var(--secondary))" },
+  { name: "Tablet", value: 10, color: "hsl(var(--muted))" },
+];
+
+function SimplePieChart() {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <PieChart>
+        <Pie
+          data={pieData}
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          dataKey="value"
+          label={({ name, percent }) =>
+            `${name} ${(percent * 100).toFixed(0)}%`
+          }
+        >
+          {pieData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+```
+
+### Area Chart
+
+```tsx
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+function SimpleAreaChart() {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <AreaChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke="hsl(var(--primary))"
+          fill="hsl(var(--primary))"
+          fillOpacity={0.3}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+```
+
+### Multi-Series Chart
+
+```tsx
+const multiData = [
+  { name: "Jan", sales: 400, revenue: 240 },
+  { name: "Feb", sales: 300, revenue: 139 },
+  { name: "Mar", sales: 600, revenue: 980 },
+  { name: "Apr", sales: 800, revenue: 390 },
+  { name: "May", sales: 500, revenue: 480 },
+];
+
+function MultiSeriesChart() {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={multiData}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Bar dataKey="sales" fill="hsl(var(--primary))" />
+        <Bar dataKey="revenue" fill="hsl(var(--secondary))" />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+```
+
+### Chart with Custom Tooltip
+
+```tsx
+function CustomTooltip({ active, payload, label }) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border rounded-lg p-3 shadow-lg">
+        <p className="font-medium">{`${label}`}</p>
+        {payload.map((entry, index) => (
+          <p key={index} style={{ color: entry.color }}>
+            {`${entry.dataKey}: ${entry.value}`}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+}
+
+function ChartWithCustomTooltip() {
+  return (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip content={<CustomTooltip />} />
+        <Line type="monotone" dataKey="value" stroke="hsl(var(--primary))" />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+```
+
+## Common Configuration
+
+### Responsive Container
+
+Always wrap charts in ResponsiveContainer for responsive behavior:
+
+```tsx
+<ResponsiveContainer width="100%" height={400}>
+  {/* Chart component */}
+</ResponsiveContainer>
+```
+
+### Theme Integration
+
+Use CSS variables for consistent theming:
+
+```tsx
+<Bar dataKey="value" fill="hsl(var(--primary))" stroke="hsl(var(--border))" />
+```
+
+### Animation
+
+Enable animations for smooth transitions:
+
+```tsx
+<Bar dataKey="value" fill="hsl(var(--primary))" animationDuration={300} />
+```
+
+## Styling Options
+
+### Colors
+
+```tsx
+// Using theme colors
+fill = "hsl(var(--primary))";
+stroke = "hsl(var(--border))";
+
+// Custom colors
+fill = "#8884d8";
+stroke = "#82ca9d";
+```
+
+### Grid and Axes
+
+```tsx
+<CartesianGrid
+  strokeDasharray="3 3"
+  stroke="hsl(var(--border))"
+  opacity={0.3}
+/>
+<XAxis
+  stroke="hsl(var(--muted-foreground))"
+  fontSize={12}
+/>
+<YAxis
+  stroke="hsl(var(--muted-foreground))"
+  fontSize={12}
 />
 ```
 
-### Icon Integration
+## Accessibility Features
 
-```tsx
-const chartConfig = {
-  revenue: {
-    label: "Revenue",
-    icon: DollarSignIcon,
-    color: "#10b981",
-  },
-};
-```
+- **ARIA Labels**: Proper labeling for screen readers
+- **Keyboard Navigation**: Focus management for interactive elements
+- **Color Contrast**: Sufficient contrast for visual accessibility
+- **Alternative Text**: Descriptive text for chart content
 
-## Performance Considerations
+## Best Practices
 
-- Lazy loading of chart data
-- Efficient re-rendering with React.memo
-- Optimized for large datasets
-- Responsive container sizing
+- Use ResponsiveContainer for responsive design
+- Provide meaningful labels and tooltips
+- Choose appropriate chart types for data
+- Ensure sufficient color contrast
+- Test with screen readers
+- Consider mobile touch targets
+- Use consistent color schemes
+- Provide data tables as alternatives
 
-## Use Cases
+## Common Use Cases
 
-- Business dashboards
-- Analytics platforms
-- Data visualization tools
-- Reporting interfaces
-- Educational data displays
-
-## Dependencies
-
-- **recharts**: Core charting library
-- **React**: Component framework
-- **Tailwind CSS**: Styling system
+- Sales and revenue dashboards
+- Analytics and metrics visualization
+- Performance tracking charts
+- User engagement graphs
+- Financial reporting
+- Progress and goal tracking
+- Comparison charts
+- Time series data visualization

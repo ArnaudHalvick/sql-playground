@@ -2,37 +2,40 @@
 
 ## Overview
 
-The Calendar component is a flexible, accessible date picker built on top of `react-day-picker`. It provides a clean interface for date selection with full keyboard navigation, customizable styling, and comprehensive date handling capabilities.
+The Calendar component provides a flexible date picker and calendar interface built on React DayPicker. It offers date selection, navigation, and customization options with full accessibility support and responsive design.
 
 ## Features
 
-- **Date Selection**: Single date, multiple dates, or date range selection
-- **Keyboard Navigation**: Full keyboard accessibility with arrow keys
-- **Customizable Styling**: Tailwind CSS classes with theme support
-- **Responsive Design**: Adapts to different screen sizes
-- **Accessibility**: ARIA labels, screen reader support, and focus management
-- **Flexible Configuration**: Extensive customization options through props
+- **React DayPicker**: Built on the powerful React DayPicker library
+- **Date Selection**: Single and multiple date selection modes
+- **Navigation**: Month and year navigation controls
+- **Accessibility**: Full keyboard navigation and screen reader support
+- **Customizable**: Flexible styling and behavior options
+- **Responsive**: Mobile-friendly touch interactions
+- **Internationalization**: Multi-language support
 
 ## Props Interface
 
 ```typescript
-interface CalendarProps extends React.ComponentProps<typeof DayPicker> {
-  className?: string; // Custom CSS classes
-  classNames?: Partial<ClassNames>; // Custom class names for internal elements
-  showOutsideDays?: boolean; // Show days from adjacent months (default: true)
-  // ... all other DayPicker props are supported
+interface CalendarProps {
+  mode?: "single" | "multiple" | "range";
+  selected?: Date | Date[] | DateRange;
+  onSelect?: (date: Date | Date[] | DateRange | undefined) => void;
+  disabled?: (date: Date) => boolean;
+  className?: string;
+  // ... other React DayPicker props
 }
 ```
 
 ## Usage Examples
 
-### Basic Date Picker
+### Basic Calendar
 
 ```tsx
 import { Calendar } from "@/components/ui/data-display/calendar";
 import { useState } from "react";
 
-function DatePicker() {
+function BasicCalendar() {
   const [date, setDate] = useState<Date | undefined>(new Date());
 
   return (
@@ -46,12 +49,12 @@ function DatePicker() {
 }
 ```
 
-### Date Range Picker
+### Date Range Selection
 
 ```tsx
 import { DateRange } from "react-day-picker";
 
-function DateRangePicker() {
+function DateRangeCalendar() {
   const [range, setRange] = useState<DateRange | undefined>();
 
   return (
@@ -69,7 +72,7 @@ function DateRangePicker() {
 ### Multiple Date Selection
 
 ```tsx
-function MultiDatePicker() {
+function MultipleDateCalendar() {
   const [dates, setDates] = useState<Date[]>([]);
 
   return (
@@ -83,20 +86,15 @@ function MultiDatePicker() {
 }
 ```
 
-### Disabled Dates
+### Calendar with Disabled Dates
 
 ```tsx
-function RestrictedCalendar() {
+function CalendarWithDisabledDates() {
   const [date, setDate] = useState<Date>();
 
-  // Disable weekends
-  const disableWeekends = (date: Date) => {
+  const disabledDays = (date: Date) => {
+    // Disable weekends
     return date.getDay() === 0 || date.getDay() === 6;
-  };
-
-  // Disable past dates
-  const disablePastDates = (date: Date) => {
-    return date < new Date();
   };
 
   return (
@@ -104,188 +102,203 @@ function RestrictedCalendar() {
       mode="single"
       selected={date}
       onSelect={setDate}
-      disabled={[disableWeekends, disablePastDates]}
+      disabled={disabledDays}
       className="rounded-md border"
     />
   );
 }
 ```
 
-### Custom Styling
+### Calendar with Min/Max Dates
 
 ```tsx
-function CustomCalendar() {
+function CalendarWithLimits() {
+  const [date, setDate] = useState<Date>();
+  const today = new Date();
+  const oneMonthFromNow = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    today.getDate()
+  );
+
   return (
     <Calendar
       mode="single"
-      className="rounded-md border shadow-lg"
-      classNames={{
-        months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-        month: "space-y-4",
-        caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-lg font-semibold",
-        nav: "space-x-1 flex items-center",
-        table: "w-full border-collapse space-y-1",
-        head_row: "flex",
-        head_cell:
-          "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-        row: "flex w-full mt-2",
-        cell: "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-        day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-        day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-        day_today: "bg-accent text-accent-foreground",
-        day_outside: "text-muted-foreground opacity-50",
-        day_disabled: "text-muted-foreground opacity-50",
-        day_range_middle:
-          "aria-selected:bg-accent aria-selected:text-accent-foreground",
-        day_hidden: "invisible",
-      }}
+      selected={date}
+      onSelect={setDate}
+      disabled={(date) => date < today || date > oneMonthFromNow}
+      className="rounded-md border"
     />
   );
 }
 ```
 
-## Key Features
+### Calendar in a Popover
 
-### Navigation
+```tsx
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/overlays/popover";
+import { Button } from "@/components/ui/inputs/button";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 
-- **Month Navigation**: Previous/next month buttons
-- **Year Navigation**: Click on month/year to navigate quickly
-- **Keyboard Navigation**: Arrow keys, Page Up/Down, Home/End
-- **Today Button**: Quick navigation to current date
+function CalendarPopover() {
+  const [date, setDate] = useState<Date>();
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className="w-[240px] justify-start text-left font-normal"
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, "PPP") : <span>Pick a date</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={setDate}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+```
+
+### Event Calendar
+
+```tsx
+function EventCalendar() {
+  const [selectedDate, setSelectedDate] = useState<Date>();
+
+  const events = [
+    { date: new Date(2024, 0, 15), title: "Team Meeting" },
+    { date: new Date(2024, 0, 20), title: "Project Deadline" },
+    { date: new Date(2024, 0, 25), title: "Client Call" },
+  ];
+
+  const hasEvent = (date: Date) => {
+    return events.some(
+      (event) => event.date.toDateString() === date.toDateString()
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <Calendar
+        mode="single"
+        selected={selectedDate}
+        onSelect={setSelectedDate}
+        modifiers={{
+          hasEvent: (date) => hasEvent(date),
+        }}
+        modifiersStyles={{
+          hasEvent: { backgroundColor: "hsl(var(--primary))", color: "white" },
+        }}
+        className="rounded-md border"
+      />
+
+      {selectedDate && (
+        <div className="p-4 border rounded-md">
+          <h3 className="font-semibold">
+            {format(selectedDate, "MMMM d, yyyy")}
+          </h3>
+          {events
+            .filter(
+              (event) =>
+                event.date.toDateString() === selectedDate.toDateString()
+            )
+            .map((event, index) => (
+              <p key={index} className="text-sm text-muted-foreground">
+                {event.title}
+              </p>
+            ))}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+## Configuration Options
 
 ### Selection Modes
 
-- **Single**: Select one date
-- **Multiple**: Select multiple individual dates
-- **Range**: Select a date range
-- **None**: Display-only calendar
+- **single**: Select one date
+- **multiple**: Select multiple dates
+- **range**: Select a date range
 
-### Date Constraints
+### Common Props
 
-- **Disabled Dates**: Prevent selection of specific dates
-- **Min/Max Dates**: Set date boundaries
-- **Custom Validators**: Complex date validation logic
-
-## Styling System
-
-### Default Classes
-
-The component comes with comprehensive default styling:
-
-```typescript
-const defaultClassNames = {
-  months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-  month: "space-y-4",
-  caption: "flex justify-center pt-1 relative items-center",
-  caption_label: "text-sm font-medium",
-  nav: "space-x-1 flex items-center",
-  nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-  nav_button_previous: "absolute left-1",
-  nav_button_next: "absolute right-1",
-  table: "w-full border-collapse space-y-1",
-  head_row: "flex",
-  head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
-  row: "flex w-full mt-2",
-  cell: "h-9 w-9 text-center text-sm p-0 relative",
-  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100",
-  day_range_end: "day-range-end",
-  day_selected:
-    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
-  day_today: "bg-accent text-accent-foreground",
-  day_outside: "day-outside text-muted-foreground opacity-50",
-  day_disabled: "text-muted-foreground opacity-50",
-  day_range_middle:
-    "aria-selected:bg-accent aria-selected:text-accent-foreground",
-  day_hidden: "invisible",
-};
+```tsx
+<Calendar
+  mode="single"
+  numberOfMonths={2} // Show multiple months
+  showOutsideDays={true} // Show days from adjacent months
+  fixedWeeks={true} // Always show 6 weeks
+  weekStartsOn={1} // Start week on Monday (0 = Sunday)
+  disabled={(date) => date < new Date()} // Disable past dates
+  modifiers={{
+    // Custom day modifiers
+    weekend: (date) => date.getDay() === 0 || date.getDay() === 6,
+  }}
+/>
 ```
 
-### Theme Integration
+## Styling
 
-- **Light/Dark Mode**: Automatic theme switching
-- **CSS Variables**: Uses design system tokens
-- **Consistent Colors**: Matches application theme
+The Calendar component uses CSS classes for styling:
+
+```css
+/* Custom day styling */
+.rdp-day_selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.rdp-day_today {
+  font-weight: bold;
+  color: hsl(var(--accent-foreground));
+}
+
+.rdp-day_disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
 
 ## Accessibility Features
 
-### Keyboard Navigation
+- **Keyboard Navigation**: Arrow keys for date navigation
+- **Screen Reader**: Proper ARIA labels and announcements
+- **Focus Management**: Clear focus indicators
+- **Date Announcements**: Selected dates are announced
+- **Semantic Markup**: Proper table structure for calendar grid
 
-- **Arrow Keys**: Navigate between dates
-- **Enter/Space**: Select date
-- **Page Up/Down**: Navigate months
-- **Home/End**: Go to start/end of week
-- **Ctrl+Page Up/Down**: Navigate years
+## Best Practices
 
-### Screen Reader Support
-
-- **ARIA Labels**: Proper labeling for all elements
-- **Role Attributes**: Correct semantic roles
-- **Live Regions**: Announce changes to screen readers
-- **Focus Management**: Logical focus flow
-
-### Visual Accessibility
-
-- **High Contrast**: Clear visual distinctions
-- **Focus Indicators**: Visible focus states
-- **Color Independence**: Not relying solely on color
-- **Text Alternatives**: Proper text descriptions
-
-## Advanced Configuration
-
-### Custom Components
-
-```tsx
-<Calendar
-  components={{
-    IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
-    IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-  }}
-/>
-```
-
-### Localization
-
-```tsx
-import { es } from "date-fns/locale";
-
-<Calendar
-  locale={es}
-  weekStartsOn={1} // Monday
-/>;
-```
-
-### Custom Formatters
-
-```tsx
-<Calendar
-  formatters={{
-    formatCaption: (date, options) => {
-      return format(date, "LLLL yyyy", { locale: options?.locale });
-    },
-  }}
-/>
-```
+- Provide clear visual feedback for selected dates
+- Use appropriate date ranges and constraints
+- Consider time zones for date handling
+- Test keyboard navigation thoroughly
+- Provide context for disabled dates
+- Use consistent date formatting
+- Consider mobile touch targets
 
 ## Common Use Cases
 
-- **Date Pickers**: Form input date selection
-- **Event Calendars**: Display and select event dates
-- **Booking Systems**: Available date selection
-- **Date Range Filters**: Analytics and reporting
-- **Scheduling**: Appointment and meeting planning
-
-## Performance Considerations
-
-- **Lazy Loading**: Only render visible months
-- **Memoization**: Prevent unnecessary re-renders
-- **Event Delegation**: Efficient event handling
-- **Virtual Scrolling**: For large date ranges
-
-## Dependencies
-
-- **react-day-picker**: Core calendar functionality
-- **date-fns**: Date manipulation utilities
-- **lucide-react**: Navigation icons
-- **Tailwind CSS**: Styling system
+- Date pickers for forms
+- Event scheduling interfaces
+- Booking and reservation systems
+- Date range filters
+- Availability calendars
+- Deadline and milestone tracking
+- Holiday and vacation planners
+- Appointment scheduling

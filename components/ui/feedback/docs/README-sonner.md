@@ -1,46 +1,33 @@
-# Sonner (Toaster) Component
+# Sonner Toast Component
 
 ## Overview
 
-The Sonner component is a modern toast notification system built on the Sonner library. It provides beautiful, accessible toast notifications with automatic theme detection, smooth animations, and comprehensive customization options.
+Sonner is a modern, opinionated toast component for React applications. It provides a simple API for displaying notifications with beautiful animations, positioning, and automatic stacking. This is an alternative to the custom Toast components with a more streamlined approach.
 
 ## Features
 
-- **Automatic Theme Detection**: Syncs with your app's theme system
-- **Beautiful Animations**: Smooth slide-in/out animations
-- **Accessible**: Screen reader support and keyboard navigation
-- **Customizable**: Flexible styling through className props
-- **Action Support**: Buttons and interactive elements in toasts
-- **Auto-dismiss**: Configurable auto-dismiss timing
-- **Position Control**: Multiple positioning options
+- **Simple API**: Easy-to-use toast function
+- **Beautiful Animations**: Smooth enter/exit animations
+- **Auto Stacking**: Intelligent toast stacking and positioning
+- **Rich Content**: Support for custom JSX content
+- **Promise Integration**: Built-in loading, success, and error states
+- **Customizable**: Themes, positioning, and styling options
+- **Accessibility**: Screen reader support and keyboard navigation
+- **TypeScript**: Full TypeScript support
 
-## Props Interface
+## Installation & Setup
 
-```typescript
-interface ToasterProps extends React.ComponentProps<typeof Sonner> {
-  // All Sonner props are supported
-  theme?: "light" | "dark" | "system";
-  position?:
-    | "top-left"
-    | "top-center"
-    | "top-right"
-    | "bottom-left"
-    | "bottom-center"
-    | "bottom-right";
-  expand?: boolean;
-  richColors?: boolean;
-  closeButton?: boolean;
-  // ... and many more Sonner options
-}
+### Install Sonner
+
+```bash
+npm install sonner
 ```
 
-## Setup
-
-### 1. Add Toaster to Your App
+### Add Toaster to Your App
 
 ```tsx
-// app/layout.tsx or _app.tsx
-import { Toaster } from "@/components/ui/feedback/sonner";
+// app/layout.tsx (Next.js App Router)
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -58,38 +45,29 @@ export default function RootLayout({
 }
 ```
 
-### 2. Use Toast Function
+## Basic Usage
+
+### Simple Toast
 
 ```tsx
 import { toast } from "sonner";
 
 function MyComponent() {
-  const showToast = () => {
-    toast("Hello World!");
-  };
-
-  return <button onClick={showToast}>Show Toast</button>;
+  return <button onClick={() => toast("Hello World!")}>Show Toast</button>;
 }
 ```
 
-## Usage Examples
-
-### Basic Toasts
+### Toast Types
 
 ```tsx
 import { toast } from "sonner";
 
-function BasicToasts() {
+function ToastTypes() {
   return (
     <div className="space-x-2">
-      <button onClick={() => toast("Basic message")}>Basic</button>
-
       <button onClick={() => toast.success("Success message")}>Success</button>
-
       <button onClick={() => toast.error("Error message")}>Error</button>
-
       <button onClick={() => toast.warning("Warning message")}>Warning</button>
-
       <button onClick={() => toast.info("Info message")}>Info</button>
     </div>
   );
@@ -99,115 +77,39 @@ function BasicToasts() {
 ### Toast with Description
 
 ```tsx
-function DescriptiveToasts() {
+function DescriptionToast() {
   return (
-    <div className="space-x-2">
-      <button
-        onClick={() =>
-          toast("Event has been created", {
-            description: "Sunday, December 03, 2023 at 9:00 AM",
-          })
-        }
-      >
-        With Description
-      </button>
-
-      <button
-        onClick={() =>
-          toast.success("Payment successful", {
-            description: "Your payment has been processed successfully.",
-          })
-        }
-      >
-        Success with Description
-      </button>
-    </div>
+    <button
+      onClick={() =>
+        toast("Event has been created", {
+          description: "Sunday, December 03, 2023 at 9:00 AM",
+        })
+      }
+    >
+      Show Event Toast
+    </button>
   );
 }
 ```
 
-### Toast with Actions
+### Toast with Action
 
 ```tsx
-function ActionToasts() {
+function ActionToast() {
   return (
-    <div className="space-x-2">
-      <button
-        onClick={() =>
-          toast("Event has been created", {
-            action: {
-              label: "Undo",
-              onClick: () => console.log("Undo"),
-            },
-          })
-        }
-      >
-        With Action
-      </button>
-
-      <button
-        onClick={() =>
-          toast.error("Something went wrong", {
-            action: {
-              label: "Retry",
-              onClick: () => console.log("Retry"),
-            },
-          })
-        }
-      >
-        Error with Action
-      </button>
-    </div>
+    <button
+      onClick={() =>
+        toast("Event has been created", {
+          action: {
+            label: "Undo",
+            onClick: () => console.log("Undo"),
+          },
+        })
+      }
+    >
+      Show Action Toast
+    </button>
   );
-}
-```
-
-### Custom Toast Duration
-
-```tsx
-function DurationToasts() {
-  return (
-    <div className="space-x-2">
-      <button onClick={() => toast("Quick message", { duration: 1000 })}>
-        1 Second
-      </button>
-
-      <button onClick={() => toast("Long message", { duration: 10000 })}>
-        10 Seconds
-      </button>
-
-      <button
-        onClick={() => toast("Persistent message", { duration: Infinity })}
-      >
-        Persistent
-      </button>
-    </div>
-  );
-}
-```
-
-### Loading Toast
-
-```tsx
-function LoadingToast() {
-  const handleAsyncAction = async () => {
-    const toastId = toast.loading("Uploading file...");
-
-    try {
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      toast.success("File uploaded successfully!", {
-        id: toastId,
-      });
-    } catch (error) {
-      toast.error("Failed to upload file", {
-        id: toastId,
-      });
-    }
-  };
-
-  return <button onClick={handleAsyncAction}>Upload File</button>;
 }
 ```
 
@@ -215,129 +117,128 @@ function LoadingToast() {
 
 ```tsx
 function PromiseToast() {
-  const handlePromise = () => {
-    const myPromise = new Promise((resolve, reject) => {
-      setTimeout(() => {
-        Math.random() > 0.5 ? resolve("Success!") : reject("Error!");
-      }, 2000);
-    });
+  const handleSubmit = () => {
+    const promise = fetch("/api/submit").then((res) => res.json());
 
-    toast.promise(myPromise, {
-      loading: "Processing...",
-      success: (data) => `Operation completed: ${data}`,
-      error: (error) => `Operation failed: ${error}`,
+    toast.promise(promise, {
+      loading: "Submitting...",
+      success: "Form submitted successfully!",
+      error: "Failed to submit form",
     });
   };
 
-  return <button onClick={handlePromise}>Promise Toast</button>;
+  return <button onClick={handleSubmit}>Submit Form</button>;
 }
 ```
 
-### Custom Styled Toast
+### Custom Toast
 
 ```tsx
 function CustomToast() {
   return (
-    <div className="space-x-2">
-      <button
-        onClick={() =>
-          toast("Custom styled toast", {
-            className: "bg-blue-500 text-white border-blue-600",
-          })
-        }
-      >
-        Custom Style
-      </button>
+    <button
+      onClick={() =>
+        toast(
+          <div className="flex items-center gap-2">
+            <img
+              src="/avatar.jpg"
+              alt="User"
+              className="w-8 h-8 rounded-full"
+            />
+            <div>
+              <p className="font-medium">John Doe</p>
+              <p className="text-sm text-muted-foreground">
+                Sent you a message
+              </p>
+            </div>
+          </div>
+        )
+      }
+    >
+      Custom Toast
+    </button>
+  );
+}
+```
 
-      <button
-        onClick={() =>
-          toast.success("Success with custom style", {
-            className: "bg-green-500 text-white",
-            style: {
-              background: "linear-gradient(45deg, #10b981, #059669)",
-            },
-          })
-        }
-      >
-        Gradient Success
-      </button>
+## Configuration
+
+### Toaster Props
+
+```tsx
+<Toaster
+  position="top-right"
+  expand={false}
+  richColors
+  closeButton
+  toastOptions={{
+    duration: 4000,
+    className: "my-toast",
+  }}
+/>
+```
+
+### Available Positions
+
+- `top-left`
+- `top-center`
+- `top-right`
+- `bottom-left`
+- `bottom-center`
+- `bottom-right`
+
+### Toast Options
+
+```tsx
+toast("Message", {
+  duration: 5000,
+  position: "top-center",
+  dismissible: true,
+  className: "custom-toast",
+  style: {
+    background: "red",
+  },
+  onDismiss: (t) => console.log(`Toast with id ${t.id} has been dismissed`),
+  onAutoClose: (t) =>
+    console.log(`Toast with id ${t.id} has been closed automatically`),
+});
+```
+
+## Advanced Usage
+
+### Programmatic Control
+
+```tsx
+import { toast } from "sonner";
+
+function ProgrammaticControl() {
+  const toastId = toast("Loading...", { duration: Infinity });
+
+  const updateToast = () => {
+    toast.success("Success!", { id: toastId });
+  };
+
+  const dismissToast = () => {
+    toast.dismiss(toastId);
+  };
+
+  return (
+    <div className="space-x-2">
+      <button onClick={updateToast}>Update Toast</button>
+      <button onClick={dismissToast}>Dismiss Toast</button>
+      <button onClick={() => toast.dismiss()}>Dismiss All</button>
     </div>
   );
 }
 ```
 
-## Toaster Configuration
-
-### Basic Configuration
+### Custom Styling
 
 ```tsx
-function App() {
-  return (
-    <>
-      {/* Your app content */}
-      <Toaster position="top-right" richColors closeButton />
-    </>
-  );
-}
-```
-
-### Advanced Configuration
-
-```tsx
-function App() {
-  return (
-    <>
-      {/* Your app content */}
-      <Toaster
-        position="bottom-center"
-        expand={true}
-        richColors={true}
-        closeButton={true}
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: "var(--background)",
-            color: "var(--foreground)",
-            border: "1px solid var(--border)",
-          },
-          className: "my-toast",
-          descriptionClassName: "my-toast-description",
-        }}
-      />
-    </>
-  );
-}
-```
-
-## Theme Integration
-
-The component automatically detects and applies your app's theme:
-
-```tsx
-// The component uses next-themes to detect theme
-const { theme = "system" } = useTheme();
-
-return (
-  <Sonner
-    theme={theme as ToasterProps["theme"]}
-    // ... other props
-  />
-);
-```
-
-## Styling Features
-
-### Default Styling
-
-- **Background**: Uses CSS variables for theme colors
-- **Border**: Consistent with design system
-- **Shadow**: Subtle shadow for depth
-- **Typography**: Proper text sizing and colors
-
-### Custom Class Names
-
-```tsx
+// Custom theme
 <Toaster
+  theme="dark"
+  className="toaster group"
   toastOptions={{
     classNames: {
       toast:
@@ -352,155 +253,22 @@ return (
 />
 ```
 
-## Advanced Usage
-
-### Dismissing Toasts
-
-```tsx
-function DismissToasts() {
-  const showDismissibleToast = () => {
-    const toastId = toast("This toast can be dismissed", {
-      duration: Infinity,
-    });
-
-    // Dismiss after 5 seconds
-    setTimeout(() => {
-      toast.dismiss(toastId);
-    }, 5000);
-  };
-
-  return (
-    <div className="space-x-2">
-      <button onClick={showDismissibleToast}>Show Dismissible</button>
-
-      <button onClick={() => toast.dismiss()}>Dismiss All</button>
-    </div>
-  );
-}
-```
-
-### Toast with Custom Content
-
-```tsx
-function CustomContentToast() {
-  const showCustomToast = () => {
-    toast.custom((t) => (
-      <div className="flex items-center gap-3 bg-white border rounded-lg p-4 shadow-lg">
-        <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center">
-          <span className="text-white text-sm font-bold">!</span>
-        </div>
-        <div className="flex-1">
-          <h4 className="font-semibold">Custom Toast</h4>
-          <p className="text-sm text-gray-600">
-            This is a completely custom toast
-          </p>
-        </div>
-        <button
-          onClick={() => toast.dismiss(t)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          ×
-        </button>
-      </div>
-    ));
-  };
-
-  return <button onClick={showCustomToast}>Custom Content</button>;
-}
-```
-
-## Accessibility Features
-
-### Screen Reader Support
-
-- **ARIA Labels**: Proper labeling for toast content
-- **Live Regions**: Automatic announcement of new toasts
-- **Focus Management**: Proper focus handling for actions
-
-### Keyboard Navigation
-
-- **Escape Key**: Dismiss focused toast
-- **Tab Navigation**: Navigate through toast actions
-- **Enter/Space**: Activate toast actions
-
-## Common Patterns
-
-### Form Submission Feedback
-
-```tsx
-function FormWithToast() {
-  const handleSubmit = async (formData: FormData) => {
-    const toastId = toast.loading("Saving changes...");
-
-    try {
-      await saveData(formData);
-      toast.success("Changes saved successfully!", { id: toastId });
-    } catch (error) {
-      toast.error("Failed to save changes", {
-        id: toastId,
-        action: {
-          label: "Retry",
-          onClick: () => handleSubmit(formData),
-        },
-      });
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* Form fields */}
-      <button type="submit">Save</button>
-    </form>
-  );
-}
-```
-
-### Undo Functionality
-
-```tsx
-function UndoToast() {
-  const deleteItem = (id: string) => {
-    // Optimistically remove item
-    removeItemFromUI(id);
-
-    toast("Item deleted", {
-      action: {
-        label: "Undo",
-        onClick: () => {
-          restoreItemToUI(id);
-          toast.success("Item restored");
-        },
-      },
-    });
-  };
-
-  return <button onClick={() => deleteItem("123")}>Delete Item</button>;
-}
-```
-
-## Use Cases
-
-- **Form Feedback**: Success/error messages for form submissions
-- **Action Confirmations**: Confirm user actions like delete, save
-- **Loading States**: Show progress for async operations
-- **Error Handling**: Display error messages with retry options
-- **Notifications**: System notifications and updates
-- **Undo Actions**: Provide undo functionality for destructive actions
-- **Status Updates**: Real-time status updates
-
 ## Best Practices
 
-- Use appropriate toast types for different message types
+- Use appropriate toast types for different message categories
 - Keep messages concise and actionable
-- Provide undo options for destructive actions
-- Use loading toasts for long-running operations
-- Don't overuse toasts - they can be disruptive
-- Ensure sufficient contrast for accessibility
-- Test with screen readers
+- Provide actions for reversible operations
+- Use promise toasts for async operations
+- Don't overwhelm users with too many toasts
+- Test accessibility with screen readers
 - Consider toast positioning based on your app layout
 
-## Dependencies
+## Common Use Cases
 
-- **sonner**: Core toast functionality
-- **next-themes**: Theme detection
-- **React**: Component framework
+- Form submission feedback
+- API request status updates
+- User action confirmations
+- Error handling and reporting
+- Success notifications
+- Loading states for async operations
+- Undo functionality

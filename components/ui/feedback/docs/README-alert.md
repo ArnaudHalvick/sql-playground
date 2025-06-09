@@ -2,47 +2,28 @@
 
 ## Overview
 
-The Alert component is a flexible notification system for displaying important messages to users. It provides different visual variants for various types of feedback and supports icons, titles, and descriptions for comprehensive messaging.
+The Alert component displays important messages, notifications, or status information to users. It provides different visual variants to communicate various types of information effectively with proper accessibility support.
 
 ## Features
 
-- **Multiple Variants**: Default and destructive styling options
-- **Icon Support**: Automatic positioning and styling for icons
-- **Structured Content**: Separate title and description components
-- **Accessibility**: Built-in ARIA role for screen readers
-- **Responsive Design**: Adapts to different screen sizes
-- **Customizable**: Flexible styling through className props
+- **Multiple Variants**: Default, destructive, and custom styling options
+- **Icon Support**: Optional icons for visual context
+- **Flexible Content**: Supports titles, descriptions, and custom content
+- **Accessibility**: Proper ARIA roles and screen reader support
+- **Responsive**: Adapts to different screen sizes
+- **Dismissible**: Optional close functionality
 
 ## Components
 
-### Alert
+- **Alert**: Main container component
+- **AlertTitle**: Title/heading component
+- **AlertDescription**: Description text component
 
-The main container component with variant styling.
+## Props Interface
 
 ```typescript
 interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "destructive";
-  className?: string;
-}
-```
-
-### AlertTitle
-
-Header component for the alert message.
-
-```typescript
-interface AlertTitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-  className?: string;
-}
-```
-
-### AlertDescription
-
-Content component for detailed alert information.
-
-```typescript
-interface AlertDescriptionProps
-  extends React.HTMLAttributes<HTMLParagraphElement> {
   className?: string;
 }
 ```
@@ -54,36 +35,13 @@ interface AlertDescriptionProps
 ```tsx
 import {
   Alert,
-  AlertTitle,
   AlertDescription,
+  AlertTitle,
 } from "@/components/ui/feedback/alert";
 
 function BasicAlert() {
   return (
     <Alert>
-      <AlertTitle>Information</AlertTitle>
-      <AlertDescription>
-        This is a basic alert message to inform users about something important.
-      </AlertDescription>
-    </Alert>
-  );
-}
-```
-
-### Alert with Icon
-
-```tsx
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "@/components/ui/feedback/alert";
-import { InfoIcon } from "lucide-react";
-
-function IconAlert() {
-  return (
-    <Alert>
-      <InfoIcon className="h-4 w-4" />
       <AlertTitle>Heads up!</AlertTitle>
       <AlertDescription>
         You can add components to your app using the cli.
@@ -93,20 +51,31 @@ function IconAlert() {
 }
 ```
 
+### Alert with Icon
+
+```tsx
+import { AlertCircle } from "lucide-react";
+
+function AlertWithIcon() {
+  return (
+    <Alert>
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>Error</AlertTitle>
+      <AlertDescription>
+        Your session has expired. Please log in again.
+      </AlertDescription>
+    </Alert>
+  );
+}
+```
+
 ### Destructive Alert
 
 ```tsx
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "@/components/ui/feedback/alert";
-import { AlertTriangleIcon } from "lucide-react";
-
-function ErrorAlert() {
+function DestructiveAlert() {
   return (
     <Alert variant="destructive">
-      <AlertTriangleIcon className="h-4 w-4" />
+      <AlertCircle className="h-4 w-4" />
       <AlertTitle>Error</AlertTitle>
       <AlertDescription>
         Your session has expired. Please log in again.
@@ -119,18 +88,13 @@ function ErrorAlert() {
 ### Success Alert
 
 ```tsx
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "@/components/ui/feedback/alert";
-import { CheckCircleIcon } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 function SuccessAlert() {
   return (
     <Alert className="border-green-200 bg-green-50 text-green-800">
-      <CheckCircleIcon className="h-4 w-4" />
-      <AlertTitle>Success!</AlertTitle>
+      <CheckCircle className="h-4 w-4" />
+      <AlertTitle>Success</AlertTitle>
       <AlertDescription>
         Your changes have been saved successfully.
       </AlertDescription>
@@ -142,17 +106,12 @@ function SuccessAlert() {
 ### Warning Alert
 
 ```tsx
-import {
-  Alert,
-  AlertTitle,
-  AlertDescription,
-} from "@/components/ui/feedback/alert";
-import { AlertTriangleIcon } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 
 function WarningAlert() {
   return (
     <Alert className="border-yellow-200 bg-yellow-50 text-yellow-800">
-      <AlertTriangleIcon className="h-4 w-4" />
+      <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Warning</AlertTitle>
       <AlertDescription>
         This action cannot be undone. Please proceed with caution.
@@ -162,114 +121,42 @@ function WarningAlert() {
 }
 ```
 
-## Variants
-
-### Default
-
-- **Background**: Uses theme background color
-- **Text**: Uses theme foreground color
-- **Border**: Standard border styling
-- **Use Case**: General information and neutral messages
-
-### Destructive
-
-- **Background**: Error/destructive background
-- **Text**: Destructive text color
-- **Border**: Destructive border color
-- **Use Case**: Error messages, warnings, critical alerts
-
-## Styling Features
-
-### Icon Integration
-
-The component automatically handles icon positioning:
-
-```css
-[&>svg~*]:pl-7          /* Content padding when icon present */
-[&>svg+div]:translate-y-[-3px]  /* Vertical alignment adjustment */
-[&>svg]:absolute        /* Absolute positioning for icons */
-[&>svg]:left-4          /* Left positioning */
-[&>svg]:top-4           /* Top positioning */
-```
-
-### Layout Structure
-
-- **Full Width**: Takes full width of container
-- **Rounded Corners**: Consistent border radius
-- **Padding**: Comfortable internal spacing
-- **Border**: Subtle border for definition
-
-### Typography
-
-- **Title**: Medium font weight, tight tracking
-- **Description**: Smaller text size, relaxed line height
-- **Hierarchy**: Clear visual distinction between title and content
-
-## Accessibility Features
-
-### ARIA Support
-
-- **Role**: Automatically includes `role="alert"` for screen readers
-- **Semantic HTML**: Uses proper heading elements for titles
-- **Focus Management**: Proper focus handling for interactive elements
-
-### Screen Reader Support
-
-- **Announcement**: Alert role ensures immediate announcement
-- **Structure**: Logical heading and content structure
-- **Context**: Clear relationship between title and description
-
-## Customization Options
-
-### Custom Styling
+### Info Alert
 
 ```tsx
-<Alert className="border-blue-200 bg-blue-50 text-blue-800">
-  <AlertTitle className="text-blue-900">Custom Title</AlertTitle>
-  <AlertDescription className="text-blue-700">
-    Custom description with different colors.
-  </AlertDescription>
-</Alert>
+import { Info } from "lucide-react";
+
+function InfoAlert() {
+  return (
+    <Alert className="border-blue-200 bg-blue-50 text-blue-800">
+      <Info className="h-4 w-4" />
+      <AlertTitle>Information</AlertTitle>
+      <AlertDescription>
+        New features are available. Check out the latest updates.
+      </AlertDescription>
+    </Alert>
+  );
+}
 ```
-
-### Size Variations
-
-```tsx
-// Compact alert
-<Alert className="p-2">
-  <AlertTitle className="text-xs">Small Alert</AlertTitle>
-  <AlertDescription className="text-xs">
-    Compact version for limited space.
-  </AlertDescription>
-</Alert>
-
-// Large alert
-<Alert className="p-6">
-  <AlertTitle className="text-lg">Large Alert</AlertTitle>
-  <AlertDescription className="text-base">
-    Expanded version for important messages.
-  </AlertDescription>
-</Alert>
-```
-
-## Common Patterns
 
 ### Dismissible Alert
 
 ```tsx
+import { X } from "lucide-react";
+
 function DismissibleAlert() {
   const [isVisible, setIsVisible] = useState(true);
 
   if (!isVisible) return null;
 
   return (
-    <Alert>
-      <InfoIcon className="h-4 w-4" />
+    <Alert className="relative">
+      <AlertCircle className="h-4 w-4" />
       <AlertTitle>Notification</AlertTitle>
       <AlertDescription>This is a dismissible alert message.</AlertDescription>
       <button
         onClick={() => setIsVisible(false)}
-        className="absolute right-2 top-2 rounded-md p-1 hover:bg-muted"
+        className="absolute top-2 right-2 p-1 rounded-sm hover:bg-muted"
       >
         <X className="h-4 w-4" />
       </button>
@@ -281,46 +168,73 @@ function DismissibleAlert() {
 ### Alert with Actions
 
 ```tsx
-function ActionAlert() {
+function AlertWithActions() {
   return (
     <Alert>
-      <InfoIcon className="h-4 w-4" />
+      <AlertCircle className="h-4 w-4" />
       <AlertTitle>Update Available</AlertTitle>
       <AlertDescription>
-        A new version is available. Would you like to update now?
+        A new version of the application is available.
       </AlertDescription>
-      <div className="mt-3 flex gap-2">
-        <Button size="sm">Update Now</Button>
-        <Button variant="outline" size="sm">
-          Later
-        </Button>
+      <div className="mt-4 flex space-x-2">
+        <button className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm">
+          Update Now
+        </button>
+        <button className="px-3 py-1 border rounded text-sm">Later</button>
       </div>
     </Alert>
   );
 }
 ```
 
-## Use Cases
+## Variants
 
-- **Form Validation**: Display validation errors and success messages
-- **System Notifications**: Show system status and updates
-- **User Feedback**: Confirm user actions and operations
-- **Error Handling**: Display error messages and troubleshooting info
-- **Warnings**: Alert users about potential issues or consequences
-- **Information**: Provide helpful tips and contextual information
+### Default
+
+- **Background**: Subtle background color
+- **Border**: Light border
+- **Text**: Standard foreground color
+- **Use Case**: General information and notifications
+
+### Destructive
+
+- **Background**: Red/error background
+- **Border**: Red border
+- **Text**: Error text color
+- **Use Case**: Errors, warnings, and critical alerts
+
+## Styling Features
+
+- **Layout**: Flexible container with proper spacing
+- **Typography**: Clear hierarchy with title and description
+- **Icons**: Consistent icon sizing and positioning
+- **Responsive**: Adapts to container width
+- **Customizable**: Easy styling through className props
+
+## Accessibility Features
+
+- **ARIA Role**: Proper alert role for screen readers
+- **Semantic HTML**: Meaningful structure
+- **Color Independence**: Not relying solely on color
+- **Focus Management**: Proper focus handling for interactive elements
 
 ## Best Practices
 
-- Use appropriate variants for message types
+- Use appropriate variants for different message types
 - Include clear, actionable titles
-- Provide specific, helpful descriptions
-- Use icons to reinforce message meaning
+- Provide specific descriptions when needed
+- Use icons to reinforce message type
 - Consider dismissibility for non-critical alerts
-- Ensure sufficient color contrast for accessibility
-- Test with screen readers for proper announcement
+- Test with screen readers for accessibility
+- Don't overwhelm users with too many alerts
 
-## Dependencies
+## Common Use Cases
 
-- **class-variance-authority**: For variant management
-- **Tailwind CSS**: For styling system
-- **Lucide React**: For icons (optional)
+- Form validation errors
+- Success confirmations
+- System status notifications
+- Warning messages
+- Information announcements
+- Update notifications
+- Error handling
+- User feedback

@@ -2,16 +2,16 @@
 
 ## Overview
 
-The Progress component is a visual indicator that shows the completion progress of a task or process. Built on Radix UI primitives, it provides an accessible and customizable progress bar with smooth animations and proper ARIA attributes.
+The Progress component displays the completion progress of a task, typically shown as a progress bar. Built on Radix UI primitives, it provides accessible progress indication with customizable styling and smooth animations.
 
 ## Features
 
-- **Accessible**: Built with Radix UI for screen reader support
-- **Smooth Animations**: CSS transitions for progress changes
-- **Customizable**: Flexible styling through className props
+- **Radix UI Foundation**: Built on accessible progress primitives
+- **Smooth Animations**: Animated progress transitions
+- **Accessibility**: Screen reader support with progress announcements
+- **Customizable**: Flexible styling and theming
+- **Value Control**: Precise progress value management
 - **Responsive**: Adapts to container width
-- **Value-based**: Accepts percentage values (0-100)
-- **Theme Integration**: Works with light and dark themes
 
 ## Props Interface
 
@@ -19,20 +19,34 @@ The Progress component is a visual indicator that shows the completion progress 
 interface ProgressProps
   extends React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> {
   value?: number; // Progress value (0-100)
-  className?: string; // Custom CSS classes
-  // ... all other Radix Progress props
+  className?: string;
 }
 ```
 
 ## Usage Examples
 
-### Basic Progress Bar
+### Basic Progress
 
 ```tsx
 import { Progress } from "@/components/ui/feedback/progress";
 
 function BasicProgress() {
-  return <Progress value={60} className="w-full" />;
+  return <Progress value={50} className="w-full" />;
+}
+```
+
+### Animated Progress
+
+```tsx
+function AnimatedProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setProgress(66), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return <Progress value={progress} className="w-full" />;
 }
 ```
 
@@ -40,67 +54,56 @@ function BasicProgress() {
 
 ```tsx
 function FileUploadProgress() {
-  const [progress, setProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const simulateUpload = () => {
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 500);
+  const handleFileUpload = async (file: File) => {
+    // Simulate upload progress
+    for (let i = 0; i <= 100; i += 10) {
+      setUploadProgress(i);
+      await new Promise((resolve) => setTimeout(resolve, 200));
+    }
   };
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between text-sm">
         <span>Uploading file...</span>
-        <span>{progress}%</span>
+        <span>{uploadProgress}%</span>
       </div>
-      <Progress value={progress} className="w-full" />
-      <button
-        onClick={simulateUpload}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded"
-      >
-        Start Upload
-      </button>
+      <Progress value={uploadProgress} className="w-full" />
     </div>
   );
 }
 ```
 
-### Multi-step Form Progress
+### Multi-step Progress
 
 ```tsx
-function FormProgress() {
+function MultiStepProgress() {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between text-sm text-muted-foreground">
+      <div className="flex justify-between text-sm">
         <span>
           Step {currentStep} of {totalSteps}
         </span>
-        <span>{Math.round(progress)}% Complete</span>
+        <span>{Math.round(progress)}%</span>
       </div>
       <Progress value={progress} className="w-full" />
-      <div className="flex justify-between">
+
+      <div className="flex space-x-2">
         <button
           onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
           disabled={currentStep === 1}
-          className="px-4 py-2 border rounded disabled:opacity-50"
         >
           Previous
         </button>
         <button
           onClick={() => setCurrentStep(Math.min(totalSteps, currentStep + 1))}
           disabled={currentStep === totalSteps}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded disabled:opacity-50"
         >
           Next
         </button>
@@ -110,298 +113,171 @@ function FormProgress() {
 }
 ```
 
-### Loading Progress with Text
+### Loading Progress
 
 ```tsx
 function LoadingProgress() {
+  const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState("Initializing...");
 
-  useEffect(() => {
-    const steps = [
-      { progress: 20, status: "Loading configuration..." },
-      { progress: 40, status: "Connecting to server..." },
-      { progress: 60, status: "Fetching data..." },
-      { progress: 80, status: "Processing results..." },
-      { progress: 100, status: "Complete!" },
-    ];
+  const startLoading = () => {
+    setIsLoading(true);
+    setProgress(0);
 
-    let currentStep = 0;
     const interval = setInterval(() => {
-      if (currentStep < steps.length) {
-        setProgress(steps[currentStep].progress);
-        setStatus(steps[currentStep].status);
-        currentStep++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 1000);
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setIsLoading(false);
+          return 100;
+        }
+        return prev + Math.random() * 15;
+      });
+    }, 300);
+  };
 
-    return () => clearInterval(interval);
-  }, []);
+  return (
+    <div className="space-y-4">
+      <button onClick={startLoading} disabled={isLoading}>
+        {isLoading ? "Loading..." : "Start Loading"}
+      </button>
+
+      {isLoading && (
+        <div className="space-y-2">
+          <Progress value={progress} className="w-full" />
+          <p className="text-sm text-muted-foreground">
+            Loading... {Math.round(progress)}%
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Progress with Status
+
+```tsx
+function ProgressWithStatus() {
+  const [progress, setProgress] = useState(0);
+
+  const getStatus = (value: number) => {
+    if (value === 0)
+      return { text: "Not started", color: "text-muted-foreground" };
+    if (value < 50) return { text: "In progress", color: "text-blue-600" };
+    if (value < 100) return { text: "Almost done", color: "text-orange-600" };
+    return { text: "Completed", color: "text-green-600" };
+  };
+
+  const status = getStatus(progress);
 
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium">{status}</span>
+        <span className={`text-sm font-medium ${status.color}`}>
+          {status.text}
+        </span>
         <span className="text-sm text-muted-foreground">{progress}%</span>
       </div>
       <Progress value={progress} className="w-full" />
+
+      <div className="flex space-x-2">
+        <button onClick={() => setProgress(0)}>Reset</button>
+        <button onClick={() => setProgress(25)}>25%</button>
+        <button onClick={() => setProgress(50)}>50%</button>
+        <button onClick={() => setProgress(75)}>75%</button>
+        <button onClick={() => setProgress(100)}>100%</button>
+      </div>
     </div>
   );
 }
 ```
 
-### Skill Level Indicators
+### Circular Progress (Custom)
 
 ```tsx
-function SkillProgress() {
-  const skills = [
-    { name: "React", level: 90 },
-    { name: "TypeScript", level: 85 },
-    { name: "Node.js", level: 75 },
-    { name: "Python", level: 60 },
-    { name: "Docker", level: 45 },
-  ];
+function CircularProgress({
+  value = 0,
+  size = 120,
+}: {
+  value?: number;
+  size?: number;
+}) {
+  const radius = (size - 8) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = `${circumference} ${circumference}`;
+  const strokeDashoffset = circumference - (value / 100) * circumference;
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Skills</h3>
-      {skills.map((skill) => (
-        <div key={skill.name} className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="font-medium">{skill.name}</span>
-            <span className="text-muted-foreground">{skill.level}%</span>
-          </div>
-          <Progress value={skill.level} className="w-full" />
-        </div>
-      ))}
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth="4"
+          fill="transparent"
+          className="text-muted"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth="4"
+          fill="transparent"
+          strokeDasharray={strokeDasharray}
+          strokeDashoffset={strokeDashoffset}
+          className="text-primary transition-all duration-300 ease-in-out"
+        />
+      </svg>
+      <span className="absolute text-sm font-medium">{Math.round(value)}%</span>
     </div>
   );
 }
 ```
 
-### Custom Styled Progress
+## Styling
 
-```tsx
-function CustomProgress() {
-  return (
-    <div className="space-y-4">
-      {/* Large progress bar */}
-      <Progress value={75} className="w-full h-6 bg-gray-200" />
-
-      {/* Colored progress bar */}
-      <Progress value={60} className="w-full [&>div]:bg-green-500" />
-
-      {/* Rounded progress bar */}
-      <Progress value={45} className="w-full rounded-full h-2" />
-
-      {/* Striped progress bar */}
-      <Progress
-        value={80}
-        className="w-full [&>div]:bg-gradient-to-r [&>div]:from-blue-500 [&>div]:to-purple-500"
-      />
-    </div>
-  );
-}
-```
-
-## Styling Features
-
-### Default Styling
-
-- **Height**: 16px (h-4) default height
-- **Background**: Secondary color for track
-- **Indicator**: Primary color for progress fill
-- **Border Radius**: Rounded corners
-- **Transitions**: Smooth progress animations
-
-### Customization Options
-
-```tsx
-// Custom height
-<Progress value={50} className="h-2" />      // Thin
-<Progress value={50} className="h-6" />      // Thick
-
-// Custom colors
-<Progress value={50} className="bg-gray-100 [&>div]:bg-red-500" />
-
-// Custom width
-<Progress value={50} className="w-64" />     // Fixed width
-<Progress value={50} className="w-full" />   // Full width
-```
-
-### Animation Control
-
-The progress indicator uses CSS transforms for smooth animations:
+The Progress component uses CSS transforms for smooth animations:
 
 ```css
-transform: translateX(-${100 - (value || 0)}%);
+/* Progress bar styling */
+.progress-indicator {
+  transition: transform 660ms cubic-bezier(0.65, 0, 0.35, 1);
+  transform: translateX(-100%);
+}
+
+/* When progress value is set */
+.progress-indicator[data-value] {
+  transform: translateX(-${100 - value}%);
+}
 ```
 
 ## Accessibility Features
 
-### ARIA Support
-
-- **Role**: Proper progressbar role from Radix UI
-- **Value Attributes**: aria-valuenow, aria-valuemin, aria-valuemax
-- **Label Support**: Can be labeled with aria-label or aria-labelledby
-
-### Screen Reader Support
-
-- **Progress Announcement**: Screen readers announce progress changes
-- **Value Communication**: Current progress value is communicated
-- **Context**: Can be associated with descriptive text
-
-### Keyboard Navigation
-
-- **Focus Management**: Proper focus handling
-- **No Interaction**: Progress bars are typically not interactive
-
-## Advanced Usage
-
-### Indeterminate Progress
-
-```tsx
-function IndeterminateProgress() {
-  return (
-    <div className="space-y-2">
-      <span className="text-sm">Loading...</span>
-      <div className="w-full h-4 bg-secondary rounded-full overflow-hidden">
-        <div className="h-full bg-primary animate-pulse" />
-      </div>
-    </div>
-  );
-}
-```
-
-### Segmented Progress
-
-```tsx
-function SegmentedProgress() {
-  const segments = [
-    { completed: true, label: "Step 1" },
-    { completed: true, label: "Step 2" },
-    { completed: false, label: "Step 3" },
-    { completed: false, label: "Step 4" },
-  ];
-
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-xs text-muted-foreground">
-        {segments.map((segment, index) => (
-          <span key={index} className={segment.completed ? "text-primary" : ""}>
-            {segment.label}
-          </span>
-        ))}
-      </div>
-      <div className="flex gap-1">
-        {segments.map((segment, index) => (
-          <div
-            key={index}
-            className={`flex-1 h-2 rounded ${
-              segment.completed ? "bg-primary" : "bg-secondary"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-```
-
-### Progress with Buffer
-
-```tsx
-function BufferedProgress() {
-  const [progress, setProgress] = useState(30);
-  const [buffer, setBuffer] = useState(60);
-
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between text-sm">
-        <span>Video Progress</span>
-        <span>
-          {progress}% / {buffer}% buffered
-        </span>
-      </div>
-      <div className="relative w-full h-4 bg-secondary rounded-full overflow-hidden">
-        {/* Buffer indicator */}
-        <div
-          className="absolute inset-0 bg-secondary-foreground/20 transition-all"
-          style={{ width: `${buffer}%` }}
-        />
-        {/* Progress indicator */}
-        <div
-          className="absolute inset-0 bg-primary transition-all"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-```
-
-## Common Patterns
-
-### Progress with Cancel
-
-```tsx
-function CancellableProgress() {
-  const [progress, setProgress] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
-
-  const startProgress = () => {
-    setIsRunning(true);
-    setProgress(0);
-    // Simulate progress
-  };
-
-  const cancelProgress = () => {
-    setIsRunning(false);
-    setProgress(0);
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="text-sm">Processing...</span>
-        {isRunning && (
-          <button onClick={cancelProgress} className="text-sm text-destructive">
-            Cancel
-          </button>
-        )}
-      </div>
-      <Progress value={progress} className="w-full" />
-    </div>
-  );
-}
-```
-
-## Use Cases
-
-- **File Uploads**: Show upload progress
-- **Form Completion**: Multi-step form progress
-- **Loading States**: Data fetching progress
-- **Skill Levels**: Display proficiency levels
-- **Task Completion**: Project or task progress
-- **Media Playback**: Video/audio progress
-- **Installation Progress**: Software installation
-- **Data Processing**: Batch operation progress
+- **ARIA Attributes**: Proper `role="progressbar"` and value attributes
+- **Screen Reader**: Progress value announcements
+- **Keyboard Navigation**: Focusable when interactive
+- **Value Range**: Supports min/max value attributes
 
 ## Best Practices
 
-- Always provide context for what the progress represents
-- Include percentage or step information when helpful
-- Use appropriate colors for different types of progress
-- Ensure sufficient contrast for accessibility
-- Consider animation performance for frequent updates
-- Provide cancel options for long-running operations
-- Use indeterminate progress for unknown durations
+- Always provide visual progress percentage when possible
+- Use smooth animations for better user experience
+- Provide clear labels and context for the progress
+- Consider indeterminate progress for unknown durations
 - Test with screen readers for accessibility
+- Use appropriate colors for different progress states
 
-## Dependencies
+## Common Use Cases
 
-- **@radix-ui/react-progress**: Core progress functionality
-- **Tailwind CSS**: Styling system
-- **React**: Component framework
+- File upload/download progress
+- Form completion progress
+- Loading states and data fetching
+- Multi-step wizard progress
+- Task completion tracking
+- Installation or setup progress
+- Data processing status
+- Goal achievement tracking

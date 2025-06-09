@@ -34,9 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT NOT NULL,
   email TEXT UNIQUE NOT NULL,
   country_id INTEGER REFERENCES countries(id),
-  city_id INTEGER REFERENCES cities(id),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  city_id INTEGER REFERENCES cities(id)
 );
 
 CREATE TABLE IF NOT EXISTS products (
@@ -45,18 +43,14 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   price DECIMAL(10, 2) NOT NULL,
   category TEXT,
-  stock INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  stock INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS orders (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id),
   total_amount DECIMAL(10, 2) NOT NULL,
-  status TEXT DEFAULT 'pending',
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  status TEXT DEFAULT 'pending'
 );
 
 CREATE TABLE IF NOT EXISTS order_items (
@@ -64,9 +58,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   order_id INTEGER REFERENCES orders(id),
   product_id INTEGER REFERENCES products(id),
   quantity INTEGER NOT NULL,
-  price DECIMAL(10, 2) NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  price DECIMAL(10, 2) NOT NULL
 );
 
 -- Create a stored procedure to run user SQL queries safely
@@ -115,237 +107,232 @@ INSERT INTO cities (name, country_id, population) VALUES
 ('Lyon', 3, 516092),
 ('Munich', 4, 1488202);
 
-INSERT INTO users (first_name, last_name, email, country_id, city_id, created_at) VALUES
-('John', 'Smith', 'john.smith@example.com', 1, 1, NOW() - INTERVAL '365 days'),
-('Emma', 'Johnson', 'emma.johnson@example.com', 2, 3, NOW() - INTERVAL '300 days'),
-('Pierre', 'Dupont', 'pierre.dupont@example.com', 3, 4, NOW() - INTERVAL '250 days'),
-('Hans', 'Müller', 'hans.muller@example.com', 4, 5, NOW() - INTERVAL '200 days'),
-('Yuki', 'Tanaka', 'yuki.tanaka@example.com', 5, 6, NOW() - INTERVAL '150 days'),
-('Olivia', 'Brown', 'olivia.brown@example.com', 6, 7, NOW() - INTERVAL '125 days'),
-('Carlos', 'Silva', 'carlos.silva@example.com', 7, 8, NOW() - INTERVAL '100 days'),
-('Michael', 'Wilson', 'michael.wilson@example.com', 8, 9, NOW() - INTERVAL '90 days'),
-('Raj', 'Patel', 'raj.patel@example.com', 9, 10, NOW() - INTERVAL '80 days'),
-('Li', 'Wei', 'li.wei@example.com', 10, 11, NOW() - INTERVAL '70 days'),
-('Sarah', 'Miller', 'sarah.miller@example.com', 1, 12, NOW() - INTERVAL '60 days'),
-('James', 'Taylor', 'james.taylor@example.com', 2, 13, NOW() - INTERVAL '50 days'),
-('Sophie', 'Martin', 'sophie.martin@example.com', 3, 14, NOW() - INTERVAL '40 days'),
-('Thomas', 'Weber', 'thomas.weber@example.com', 4, 15, NOW() - INTERVAL '30 days'),
-('Akira', 'Sato', 'akira.sato@example.com', 5, 6, NOW() - INTERVAL '20 days');
+INSERT INTO users (first_name, last_name, email, country_id, city_id) VALUES
+('John', 'Smith', 'john.smith@example.com', 1, 1),
+('Emma', 'Johnson', 'emma.johnson@example.com', 2, 3),
+('Pierre', 'Dupont', 'pierre.dupont@example.com', 3, 4),
+('Hans', 'Müller', 'hans.muller@example.com', 4, 5),
+('Yuki', 'Tanaka', 'yuki.tanaka@example.com', 5, 6),
+('Olivia', 'Brown', 'olivia.brown@example.com', 6, 7),
+('Carlos', 'Silva', 'carlos.silva@example.com', 7, 8),
+('Michael', 'Wilson', 'michael.wilson@example.com', 8, 9),
+('Raj', 'Patel', 'raj.patel@example.com', 9, 10),
+('Li', 'Wei', 'li.wei@example.com', 10, 11),
+('Sarah', 'Miller', 'sarah.miller@example.com', 1, 12),
+('James', 'Taylor', 'james.taylor@example.com', 2, 13),
+('Sophie', 'Martin', 'sophie.martin@example.com', 3, 14),
+('Thomas', 'Weber', 'thomas.weber@example.com', 4, 15),
+('Akira', 'Sato', 'akira.sato@example.com', 5, 6);
 
-INSERT INTO products (name, description, price, category, stock, created_at) VALUES
-('Smartphone X', 'Latest smartphone with high-end features', 899.99, 'Electronics', 120, NOW() - INTERVAL '400 days'),
-('Laptop Pro', 'Professional laptop for creative work', 1299.99, 'Electronics', 50, NOW() - INTERVAL '350 days'),
-('Coffee Maker', 'Automatic coffee maker with timer', 79.99, 'Kitchen', 200, NOW() - INTERVAL '300 days'),
-('Running Shoes', 'Comfortable shoes for marathon runners', 129.99, 'Sports', 150, NOW() - INTERVAL '250 days'),
-('Wireless Headphones', 'Noise-canceling wireless headphones', 249.99, 'Electronics', 100, NOW() - INTERVAL '200 days'),
-('Yoga Mat', 'Non-slip yoga mat for home workouts', 29.99, 'Sports', 300, NOW() - INTERVAL '150 days'),
-('Blender', 'High-speed blender for smoothies', 69.99, 'Kitchen', 120, NOW() - INTERVAL '125 days'),
-('Winter Jacket', 'Waterproof jacket for cold weather', 159.99, 'Clothing', 80, NOW() - INTERVAL '100 days'),
-('Smart Watch', 'Fitness tracker and smartwatch', 199.99, 'Electronics', 75, NOW() - INTERVAL '90 days'),
-('Gaming Console', 'Next-gen gaming console', 499.99, 'Electronics', 30, NOW() - INTERVAL '80 days'),
-('Desk Chair', 'Ergonomic office chair', 249.99, 'Furniture', 40, NOW() - INTERVAL '70 days'),
-('Water Bottle', 'Insulated stainless steel bottle', 24.99, 'Sports', 200, NOW() - INTERVAL '60 days'),
-('Bluetooth Speaker', 'Portable wireless speaker', 89.99, 'Electronics', 60, NOW() - INTERVAL '50 days'),
-('Backpack', 'Water-resistant backpack for hiking', 79.99, 'Outdoors', 100, NOW() - INTERVAL '40 days'),
-('Digital Camera', 'Professional DSLR camera', 1299.99, 'Electronics', 25, NOW() - INTERVAL '30 days');
+INSERT INTO products (name, description, price, category, stock) VALUES
+('Smartphone X', 'Latest smartphone with high-end features', 899.99, 'Electronics', 120),
+('Laptop Pro', 'Professional laptop for creative work', 1299.99, 'Electronics', 50),
+('Coffee Maker', 'Automatic coffee maker with timer', 79.99, 'Kitchen', 200),
+('Running Shoes', 'Comfortable shoes for marathon runners', 129.99, 'Sports', 150),
+('Wireless Headphones', 'Noise-canceling wireless headphones', 249.99, 'Electronics', 100),
+('Yoga Mat', 'Non-slip yoga mat for home workouts', 29.99, 'Sports', 300),
+('Blender', 'High-speed blender for smoothies', 69.99, 'Kitchen', 120),
+('Winter Jacket', 'Waterproof jacket for cold weather', 159.99, 'Clothing', 80),
+('Smart Watch', 'Fitness tracker and smartwatch', 199.99, 'Electronics', 75),
+('Gaming Console', 'Next-gen gaming console', 499.99, 'Electronics', 30),
+('Desk Chair', 'Ergonomic office chair', 249.99, 'Furniture', 40),
+('Water Bottle', 'Insulated stainless steel bottle', 24.99, 'Sports', 200),
+('Bluetooth Speaker', 'Portable wireless speaker', 89.99, 'Electronics', 60),
+('Backpack', 'Water-resistant backpack for hiking', 79.99, 'Outdoors', 100),
+('Digital Camera', 'Professional DSLR camera', 1299.99, 'Electronics', 25);
 
--- Insert orders and order items (simulating purchases over time)
--- Order 1 (John Smith)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(1, 1149.98, 'completed', NOW() - INTERVAL '340 days');
+-- Insert realistic orders with varied IDs and multiple orders per user
+-- Multiple orders for John Smith (user_id: 1)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(1, 1149.98, 'completed'),
+(1, 329.97, 'completed'),
+(1, 199.99, 'pending');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(1, 1, 1, 899.99, NOW() - INTERVAL '340 days'),
-(1, 3, 1, 79.99, NOW() - INTERVAL '340 days'),
-(1, 12, 1, 24.99, NOW() - INTERVAL '340 days'),
-(1, 6, 1, 29.99, NOW() - INTERVAL '340 days'),
-(1, 7, 1, 69.99, NOW() - INTERVAL '340 days');
+-- Multiple orders for Emma Johnson (user_id: 2)  
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(2, 1549.98, 'completed'),
+(2, 159.99, 'completed');
 
--- Order 2 (Emma Johnson)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(2, 1549.98, 'completed', NOW() - INTERVAL '320 days');
+-- Multiple orders for Pierre Dupont (user_id: 3)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(3, 699.96, 'completed'),
+(3, 899.99, 'completed');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(2, 2, 1, 1299.99, NOW() - INTERVAL '320 days'),
-(2, 5, 1, 249.99, NOW() - INTERVAL '320 days');
+-- Single order for Hans Müller (user_id: 4)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(4, 1749.97, 'completed');
 
--- Order 3 (Pierre Dupont)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(3, 699.96, 'completed', NOW() - INTERVAL '300 days');
+-- Multiple orders for Yuki Tanaka (user_id: 5)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(5, 1149.98, 'completed'),
+(5, 1299.99, 'completed'),
+(5, 79.99, 'pending');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(3, 9, 1, 199.99, NOW() - INTERVAL '300 days'),
-(3, 4, 2, 129.99, NOW() - INTERVAL '300 days'),
-(3, 12, 1, 24.99, NOW() - INTERVAL '300 days'),
-(3, 6, 1, 29.99, NOW() - INTERVAL '300 days'),
-(3, 13, 1, 89.99, NOW() - INTERVAL '300 days');
+-- Single order for Olivia Brown (user_id: 6)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(6, 329.98, 'completed');
 
--- Order 4 (Hans Müller)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(4, 1749.97, 'completed', NOW() - INTERVAL '280 days');
+-- Multiple orders for Carlos Silva (user_id: 7)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(7, 579.97, 'completed'),
+(7, 249.99, 'completed');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(4, 2, 1, 1299.99, NOW() - INTERVAL '280 days'),
-(4, 5, 1, 249.99, NOW() - INTERVAL '280 days'),
-(4, 10, 1, 499.99, NOW() - INTERVAL '280 days');
+-- Single order for Michael Wilson (user_id: 8)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(8, 899.99, 'completed');
 
--- Order 5 (Yuki Tanaka)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(5, 1149.98, 'completed', NOW() - INTERVAL '260 days');
+-- Multiple orders for Raj Patel (user_id: 9)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(9, 449.98, 'completed'),
+(9, 129.99, 'completed'),
+(9, 69.99, 'pending');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(5, 1, 1, 899.99, NOW() - INTERVAL '260 days'),
-(5, 9, 1, 199.99, NOW() - INTERVAL '260 days'),
-(5, 6, 1, 29.99, NOW() - INTERVAL '260 days'),
-(5, 12, 1, 24.99, NOW() - INTERVAL '260 days');
+-- Multiple orders for Li Wei (user_id: 10)
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(10, 1799.97, 'completed'),
+(10, 499.99, 'completed');
 
--- Order 6 (Olivia Brown)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(6, 1399.97, 'completed', NOW() - INTERVAL '240 days');
+-- Single orders for remaining users
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(11, 1529.97, 'completed'),
+(12, 279.96, 'completed'),
+(13, 1399.97, 'completed'),
+(14, 1549.98, 'completed'),
+(15, 1399.97, 'completed');
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(6, 15, 1, 1299.99, NOW() - INTERVAL '240 days'),
-(6, 12, 1, 24.99, NOW() - INTERVAL '240 days'),
-(6, 6, 1, 29.99, NOW() - INTERVAL '240 days'),
-(6, 3, 1, 79.99, NOW() - INTERVAL '240 days');
+-- Insert order items for all orders
+-- Order 1 (John Smith - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 1, 899.99),
+(1, 3, 1, 79.99),
+(1, 12, 1, 24.99),
+(1, 6, 1, 29.99),
+(1, 7, 1, 69.99),
+(1, 14, 1, 79.99);
 
--- Order 7 (Carlos Silva)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(7, 619.97, 'completed', NOW() - INTERVAL '220 days');
+-- Order 2 (John Smith - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(2, 8, 1, 159.99),
+(2, 4, 1, 129.99),
+(2, 14, 1, 79.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(7, 8, 1, 159.99, NOW() - INTERVAL '220 days'),
-(7, 5, 1, 249.99, NOW() - INTERVAL '220 days'),
-(7, 13, 1, 89.99, NOW() - INTERVAL '220 days'),
-(7, 12, 1, 24.99, NOW() - INTERVAL '220 days'),
-(7, 6, 1, 29.99, NOW() - INTERVAL '220 days'),
-(7, 7, 1, 69.99, NOW() - INTERVAL '220 days');
+-- Order 3 (John Smith - third order - pending)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(3, 9, 1, 199.99);
 
--- Order 8 (Michael Wilson)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(8, 1699.98, 'completed', NOW() - INTERVAL '200 days');
+-- Order 4 (Emma Johnson - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(4, 2, 1, 1299.99),
+(4, 5, 1, 249.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(8, 2, 1, 1299.99, NOW() - INTERVAL '200 days'),
-(8, 10, 1, 499.99, NOW() - INTERVAL '200 days');
+-- Order 5 (Emma Johnson - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(5, 8, 1, 159.99);
 
--- Order 9 (Raj Patel)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(9, 329.97, 'completed', NOW() - INTERVAL '180 days');
+-- Order 6 (Pierre Dupont - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(6, 9, 1, 199.99),
+(6, 4, 2, 129.99),
+(6, 12, 1, 24.99),
+(6, 6, 1, 29.99),
+(6, 13, 1, 89.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(9, 4, 1, 129.99, NOW() - INTERVAL '180 days'),
-(9, 6, 1, 29.99, NOW() - INTERVAL '180 days'),
-(9, 7, 1, 69.99, NOW() - INTERVAL '180 days'),
-(9, 12, 1, 24.99, NOW() - INTERVAL '180 days'),
-(9, 13, 1, 89.99, NOW() - INTERVAL '180 days');
+-- Order 7 (Pierre Dupont - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(7, 1, 1, 899.99);
 
--- Order 10 (Li Wei)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(10, 1699.97, 'completed', NOW() - INTERVAL '160 days');
+-- Order 8 (Hans Müller - single order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(8, 2, 1, 1299.99),
+(8, 5, 1, 249.99),
+(8, 9, 1, 199.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(10, 1, 1, 899.99, NOW() - INTERVAL '160 days'),
-(10, 5, 1, 249.99, NOW() - INTERVAL '160 days'),
-(10, 9, 1, 199.99, NOW() - INTERVAL '160 days'),
-(10, 11, 1, 249.99, NOW() - INTERVAL '160 days'),
-(10, 12, 1, 24.99, NOW() - INTERVAL '160 days'),
-(10, 6, 1, 29.99, NOW() - INTERVAL '160 days'),
-(10, 14, 1, 79.99, NOW() - INTERVAL '160 days');
+-- Order 9 (Yuki Tanaka - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(9, 1, 1, 899.99),
+(9, 9, 1, 199.99),
+(9, 6, 1, 29.99),
+(9, 12, 1, 24.99);
 
--- Order 11 (Sarah Miller)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(11, 1529.97, 'completed', NOW() - INTERVAL '140 days');
+-- Order 10 (Yuki Tanaka - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(10, 2, 1, 1299.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(11, 2, 1, 1299.99, NOW() - INTERVAL '140 days'),
-(11, 3, 1, 79.99, NOW() - INTERVAL '140 days'),
-(11, 6, 1, 29.99, NOW() - INTERVAL '140 days'),
-(11, 12, 1, 24.99, NOW() - INTERVAL '140 days'),
-(11, 5, 1, 249.99, NOW() - INTERVAL '140 days');
+-- Order 11 (Yuki Tanaka - third order - pending)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(11, 14, 1, 79.99);
 
--- Order 12 (James Taylor)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(12, 279.96, 'completed', NOW() - INTERVAL '120 days');
+-- Order 12 (Olivia Brown - single order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(12, 8, 1, 159.99),
+(12, 4, 1, 129.99),
+(12, 14, 1, 79.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(12, 6, 1, 29.99, NOW() - INTERVAL '120 days'),
-(12, 7, 1, 69.99, NOW() - INTERVAL '120 days'),
-(12, 12, 1, 24.99, NOW() - INTERVAL '120 days'),
-(12, 13, 1, 89.99, NOW() - INTERVAL '120 days'),
-(12, 14, 1, 79.99, NOW() - INTERVAL '120 days');
+-- Order 13 (Carlos Silva - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(13, 10, 1, 499.99),
+(13, 14, 1, 79.99);
 
--- Order 13 (Sophie Martin)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(13, 1399.97, 'completed', NOW() - INTERVAL '100 days');
+-- Order 14 (Carlos Silva - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(14, 5, 1, 249.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(13, 15, 1, 1299.99, NOW() - INTERVAL '100 days'),
-(13, 12, 1, 24.99, NOW() - INTERVAL '100 days'),
-(13, 6, 1, 29.99, NOW() - INTERVAL '100 days'),
-(13, 14, 1, 79.99, NOW() - INTERVAL '100 days');
+-- Order 15 (Michael Wilson - single order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(15, 1, 1, 899.99);
 
--- Order 14 (Thomas Weber)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(14, 1549.98, 'completed', NOW() - INTERVAL '80 days');
+-- Order 16 (Raj Patel - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(16, 5, 1, 249.99),
+(16, 9, 1, 199.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(14, 2, 1, 1299.99, NOW() - INTERVAL '80 days'),
-(14, 5, 1, 249.99, NOW() - INTERVAL '80 days');
+-- Order 17 (Raj Patel - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(17, 4, 1, 129.99);
 
--- Order 15 (Akira Sato)
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(15, 1399.97, 'completed', NOW() - INTERVAL '60 days');
+-- Order 18 (Raj Patel - third order - pending)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(18, 7, 1, 69.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(15, 15, 1, 1299.99, NOW() - INTERVAL '60 days'),
-(15, 6, 1, 29.99, NOW() - INTERVAL '60 days'),
-(15, 7, 1, 69.99, NOW() - INTERVAL '60 days');
+-- Order 19 (Li Wei - first order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(19, 15, 1, 1299.99),
+(19, 10, 1, 499.99);
 
--- Second orders for some users
+-- Order 20 (Li Wei - second order)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(20, 10, 1, 499.99);
 
--- John Smith's second order
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(1, 769.97, 'completed', NOW() - INTERVAL '200 days');
+-- Order 21 (Sarah Miller)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(21, 2, 1, 1299.99),
+(21, 3, 1, 79.99),
+(21, 6, 1, 29.99),
+(21, 12, 1, 24.99),
+(21, 5, 1, 249.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(16, 9, 1, 199.99, NOW() - INTERVAL '200 days'),
-(16, 5, 1, 249.99, NOW() - INTERVAL '200 days'),
-(16, 11, 1, 249.99, NOW() - INTERVAL '200 days'),
-(16, 6, 1, 29.99, NOW() - INTERVAL '200 days'),
-(16, 14, 1, 79.99, NOW() - INTERVAL '200 days');
+-- Order 22 (James Taylor)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(22, 6, 1, 29.99),
+(22, 7, 1, 69.99),
+(22, 12, 1, 24.99),
+(22, 13, 1, 89.99),
+(22, 14, 1, 79.99);
 
--- Emma Johnson's second order
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(2, 279.96, 'completed', NOW() - INTERVAL '180 days');
+-- Order 23 (Sophie Martin)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(23, 15, 1, 1299.99),
+(23, 12, 1, 24.99),
+(23, 6, 1, 29.99),
+(23, 14, 1, 79.99);
 
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(17, 13, 1, 89.99, NOW() - INTERVAL '180 days'),
-(17, 8, 1, 159.99, NOW() - INTERVAL '180 days'),
-(17, 6, 1, 29.99, NOW() - INTERVAL '180 days');
+-- Order 24 (Thomas Weber)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(24, 2, 1, 1299.99),
+(24, 5, 1, 249.99);
 
--- Pierre Dupont's second order
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(3, 1079.98, 'completed', NOW() - INTERVAL '150 days');
-
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(18, 1, 1, 899.99, NOW() - INTERVAL '150 days'),
-(18, 11, 1, 249.99, NOW() - INTERVAL '150 days');
-
--- Hans Müller's second order
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(4, 279.96, 'completed', NOW() - INTERVAL '120 days');
-
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(19, 4, 1, 129.99, NOW() - INTERVAL '120 days'),
-(19, 6, 1, 29.99, NOW() - INTERVAL '120 days'),
-(19, 12, 1, 24.99, NOW() - INTERVAL '120 days'),
-(19, 13, 1, 89.99, NOW() - INTERVAL '120 days');
-
--- Yuki Tanaka's second order
-INSERT INTO orders (user_id, total_amount, status, created_at) VALUES
-(5, 1549.98, 'completed', NOW() - INTERVAL '90 days');
-
-INSERT INTO order_items (order_id, product_id, quantity, price, created_at) VALUES
-(20, 2, 1, 1299.99, NOW() - INTERVAL '90 days'),
-(20, 5, 1, 249.99, NOW() - INTERVAL '90 days');
+-- Order 25 (Akira Sato)
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(25, 15, 1, 1299.99),
+(25, 6, 1, 29.99),
+(25, 7, 1, 69.99);

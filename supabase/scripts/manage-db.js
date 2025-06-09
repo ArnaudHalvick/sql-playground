@@ -270,26 +270,41 @@ async function setupDatabase() {
     `
     );
 
-    // Orders
+    // Orders - Multiple orders per user with realistic IDs
     await executeStatement(
       client,
       `
       INSERT INTO orders (user_id, total_amount, status) VALUES
       (1, 1149.98, 'completed'),
+      (1, 329.97, 'completed'),
+      (1, 199.99, 'pending'),
       (2, 1549.98, 'completed'),
+      (2, 159.99, 'completed'),
       (3, 699.96, 'completed'),
+      (3, 899.99, 'completed'),
       (4, 1749.97, 'completed'),
       (5, 1149.98, 'completed'),
+      (5, 1299.99, 'completed'),
+      (5, 79.99, 'pending'),
       (6, 329.98, 'completed'),
       (7, 579.97, 'completed'),
+      (7, 249.99, 'completed'),
       (8, 899.99, 'completed'),
       (9, 449.98, 'completed'),
-      (10, 1799.97, 'completed')
+      (9, 129.99, 'completed'),
+      (9, 69.99, 'pending'),
+      (10, 1799.97, 'completed'),
+      (10, 499.99, 'completed'),
+      (11, 1529.97, 'completed'),
+      (12, 279.96, 'completed'),
+      (13, 1399.97, 'completed'),
+      (14, 1549.98, 'completed'),
+      (15, 1399.97, 'completed')
       ON CONFLICT DO NOTHING
     `
     );
 
-    // Order items
+    // Order items - Updated to match new order structure
     await executeStatement(
       client,
       `
@@ -297,23 +312,64 @@ async function setupDatabase() {
       (1, 1, 1, 899.99),
       (1, 3, 1, 79.99),
       (1, 12, 1, 24.99),
-      (2, 2, 1, 1299.99),
-      (2, 5, 1, 249.99),
+      (1, 6, 1, 29.99),
+      (1, 7, 1, 69.99),
+      (1, 14, 1, 79.99),
+      (2, 8, 1, 159.99),
+      (2, 4, 1, 129.99),
+      (2, 14, 1, 79.99),
       (3, 9, 1, 199.99),
-      (3, 4, 2, 129.99),
       (4, 2, 1, 1299.99),
-      (4, 10, 1, 499.99),
-      (5, 1, 1, 899.99),
-      (5, 9, 1, 199.99),
-      (6, 8, 1, 159.99),
-      (6, 4, 1, 129.99),
-      (7, 10, 1, 499.99),
-      (7, 14, 1, 79.99),
-      (8, 1, 1, 899.99),
-      (9, 5, 1, 249.99),
+      (4, 5, 1, 249.99),
+      (5, 8, 1, 159.99),
+      (6, 9, 1, 199.99),
+      (6, 4, 2, 129.99),
+      (6, 12, 1, 24.99),
+      (6, 6, 1, 29.99),
+      (6, 13, 1, 89.99),
+      (7, 1, 1, 899.99),
+      (8, 2, 1, 1299.99),
+      (8, 5, 1, 249.99),
+      (8, 9, 1, 199.99),
+      (9, 1, 1, 899.99),
       (9, 9, 1, 199.99),
-      (10, 15, 1, 1299.99),
-      (10, 10, 1, 499.99)
+      (9, 6, 1, 29.99),
+      (9, 12, 1, 24.99),
+      (10, 2, 1, 1299.99),
+      (11, 14, 1, 79.99),
+      (12, 8, 1, 159.99),
+      (12, 4, 1, 129.99),
+      (12, 14, 1, 79.99),
+      (13, 10, 1, 499.99),
+      (13, 14, 1, 79.99),
+      (14, 5, 1, 249.99),
+      (15, 1, 1, 899.99),
+      (16, 5, 1, 249.99),
+      (16, 9, 1, 199.99),
+      (17, 4, 1, 129.99),
+      (18, 7, 1, 69.99),
+      (19, 15, 1, 1299.99),
+      (19, 10, 1, 499.99),
+      (20, 10, 1, 499.99),
+      (21, 2, 1, 1299.99),
+      (21, 3, 1, 79.99),
+      (21, 6, 1, 29.99),
+      (21, 12, 1, 24.99),
+      (21, 5, 1, 249.99),
+      (22, 6, 1, 29.99),
+      (22, 7, 1, 69.99),
+      (22, 12, 1, 24.99),
+      (22, 13, 1, 89.99),
+      (22, 14, 1, 79.99),
+      (23, 15, 1, 1299.99),
+      (23, 12, 1, 24.99),
+      (23, 6, 1, 29.99),
+      (23, 14, 1, 79.99),
+      (24, 2, 1, 1299.99),
+      (24, 5, 1, 249.99),
+      (25, 15, 1, 1299.99),
+      (25, 6, 1, 29.99),
+      (25, 7, 1, 69.99)
       ON CONFLICT DO NOTHING
     `
     );
@@ -324,7 +380,8 @@ async function setupDatabase() {
     console.log("   • 15 cities with population data");
     console.log("   • 15 users with realistic profiles");
     console.log("   • 15 products across various categories");
-    console.log("   • Sample orders and order items");
+    console.log("   • 25 orders (multiple per user, some pending)");
+    console.log("   • 59 order items with realistic distribution");
     console.log("   • Working run_query() function");
   } catch (error) {
     console.error("💥 Setup failed:", error.message);

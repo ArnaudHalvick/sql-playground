@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { SqlEditor } from "@/components/ui/custom/sql-editor";
 import { DataTable } from "@/components/ui/data-display/data-table";
 import { SchemaViewer } from "@/components/ui/custom/schema-viewer";
+import { DatabaseManager } from "@/components/ui/custom/database-manager";
 import { databaseSchema } from "@/lib/schema";
 import { executeQuery } from "@/lib/supabase";
 import {
@@ -43,7 +44,7 @@ import {
 import { Badge } from "@/components/ui/feedback/badge";
 
 export default function Home() {
-  const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10;");
+  const [query, setQuery] = useState<string>("SELECT * FROM users LIMIT 10");
   const [results, setResults] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
@@ -271,11 +272,12 @@ export default function Home() {
                   </TabsContent>
 
                   <TabsContent value="schema" className="mt-4">
-                    <div className="h-[calc(100vh-12rem)]">
+                    <div className="h-[calc(100vh-12rem)] space-y-4">
+                      <DatabaseManager />
                       <SchemaViewer
                         tables={databaseSchema}
                         onTableClick={handleTableClick}
-                        className="h-full"
+                        className="flex-1"
                       />
                     </div>
                   </TabsContent>

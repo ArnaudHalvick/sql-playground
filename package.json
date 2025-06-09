@@ -10,7 +10,8 @@
     "db:setup": "node supabase/scripts/manage-db.js setup",
     "db:reset": "node supabase/scripts/manage-db.js reset",
     "db:info": "node supabase/scripts/manage-db.js info",
-    "db:query": "node supabase/scripts/manage-db.js query"
+    "db:query": "node supabase/scripts/manage-db.js query",
+    "db:fix": "node supabase/scripts/manage-db.js fix"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.5.4",

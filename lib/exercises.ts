@@ -14,7 +14,7 @@ export const exercises: Exercise[] = [
     title: "Get all users",
     description: "Retrieve all columns for all users in the database.",
     difficulty: "beginner",
-    query: "SELECT * FROM users;",
+    query: "SELECT * FROM users",
   },
   {
     id: "select-specific-columns",
@@ -22,7 +22,7 @@ export const exercises: Exercise[] = [
     description:
       "Retrieve only first name, last name, and email for all users.",
     difficulty: "beginner",
-    query: "SELECT first_name, last_name, email FROM users;",
+    query: "SELECT first_name, last_name, email FROM users",
   },
   {
     id: "limit-and-order",
@@ -30,14 +30,14 @@ export const exercises: Exercise[] = [
     description:
       "Get the 5 most recently created users, ordered by creation date.",
     difficulty: "beginner",
-    query: "SELECT * FROM users ORDER BY created_at DESC LIMIT 5;",
+    query: "SELECT * FROM users ORDER BY created_at DESC LIMIT 5",
   },
   {
     id: "filter-with-where",
     title: "Filter with WHERE clause",
     description: "Find all products with price greater than $50.",
     difficulty: "beginner",
-    query: "SELECT * FROM products WHERE price > 50;",
+    query: "SELECT * FROM products WHERE price > 50",
   },
   {
     id: "simple-join",
@@ -46,7 +46,7 @@ export const exercises: Exercise[] = [
     difficulty: "intermediate",
     query: `SELECT o.id, o.total_amount, o.status, u.first_name, u.last_name, u.email
 FROM orders o
-JOIN users u ON o.user_id = u.id;`,
+JOIN users u ON o.user_id = u.id`,
   },
   {
     id: "multi-table-join",
@@ -58,7 +58,7 @@ JOIN users u ON o.user_id = u.id;`,
 FROM orders o
 JOIN users u ON o.user_id = u.id
 JOIN order_items oi ON oi.order_id = o.id
-JOIN products p ON oi.product_id = p.id;`,
+JOIN products p ON oi.product_id = p.id`,
   },
   {
     id: "group-by-aggregate",
@@ -70,7 +70,7 @@ FROM orders o
 JOIN users u ON o.user_id = u.id
 JOIN countries c ON u.country_id = c.id
 GROUP BY c.name
-ORDER BY total_sales DESC;`,
+ORDER BY total_sales DESC`,
   },
   {
     id: "having-clause",
@@ -83,7 +83,7 @@ JOIN users u ON o.user_id = u.id
 JOIN countries c ON u.country_id = c.id
 GROUP BY c.name
 HAVING SUM(o.total_amount) > 1000
-ORDER BY total_sales DESC;`,
+ORDER BY total_sales DESC`,
   },
   {
     id: "subquery",
@@ -96,7 +96,7 @@ FROM users u
 JOIN orders o ON u.id = o.user_id
 WHERE o.total_amount > (
   SELECT AVG(total_amount) FROM orders
-);`,
+)`,
   },
   {
     id: "window-function",
@@ -105,7 +105,7 @@ WHERE o.total_amount > (
     difficulty: "advanced",
     query: `SELECT name, category, price,
        RANK() OVER (PARTITION BY category ORDER BY price DESC) as price_rank
-FROM products;`,
+FROM products`,
   },
   {
     id: "case-expression",
@@ -119,7 +119,7 @@ FROM products;`,
          ELSE 'Premium'
        END as price_category
 FROM products
-ORDER BY price;`,
+ORDER BY price`,
   },
   {
     id: "common-table-expression",
@@ -135,7 +135,7 @@ ORDER BY price;`,
 SELECT first_name, last_name, total_spent
 FROM customer_totals
 ORDER BY total_spent DESC
-LIMIT 5;`,
+LIMIT 5`,
   },
   {
     id: "count-distinct",
@@ -148,7 +148,7 @@ FROM users u
 JOIN orders o ON u.id = o.user_id
 JOIN order_items oi ON o.id = oi.order_id
 GROUP BY u.id, u.first_name, u.last_name
-ORDER BY unique_products_ordered DESC;`,
+ORDER BY unique_products_ordered DESC`,
   },
   {
     id: "date-functions",
@@ -162,7 +162,7 @@ ORDER BY unique_products_ordered DESC;`,
   SUM(total_amount) as total_sales
 FROM orders
 GROUP BY year, month
-ORDER BY year, month;`,
+ORDER BY year, month`,
   },
   {
     id: "self-join",
@@ -176,7 +176,7 @@ ORDER BY year, month;`,
 FROM cities c1
 JOIN cities c2 ON c1.country_id = c2.country_id AND c1.id < c2.id
 JOIN countries co ON c1.country_id = co.id
-ORDER BY country, city1, city2;`,
+ORDER BY country, city1, city2`,
   },
   {
     id: "exists-subquery",
@@ -188,7 +188,7 @@ FROM users u
 WHERE NOT EXISTS (
   SELECT 1 FROM orders o
   WHERE o.user_id = u.id
-);`,
+)`,
   },
   {
     id: "union-query",
@@ -209,7 +209,7 @@ SELECT first_name, last_name, 'Premium Market' as category
 FROM users u
 JOIN countries c ON u.country_id = c.id
 WHERE c.name IN ('United States', 'United Kingdom', 'Japan')
-ORDER BY first_name, last_name;`,
+ORDER BY first_name, last_name`,
   },
   {
     id: "complex-aggregation",
@@ -227,7 +227,7 @@ ORDER BY first_name, last_name;`,
 FROM products p
 LEFT JOIN order_items oi ON p.id = oi.product_id
 GROUP BY p.category
-ORDER BY total_units_sold DESC;`,
+ORDER BY total_units_sold DESC`,
   },
   {
     id: "nested-subqueries",
@@ -250,7 +250,7 @@ HAVING SUM(oi.quantity) > (
   ) product_sales
   WHERE product_sales.category = p.category
 )
-ORDER BY total_sold DESC;`,
+ORDER BY total_sold DESC`,
   },
   {
     id: "string-functions",
@@ -265,6 +265,6 @@ ORDER BY total_sold DESC;`,
   LENGTH(first_name || last_name) as name_length,
   CONCAT(LEFT(first_name, 1), '. ', last_name) as formatted_name
 FROM users
-ORDER BY name_length DESC;`,
+ORDER BY name_length DESC`,
   },
 ];

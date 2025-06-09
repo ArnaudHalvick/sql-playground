@@ -1,15 +1,12 @@
 # Popover
 
-A popover component that displays rich content in a floating panel. Built on top of Radix UI's Popover primitive with custom styling and smooth animations.
+A popover component that displays rich content in a floating panel. Built on Radix UI's Popover primitive.
 
 ## Features
 
-- Click to open/close
-- Rich content display
-- Customizable positioning
-- Smooth animations
-- Portal rendering
-- Accessible by default
+- Click to open/close with rich content display
+- Customizable positioning and smooth animations
+- Portal rendering and accessible by default
 - Focus management
 
 ## Installation
@@ -18,7 +15,7 @@ A popover component that displays rich content in a floating panel. Built on top
 npm install @radix-ui/react-popover
 ```
 
-## Usage
+## Basic Usage
 
 ```tsx
 import {
@@ -67,53 +64,40 @@ export function PopoverDemo() {
 }
 ```
 
-## API Reference
+## Key Components
 
 ### Popover
 
-The root component that manages the popover state.
+Root component managing popover state.
 
-| Prop           | Type                      | Default | Description                                |
-| -------------- | ------------------------- | ------- | ------------------------------------------ |
-| `defaultOpen`  | `boolean`                 | `false` | The default open state                     |
-| `open`         | `boolean`                 | -       | The controlled open state                  |
-| `onOpenChange` | `(open: boolean) => void` | -       | Callback fired when the open state changes |
-| `modal`        | `boolean`                 | `false` | Whether the popover is modal               |
+- `defaultOpen?: boolean` - Default open state
+- `open?: boolean` - Controlled open state
+- `onOpenChange?: (open: boolean) => void` - Open state change callback
+- `modal?: boolean` - Whether popover is modal (default: false)
 
 ### PopoverTrigger
 
-The button that opens the popover.
+Button that opens the popover.
 
-| Prop       | Type              | Default | Description                         |
-| ---------- | ----------------- | ------- | ----------------------------------- |
-| `asChild`  | `boolean`         | `false` | Change the default rendered element |
-| `children` | `React.ReactNode` | -       | The trigger content                 |
+- `asChild?: boolean` - Change rendered element (default: false)
 
 ### PopoverContent
 
-The content container for the popover.
+Content container for the popover.
 
-| Prop                   | Type                                       | Default    | Description                               |
-| ---------------------- | ------------------------------------------ | ---------- | ----------------------------------------- |
-| `className`            | `string`                                   | -          | Additional CSS classes                    |
-| `align`                | `"start" \| "center" \| "end"`             | `"center"` | Alignment relative to trigger             |
-| `sideOffset`           | `number`                                   | `4`        | Distance from the trigger                 |
-| `alignOffset`          | `number`                                   | `0`        | Alignment offset                          |
-| `side`                 | `"top" \| "right" \| "bottom" \| "left"`   | `"bottom"` | Preferred side to render                  |
-| `onPointerDownOutside` | `(event: PointerDownOutsideEvent) => void` | -          | Callback fired when clicking outside      |
-| `onEscapeKeyDown`      | `(event: KeyboardEvent) => void`           | -          | Callback fired when escape key is pressed |
+- `className?: string` - Additional CSS classes
+- `align?: "start" | "center" | "end"` - Alignment relative to trigger (default: "center")
+- `sideOffset?: number` - Distance from trigger (default: 4)
+- `alignOffset?: number` - Alignment offset (default: 0)
+- `side?: "top" | "right" | "bottom" | "left"` - Preferred side (default: "bottom")
+- `onPointerDownOutside?: (event) => void` - Outside click callback
+- `onEscapeKeyDown?: (event) => void` - Escape key callback
 
 ## Examples
 
 ### Date Picker Popover
 
 ```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -148,12 +132,6 @@ function DatePickerPopover() {
 ### Color Picker Popover
 
 ```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -224,21 +202,13 @@ function ColorPickerPopover() {
 ### Settings Popover
 
 ```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
 import { Settings } from "lucide-react";
 
 function SettingsPopover() {
   const [notifications, setNotifications] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
-  const [volume, setVolume] = React.useState([50]);
 
   return (
     <Popover>
@@ -250,16 +220,14 @@ function SettingsPopover() {
       <PopoverContent className="w-80">
         <div className="space-y-4">
           <div className="space-y-2">
-            <h4 className="font-medium leading-none">Settings</h4>
+            <h4 className="font-medium">Settings</h4>
             <p className="text-sm text-muted-foreground">
-              Configure your preferences.
+              Manage your preferences
             </p>
           </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="notifications" className="text-sm">
-                Push Notifications
-              </Label>
+              <Label htmlFor="notifications">Notifications</Label>
               <Switch
                 id="notifications"
                 checked={notifications}
@@ -267,28 +235,13 @@ function SettingsPopover() {
               />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="dark-mode" className="text-sm">
-                Dark Mode
-              </Label>
+              <Label htmlFor="dark-mode">Dark Mode</Label>
               <Switch
                 id="dark-mode"
                 checked={darkMode}
                 onCheckedChange={setDarkMode}
               />
             </div>
-            <div className="space-y-2">
-              <Label className="text-sm">Volume</Label>
-              <Slider
-                value={volume}
-                onValueChange={setVolume}
-                max={100}
-                step={1}
-                className="w-full"
-              />
-              <div className="text-xs text-muted-foreground text-center">
-                {volume[0]}%
-              </div>
-            </div>
           </div>
         </div>
       </PopoverContent>
@@ -297,267 +250,10 @@ function SettingsPopover() {
 }
 ```
 
-### User Profile Popover
+## Best Practices
 
-```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { User, Settings, LogOut } from "lucide-react";
-
-function UserProfilePopover() {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt="@johndoe" />
-            <AvatarFallback>JD</AvatarFallback>
-          </Avatar>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="end">
-        <div className="space-y-4">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12">
-              <AvatarImage src="/avatars/01.png" alt="@johndoe" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <h4 className="text-sm font-semibold">John Doe</h4>
-                <Badge variant="secondary">Pro</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">john@example.com</p>
-            </div>
-          </div>
-          <Separator />
-          <div className="space-y-1">
-            <Button variant="ghost" className="w-full justify-start" size="sm">
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </Button>
-            <Button variant="ghost" className="w-full justify-start" size="sm">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
-          </div>
-          <Separator />
-          <Button variant="ghost" className="w-full justify-start" size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Log out
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
-```
-
-### Share Popover
-
-```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Share, Copy, Mail, MessageCircle, Twitter } from "lucide-react";
-
-function SharePopover() {
-  const [url] = React.useState("https://example.com/shared-content");
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(url);
-  };
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
-          <Share className="mr-2 h-4 w-4" />
-          Share
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h4 className="font-medium leading-none">Share this content</h4>
-            <p className="text-sm text-muted-foreground">
-              Anyone with the link can view this content.
-            </p>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="link">Link</Label>
-            <div className="flex space-x-2">
-              <Input id="link" value={url} readOnly />
-              <Button size="sm" onClick={copyToClipboard}>
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Share via</Label>
-            <div className="flex space-x-2">
-              <Button variant="outline" size="sm">
-                <Mail className="mr-2 h-4 w-4" />
-                Email
-              </Button>
-              <Button variant="outline" size="sm">
-                <MessageCircle className="mr-2 h-4 w-4" />
-                Message
-              </Button>
-              <Button variant="outline" size="sm">
-                <Twitter className="mr-2 h-4 w-4" />
-                Twitter
-              </Button>
-            </div>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
-```
-
-### Filter Popover
-
-```tsx
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/overlays/popover";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Filter } from "lucide-react";
-
-function FilterPopover() {
-  const [filters, setFilters] = React.useState({
-    categories: [],
-    status: [],
-    priority: [],
-  });
-
-  const categories = ["Design", "Development", "Marketing", "Sales"];
-  const statuses = ["Active", "Inactive", "Pending"];
-  const priorities = ["High", "Medium", "Low"];
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filters
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h4 className="font-medium leading-none">Filters</h4>
-            <p className="text-sm text-muted-foreground">
-              Filter items by category, status, and priority.
-            </p>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium">Categories</Label>
-              <div className="mt-2 space-y-2">
-                {categories.map((category) => (
-                  <div key={category} className="flex items-center space-x-2">
-                    <Checkbox id={category} />
-                    <Label htmlFor={category} className="text-sm">
-                      {category}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Separator />
-            <div>
-              <Label className="text-sm font-medium">Status</Label>
-              <div className="mt-2 space-y-2">
-                {statuses.map((status) => (
-                  <div key={status} className="flex items-center space-x-2">
-                    <Checkbox id={status} />
-                    <Label htmlFor={status} className="text-sm">
-                      {status}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <Separator />
-            <div>
-              <Label className="text-sm font-medium">Priority</Label>
-              <div className="mt-2 space-y-2">
-                {priorities.map((priority) => (
-                  <div key={priority} className="flex items-center space-x-2">
-                    <Checkbox id={priority} />
-                    <Label htmlFor={priority} className="text-sm">
-                      {priority}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <Button size="sm" className="flex-1">
-              Apply
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              Reset
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
-  );
-}
-```
-
-## Styling
-
-The popover components can be styled using Tailwind CSS classes. The default styles provide a clean appearance with smooth animations.
-
-```tsx
-<PopoverContent className="w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-lg">
-  <div className="p-4">
-    <h4 className="font-semibold text-gray-900 dark:text-white">
-      Custom Styled Popover
-    </h4>
-  </div>
-</PopoverContent>
-```
-
-## Accessibility
-
-- Focus is automatically managed
-- Pressing ESC closes the popover
-- Clicking outside closes the popover
-- Proper ARIA attributes are applied
-- Screen reader compatible
-- Keyboard navigation support
-
-## Common Use Cases
-
-- Date and time pickers
-- Color pickers and selectors
-- Settings and configuration panels
-- User profile menus
-- Share and export options
-- Filter and search interfaces
-- Form field helpers
-- Quick action menus
+- Use for rich interactive content that needs more space than tooltips
+- Position appropriately based on available screen space
+- Include clear actions or close mechanisms
+- Keep content focused and organized
+- Consider mobile responsiveness and touch interactions

@@ -69,20 +69,21 @@ SELECT id, user_id, total_amount, status FROM orders LIMIT 3;
 
 ### Included Automatically
 
-- ✅ **20250605155926_dusty_wind.sql** - Original run_query function (superseded by our improved version)
-- ✅ **20250605155824_silent_night.sql** - Initial database schema (superseded by our complete setup)
+- ✅ **utils/supabase/database-manager.ts** - Main database functions (setup, reset, info, fix)
+- ✅ **scripts/db.js** - CLI wrapper for database operations
+- ✅ **app/api/database/** - API routes for web interface
+- ✅ **.env.local.example** - Environment variables template
 
-**Note**: Our scripts include improved versions of all migration content, so no manual migration running is needed.
+**Note**: All database operations now use the same unified codebase for consistency.
 
 ## 🛠️ Available Commands
 
-| Command                  | Description                              | Usage            |
-| ------------------------ | ---------------------------------------- | ---------------- |
-| `npm run db:setup`       | Create all tables and insert sample data | First-time setup |
-| `npm run db:reset`       | Delete everything and recreate           | Clean slate      |
-| `npm run db:info`        | Show table counts and status             | Health check     |
-| `npm run db:fix`         | Fix the run_query function               | If queries fail  |
-| `npm run db:query "SQL"` | Execute custom SQL                       | Testing queries  |
+| Command            | Description                              | Usage            |
+| ------------------ | ---------------------------------------- | ---------------- |
+| `npm run db:setup` | Create all tables and insert sample data | First-time setup |
+| `npm run db:reset` | Delete everything and recreate           | Clean slate      |
+| `npm run db:info`  | Show table counts and status             | Health check     |
+| `npm run db:fix`   | Fix the run_query function               | If queries fail  |
 
 ## 🎯 Key Features
 
@@ -102,7 +103,7 @@ SELECT id, user_id, total_amount, status FROM orders LIMIT 3;
 
 - **Web Interface**: Database Manager component in Schema tab
 - **CLI Interface**: npm run commands for terminal users
-- **Manual Option**: reset-database.sql file if needed
+- **Unified Codebase**: Both interfaces use the same `database-manager.ts` functions
 
 ### ✅ Error Handling
 

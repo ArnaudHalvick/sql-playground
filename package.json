@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:setup": "node supabase/scripts/manage-db.js setup",
-    "db:reset": "node supabase/scripts/manage-db.js reset",
-    "db:info": "node supabase/scripts/manage-db.js info",
-    "db:query": "node supabase/scripts/manage-db.js query",
-    "db:fix": "node supabase/scripts/manage-db.js fix"
+    "db:compile": "npx tsc utils/supabase/database-manager.ts --outDir scripts --target es2020 --module commonjs --esModuleInterop --skipLibCheck",
+    "db:setup": "npm run db:compile && node scripts/db.js setup",
+    "db:reset": "npm run db:compile && node scripts/db.js reset",
+    "db:info": "npm run db:compile && node scripts/db.js info",
+    "db:fix": "npm run db:compile && node scripts/db.js fix"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.5.4",

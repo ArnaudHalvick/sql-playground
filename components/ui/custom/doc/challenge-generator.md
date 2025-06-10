@@ -4,7 +4,7 @@ An AI-powered SQL challenge generation system that provides curated prompts for 
 
 ## Features
 
-- **16 Challenge Types**: Comprehensive coverage of SQL concepts from basic queries to advanced analytics
+- **17 Challenge Types**: Comprehensive coverage of SQL concepts from basic queries to advanced analytics
 - **3 Difficulty Levels**: Beginner, Intermediate, and Advanced challenges with color-coded badges
 - **Search & Filter**: Real-time search and difficulty-based filtering of challenge types
 - **Smart Sorting**: Challenges sorted by difficulty first, then alphabetically
@@ -49,7 +49,7 @@ export function MyComponent() {
 - **Geographic Queries**: Country, city, and location-based analysis
 - **String Manipulation**: Text processing, pattern matching, and string functions
 
-### Intermediate Level (8 types)
+### Intermediate Level (9 types)
 
 - **Table Joins**: INNER, LEFT, RIGHT, and FULL OUTER joins
 - **Aggregations**: GROUP BY, COUNT, SUM, AVG, and HAVING
@@ -58,6 +58,7 @@ export function MyComponent() {
 - **Date & Time Analysis**: Date functions, time series, and temporal queries
 - **Conditional Logic**: CASE statements, IF conditions, and logical operations
 - **Data Quality & Validation**: NULL handling, data validation, and cleansing
+- **Delivery & Order Status**: Order tracking, delivery performance, and status analysis
 
 ### Advanced Level (5 types)
 
@@ -72,9 +73,59 @@ export function MyComponent() {
 All prompts include this comprehensive e-commerce database schema:
 
 ```sql
--- Products, Orders, Users, Cities, Countries tables
--- with proper relationships and foreign keys
--- Realistic data structure for meaningful challenges
+-- Enhanced E-commerce Database Schema
+CREATE TABLE countries (
+  id INT PRIMARY KEY,
+  name TEXT,
+  code TEXT,
+  continent TEXT
+);
+
+CREATE TABLE cities (
+  id INT PRIMARY KEY,
+  name TEXT,
+  country_id INT,
+  population INT
+);
+
+CREATE TABLE users (
+  id INT PRIMARY KEY,
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT,
+  country_id INT,
+  city_id INT
+);
+
+CREATE TABLE products (
+  id INT PRIMARY KEY,
+  name TEXT,
+  description TEXT,
+  price DECIMAL,
+  category TEXT,
+  stock INT
+);
+
+CREATE TABLE orders (
+  id INT PRIMARY KEY,
+  user_id INT,
+  total_amount DECIMAL,
+  status TEXT, -- 'pending', 'delivered', 'cancelled'
+  order_date DATE,
+  estimated_delivery DATE,
+  delivery_date DATE
+);
+
+CREATE TABLE order_items (
+  id INT PRIMARY KEY,
+  order_id INT,
+  product_id INT,
+  quantity INT,
+  price DECIMAL
+);
+
+-- Comprehensive relationships and realistic data structure
+-- Perfect for meaningful SQL challenges across all difficulty levels
 ```
 
 ## Component Architecture

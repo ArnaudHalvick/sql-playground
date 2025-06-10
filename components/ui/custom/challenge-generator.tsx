@@ -162,6 +162,14 @@ const challengeTypes = [
     icon: TrendingUp,
     color: "bg-purple-100 text-purple-800 border-purple-200",
   },
+  {
+    id: "delivery-analysis",
+    title: "Delivery & Order Status",
+    description: "Order tracking, delivery performance, and status analysis",
+    difficulty: "intermediate" as const,
+    icon: ShoppingCart,
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
 ];
 
 // Database schema for AI prompts
@@ -183,7 +191,10 @@ CREATE TABLE orders (
   id INT PRIMARY KEY,
   user_id INT,
   total_amount DECIMAL,
-  status TEXT
+  status TEXT,
+  order_date DATE,
+  estimated_delivery DATE,
+  delivery_date DATE
 );
 
 -- order_items table
@@ -529,6 +540,28 @@ The challenge should:
 3. Use realistic enterprise-level scenarios
 4. Include the expected difficulty level: ADVANCED
 5. Provide context about the complex business requirements
+
+Format: Provide only the challenge question and context, no solution.`,
+  },
+  "delivery-analysis": {
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on delivery and order status analysis. Use this database schema:
+
+${databaseSchema}
+
+Create a challenge that involves:
+- Order status tracking (pending, delivered, cancelled)
+- Delivery performance analysis (early, on-time, late deliveries)
+- Date calculations between order_date, estimated_delivery, and delivery_date
+- Order fulfillment metrics and trends
+
+The challenge should:
+1. Present a realistic delivery/logistics scenario
+2. Require understanding of date functions and NULL handling
+3. Use meaningful business questions about order fulfillment
+4. Include the expected difficulty level: INTERMEDIATE
+5. Provide context about delivery performance goals
+
+Note: pending orders have estimated_delivery but NULL delivery_date, delivered orders have both dates filled, cancelled orders have both delivery dates as NULL.
 
 Format: Provide only the challenge question and context, no solution.`,
   },

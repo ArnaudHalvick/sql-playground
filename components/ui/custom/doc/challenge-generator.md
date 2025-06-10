@@ -6,8 +6,10 @@ An AI-powered SQL challenge generation system that provides curated prompts for 
 
 - **16 Challenge Types**: Comprehensive coverage of SQL concepts from basic queries to advanced analytics
 - **3 Difficulty Levels**: Beginner, Intermediate, and Advanced challenges with color-coded badges
+- **Search & Filter**: Real-time search and difficulty-based filtering of challenge types
+- **Smart Sorting**: Challenges sorted by difficulty first, then alphabetically
 - **AI-Ready Prompts**: Pre-written, detailed prompts optimized for AI assistants (ChatGPT, Claude, etc.)
-- **Large Modal Interface**: Optimized for big screens with proper scrolling and responsive design
+- **Large Modal Interface**: Fixed viewport sizing (95vw × 90vh) with proper scrolling and responsive design
 - **One-Click Copy**: Copy prompts to clipboard with success notifications
 - **Database Schema Integration**: All prompts include the complete database schema for context
 
@@ -87,7 +89,10 @@ interface ChallengeGeneratorProps {
 
 ### Key Features
 
-- **Modal Dialog**: Large (max-w-6xl) modal optimized for big screens
+- **Modal Dialog**: Large (95vw × 90vh) modal optimized for big screens
+- **Search Functionality**: Real-time search across challenge titles and descriptions
+- **Difficulty Filtering**: Filter challenges by beginner, intermediate, or advanced levels
+- **Smart Sorting**: Automatic sorting by difficulty level, then alphabetically
 - **Dismissible**: ESC key and click outside to close
 - **Responsive Layout**: Two-column layout with sidebar and content area
 - **Scrollable Content**: Proper scroll handling for long prompts
@@ -96,11 +101,13 @@ interface ChallengeGeneratorProps {
 ## Usage Workflow
 
 1. **Click Trigger**: User clicks the "Generate Challenges" button
-2. **Select Type**: Choose from 16 different challenge types in the left sidebar
-3. **View Prompt**: Detailed AI prompt appears in the right content area
-4. **Copy Prompt**: One-click copy to clipboard with success notification
-5. **Use with AI**: Paste into ChatGPT, Claude, or other AI assistants
-6. **Get Challenge**: AI generates a unique SQL challenge based on the prompt
+2. **Search & Filter**: Use the search bar and difficulty filter to find specific challenge types
+3. **Browse Challenges**: Challenges are automatically sorted by difficulty, then alphabetically
+4. **Select Type**: Choose from the filtered challenge types in the left sidebar
+5. **View Prompt**: Detailed AI prompt appears in the right content area
+6. **Copy Prompt**: One-click copy to clipboard with success notification
+7. **Use with AI**: Paste into ChatGPT, Claude, or other AI assistants
+8. **Get Challenge**: AI generates a unique SQL challenge based on the prompt
 
 ## Styling & Theming
 

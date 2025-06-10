@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,9 +26,19 @@ import {
   ShoppingCart,
   MapPin,
   BarChart3,
+  SearchIcon,
+  FilterIcon,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/forms/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/forms/select";
 
 // Challenge types with their metadata
 const challengeTypes = [
@@ -533,7 +543,50 @@ export function ChallengeGenerator({ children }: ChallengeGeneratorProps) {
     null
   );
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("all");
   const { toast } = useToast();
+
+  // Filtered and sorted challenge types
+  const filteredAndSortedChallengeTypes = useMemo(() => {
+    // First filter by search and difficulty
+    const filtered = challengeTypes.filter((challenge) => {
+      const matchesSearch =
+        challenge.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        challenge.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDifficulty =
+        difficultyFilter === "all" || challenge.difficulty === difficultyFilter;
+
+      return matchesSearch && matchesDifficulty;
+    });
+
+    // Then sort by difficulty first, then alphabetically
+    const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
+    return filtered.sort((a, b) => {
+      // First sort by difficulty
+      const difficultyComparison =
+        difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      if (difficultyComparison !== 0) {
+        return difficultyComparison;
+      }
+      // Then sort alphabetically by title
+      return a.title.localeCompare(b.title);
+    });
+  }, [searchTerm, difficultyFilter]);
+
+  // Get difficulty counts for the filter badges
+  const difficultyCounts = useMemo(() => {
+    const counts = {
+      all: challengeTypes.length,
+      beginner: 0,
+      intermediate: 0,
+      advanced: 0,
+    };
+    challengeTypes.forEach((challenge) => {
+      counts[challenge.difficulty]++;
+    });
+    return counts;
+  }, []);
 
   const handleCopyPrompt = async (challengeId: string) => {
     const challenge = challengeTypes.find((c) => c.id === challengeId);
@@ -580,7 +633,7 @@ export function ChallengeGenerator({ children }: ChallengeGeneratorProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0 flex flex-col">
+      <DialogContent className="w-[95vw] max-w-7xl h-[90vh] p-0 flex flex-col">
         <DialogHeader className="p-6 pb-0 flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -594,54 +647,141 @@ export function ChallengeGenerator({ children }: ChallengeGeneratorProps) {
             <h3 className="font-medium text-sm text-muted-foreground mb-4 uppercase tracking-wide flex-shrink-0">
               Challenge Types
             </h3>
+
+            {/* Search and Filter Controls */}
+            <div className="space-y-3 mb-4 flex-shrink-0">
+              {/* Search Input */}
+              <div className="relative">
+                <SearchIcon
+                  size={16}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                />
+                <Input
+                  placeholder="Search challenge types..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9 h-8 text-sm"
+                />
+              </div>
+
+              {/* Difficulty Filter */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FilterIcon size={14} />
+                  <span>Filter by difficulty</span>
+                </div>
+                <Select
+                  value={difficultyFilter}
+                  onValueChange={setDifficultyFilter}
+                >
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      <div className="flex items-center gap-2">
+                        All Levels
+                        <Badge variant="outline" className="text-xs">
+                          {difficultyCounts.all}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="beginner">
+                      <div className="flex items-center gap-2">
+                        Beginner
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-green-100 text-green-800"
+                        >
+                          {difficultyCounts.beginner}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="intermediate">
+                      <div className="flex items-center gap-2">
+                        Intermediate
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-blue-100 text-blue-800"
+                        >
+                          {difficultyCounts.intermediate}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="advanced">
+                      <div className="flex items-center gap-2">
+                        Advanced
+                        <Badge
+                          variant="outline"
+                          className="text-xs bg-purple-100 text-purple-800"
+                        >
+                          {difficultyCounts.advanced}
+                        </Badge>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <ScrollArea className="flex-1">
               <div className="space-y-2 pr-2">
-                {challengeTypes.map((challenge) => {
-                  const Icon = challenge.icon;
-                  const isSelected = selectedChallenge === challenge.id;
+                {filteredAndSortedChallengeTypes.length > 0 ? (
+                  filteredAndSortedChallengeTypes.map((challenge) => {
+                    const Icon = challenge.icon;
+                    const isSelected = selectedChallenge === challenge.id;
 
-                  return (
-                    <Card
-                      key={challenge.id}
-                      className={cn(
-                        "cursor-pointer transition-all hover:shadow-md border-2",
-                        isSelected
-                          ? "border-primary bg-primary/5 shadow-md"
-                          : "border-transparent hover:border-muted-foreground/20"
-                      )}
-                      onClick={() => setSelectedChallenge(challenge.id)}
-                    >
-                      <CardHeader className="p-4 pb-2">
-                        <div className="flex items-start gap-3">
-                          <div
-                            className={cn("p-2 rounded-lg", challenge.color)}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <CardTitle className="text-sm font-medium leading-tight">
-                              {challenge.title}
-                            </CardTitle>
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                "mt-1 text-xs border",
-                                getDifficultyBadgeColor(challenge.difficulty)
-                              )}
+                    return (
+                      <Card
+                        key={challenge.id}
+                        className={cn(
+                          "cursor-pointer transition-all hover:shadow-md border-2",
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-md"
+                            : "border-transparent hover:border-muted-foreground/20"
+                        )}
+                        onClick={() => setSelectedChallenge(challenge.id)}
+                      >
+                        <CardHeader className="p-4 pb-2">
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={cn("p-2 rounded-lg", challenge.color)}
                             >
-                              {challenge.difficulty}
-                            </Badge>
+                              <Icon className="h-4 w-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <CardTitle className="text-sm font-medium leading-tight">
+                                {challenge.title}
+                              </CardTitle>
+                              <Badge
+                                variant="outline"
+                                className={cn(
+                                  "mt-1 text-xs border",
+                                  getDifficultyBadgeColor(challenge.difficulty)
+                                )}
+                              >
+                                {challenge.difficulty}
+                              </Badge>
+                            </div>
                           </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4 pt-0">
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          {challenge.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                        </CardHeader>
+                        <CardContent className="p-4 pt-0">
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            {challenge.description}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Sparkles size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No challenge types found</p>
+                    <p className="text-xs">
+                      Try adjusting your search or filter
+                    </p>
+                  </div>
+                )}
               </div>
             </ScrollArea>
           </div>

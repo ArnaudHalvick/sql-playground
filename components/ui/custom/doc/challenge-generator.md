@@ -1,4 +1,4 @@
-# Challenge Generator
+git p# Challenge Generator
 
 An AI-powered SQL challenge generation system that provides curated prompts for creating custom SQL exercises. Built as a modal dialog component with a comprehensive library of challenge types across different difficulty levels.
 

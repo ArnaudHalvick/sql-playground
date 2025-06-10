@@ -14,6 +14,7 @@ Application-specific components for the SQL playground:
 - **`schema-viewer.tsx`**: Database schema browser for exploring table structures
 - **`exercise-card.tsx`**: Interactive cards for SQL exercise selection
 - **`data-table.tsx`**: Results display component for query outputs
+- **`challenge-generator.tsx`**: AI-powered SQL challenge generation system with 16 challenge types across 3 difficulty levels
 
 #### Data Display (`/ui/data-display`)
 

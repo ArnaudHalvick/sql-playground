@@ -24,8 +24,10 @@ import {
   BookIcon,
   SearchIcon,
   FilterIcon,
+  Sparkles,
 } from "lucide-react";
 import { ModeToggle } from "@/components/theme-toggle";
+import { ChallengeGenerator } from "@/components/ui/custom/challenge-generator";
 import {
   Card,
   CardContent,
@@ -42,6 +44,7 @@ import {
   SelectValue,
 } from "@/components/ui/forms/select";
 import { Badge } from "@/components/ui/feedback/badge";
+import { Button } from "@/components/ui/inputs/button";
 
 export default function Home() {
   const [query, setQuery] = useState<string>(
@@ -179,12 +182,22 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="px-6 py-3 flex justify-between items-center">
+        <div className="px-6 py-3 flex items-center">
           <div className="flex items-center gap-2">
             <DatabaseIcon size={24} className="text-primary" />
             <h1 className="text-xl font-semibold">SQL Playground</h1>
           </div>
-          <ModeToggle />
+          <div className="flex-1 flex justify-center">
+            <ChallengeGenerator>
+              <Button variant="outline" className="gap-2">
+                <Sparkles size={16} />
+                Generate Challenges
+              </Button>
+            </ChallengeGenerator>
+          </div>
+          <div className="flex items-center">
+            <ModeToggle />
+          </div>
         </div>
       </header>
 

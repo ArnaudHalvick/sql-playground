@@ -393,7 +393,7 @@ export function SqlEditor({
           className="gap-1"
         >
           <RotateCcwIcon size={16} />
-          Reset
+          Clear All
         </Button>
         <div className="flex items-center gap-2">
           <Button

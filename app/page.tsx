@@ -189,7 +189,7 @@ export default function Home() {
   }, []);
 
   const handleResetQuery = () => {
-    setQuery(defaultQuery);
+    setQuery("");
     setResults(null);
     setColumns([]);
     setError(null);

@@ -30,6 +30,23 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/feedback/badge";
 
+// Helper function to get dynamic date range
+function getDynamicDateRange(): { start: string; end: string } {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // Start from January of the previous year to have good historical data
+  const startYear = currentYear - 1;
+  const start = `${startYear}-01-01`;
+
+  // End 6 months from now to allow for future orders
+  const endDate = new Date(now);
+  endDate.setMonth(endDate.getMonth() + 6);
+  const end = endDate.toISOString().split("T")[0];
+
+  return { start, end };
+}
+
 interface DatabaseSetupModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -77,7 +94,7 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 50,
       orders: 100,
       orderItemsPerOrder: { min: 1, max: 3 },
-      dateRange: { start: "2024-01-01", end: "2025-06-30" },
+      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -93,7 +110,7 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 150,
       orders: 500,
       orderItemsPerOrder: { min: 1, max: 5 },
-      dateRange: { start: "2024-01-01", end: "2025-06-30" },
+      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -111,7 +128,7 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 500,
       orders: 2000,
       orderItemsPerOrder: { min: 1, max: 8 },
-      dateRange: { start: "2024-01-01", end: "2025-06-30" },
+      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -129,7 +146,7 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 300,
       orders: 1500,
       orderItemsPerOrder: { min: 1, max: 6 },
-      dateRange: { start: "2024-01-01", end: "2025-06-30" },
+      dateRange: getDynamicDateRange(),
     },
   },
 ];
@@ -372,7 +389,7 @@ export function DatabaseSetupModal({
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Realistic user names and unique email addresses</li>
                 <li>• Dynamic product catalog with descriptions</li>
-                <li>• Orders spanning January 2024 to June 2025</li>
+                <li>• Orders from last year to 6 months in the future</li>
                 <li>• Proper order statuses (delivered/pending/cancelled)</li>
                 <li>• Realistic delivery dates (early/on-time/late)</li>
                 <li>• Complete relational data with proper foreign keys</li>
@@ -382,24 +399,34 @@ export function DatabaseSetupModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSetupClick}
-            disabled={!selectedConfig || isLoading || status === "success"}
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Setting up...
-              </>
-            ) : status === "success" ? (
-              "Setup Complete"
-            ) : (
-              "Setup Database"
-            )}
-          </Button>
+          {status === "success" ? (
+            <Button onClick={handleClose} className="w-full">
+              Close
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSetupClick}
+                disabled={!selectedConfig || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Setting up...
+                  </>
+                ) : (
+                  "Setup Database"
+                )}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

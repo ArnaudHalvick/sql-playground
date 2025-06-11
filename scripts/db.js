@@ -21,11 +21,6 @@ async function main() {
         await dbManager.setupDatabase();
         break;
 
-      case "reset":
-        console.log("🔄 Resetting SQL Playground database...");
-        await dbManager.resetDatabase();
-        break;
-
       case "info":
         const info = await dbManager.getDatabaseInfo();
         console.log("\nTable Information:");
@@ -46,13 +41,24 @@ async function main() {
       default:
         console.log("Usage:");
         console.log(
-          "  npm run db:setup    - Set up the database with sample data"
-        );
-        console.log(
-          "  npm run db:reset    - Reset the database to original state"
+          "  npm run db:setup    - Set up the database with sample data (default config)"
         );
         console.log("  npm run db:info     - Show database information");
         console.log("  npm run db:fix      - Fix the run_query function");
+        console.log("\nAdvanced Setup Options:");
+        console.log(
+          "  npm run db:setup-small      - Small dataset (50 users, 100 orders)"
+        );
+        console.log(
+          "  npm run db:setup-medium     - Medium dataset (200 users, 500 orders)"
+        );
+        console.log(
+          "  npm run db:setup-large      - Large dataset (1000 users, 2000 orders)"
+        );
+        console.log(
+          "  npm run db:setup-realistic  - Realistic e-commerce (500 users, 1500 orders)"
+        );
+        console.log("  npm run db:setup-custom X   - Custom with X multiplier");
         console.log("\nMake sure your .env.local file contains:");
         console.log("  NEXT_PUBLIC_SUPABASE_URL=your_project_url");
         console.log("  SUPABASE_SERVICE_ROLE_KEY=your_service_role_key");

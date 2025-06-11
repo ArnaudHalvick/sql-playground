@@ -1,5 +1,500 @@
 import { createClient } from "@supabase/supabase-js";
 
+// Configuration interface for data generation
+export interface DataGenerationConfig {
+  countries: number; // Will use predefined list, not random
+  cities: number; // Will use predefined list, not random
+  users: number;
+  products: number;
+  orders: number;
+  orderItemsPerOrder: { min: number; max: number };
+  dateRange: {
+    start: string; // YYYY-MM-DD
+    end: string; // YYYY-MM-DD
+  };
+}
+
+// Default configuration
+export const DEFAULT_CONFIG: DataGenerationConfig = {
+  countries: 25,
+  cities: 50,
+  users: 100,
+  products: 100,
+  orders: 500,
+  orderItemsPerOrder: { min: 1, max: 5 },
+  dateRange: {
+    start: "2024-01-01",
+    end: "2025-06-30",
+  },
+};
+
+// Predefined data that shouldn't be random
+const PREDEFINED_COUNTRIES = [
+  { name: "United States", code: "US", continent: "North America" },
+  { name: "United Kingdom", code: "UK", continent: "Europe" },
+  { name: "France", code: "FR", continent: "Europe" },
+  { name: "Germany", code: "DE", continent: "Europe" },
+  { name: "Japan", code: "JP", continent: "Asia" },
+  { name: "Australia", code: "AU", continent: "Oceania" },
+  { name: "Brazil", code: "BR", continent: "South America" },
+  { name: "Canada", code: "CA", continent: "North America" },
+  { name: "India", code: "IN", continent: "Asia" },
+  { name: "China", code: "CN", continent: "Asia" },
+  { name: "Italy", code: "IT", continent: "Europe" },
+  { name: "Spain", code: "ES", continent: "Europe" },
+  { name: "Mexico", code: "MX", continent: "North America" },
+  { name: "Russia", code: "RU", continent: "Europe" },
+  { name: "South Korea", code: "KR", continent: "Asia" },
+  { name: "Netherlands", code: "NL", continent: "Europe" },
+  { name: "Sweden", code: "SE", continent: "Europe" },
+  { name: "Norway", code: "NO", continent: "Europe" },
+  { name: "Argentina", code: "AR", continent: "South America" },
+  { name: "South Africa", code: "ZA", continent: "Africa" },
+  { name: "Egypt", code: "EG", continent: "Africa" },
+  { name: "Thailand", code: "TH", continent: "Asia" },
+  { name: "Singapore", code: "SG", continent: "Asia" },
+  { name: "New Zealand", code: "NZ", continent: "Oceania" },
+  { name: "Switzerland", code: "CH", continent: "Europe" },
+  { name: "Belgium", code: "BE", continent: "Europe" },
+  { name: "Austria", code: "AT", continent: "Europe" },
+  { name: "Portugal", code: "PT", continent: "Europe" },
+  { name: "Denmark", code: "DK", continent: "Europe" },
+  { name: "Finland", code: "FI", continent: "Europe" },
+];
+
+const PREDEFINED_CITIES = [
+  { name: "New York", countryCode: "US", population: 8804190 },
+  { name: "Los Angeles", countryCode: "US", population: 3898747 },
+  { name: "Chicago", countryCode: "US", population: 2746388 },
+  { name: "Houston", countryCode: "US", population: 2304580 },
+  { name: "Phoenix", countryCode: "US", population: 1608139 },
+  { name: "London", countryCode: "UK", population: 8982000 },
+  { name: "Manchester", countryCode: "UK", population: 547627 },
+  { name: "Birmingham", countryCode: "UK", population: 1141816 },
+  { name: "Paris", countryCode: "FR", population: 2148271 },
+  { name: "Lyon", countryCode: "FR", population: 516092 },
+  { name: "Marseille", countryCode: "FR", population: 861635 },
+  { name: "Berlin", countryCode: "DE", population: 3669491 },
+  { name: "Munich", countryCode: "DE", population: 1488202 },
+  { name: "Hamburg", countryCode: "DE", population: 1899160 },
+  { name: "Tokyo", countryCode: "JP", population: 13960000 },
+  { name: "Osaka", countryCode: "JP", population: 2691185 },
+  { name: "Kyoto", countryCode: "JP", population: 1474570 },
+  { name: "Sydney", countryCode: "AU", population: 5312163 },
+  { name: "Melbourne", countryCode: "AU", population: 5078193 },
+  { name: "Brisbane", countryCode: "AU", population: 2560720 },
+  { name: "São Paulo", countryCode: "BR", population: 12325232 },
+  { name: "Rio de Janeiro", countryCode: "BR", population: 6748000 },
+  { name: "Brasília", countryCode: "BR", population: 3055149 },
+  { name: "Toronto", countryCode: "CA", population: 2930000 },
+  { name: "Vancouver", countryCode: "CA", population: 675218 },
+  { name: "Montreal", countryCode: "CA", population: 1780000 },
+  { name: "Mumbai", countryCode: "IN", population: 20411274 },
+  { name: "Delhi", countryCode: "IN", population: 32941309 },
+  { name: "Bangalore", countryCode: "IN", population: 12764935 },
+  { name: "Beijing", countryCode: "CN", population: 21540000 },
+  { name: "Shanghai", countryCode: "CN", population: 28516904 },
+  { name: "Guangzhou", countryCode: "CN", population: 18676605 },
+  { name: "Rome", countryCode: "IT", population: 2872800 },
+  { name: "Milan", countryCode: "IT", population: 1396059 },
+  { name: "Madrid", countryCode: "ES", population: 3223334 },
+  { name: "Barcelona", countryCode: "ES", population: 1620343 },
+  { name: "Mexico City", countryCode: "MX", population: 9209944 },
+  { name: "Guadalajara", countryCode: "MX", population: 1385629 },
+  { name: "Moscow", countryCode: "RU", population: 12506468 },
+  { name: "St. Petersburg", countryCode: "RU", population: 5384342 },
+  { name: "Seoul", countryCode: "KR", population: 9720846 },
+  { name: "Busan", countryCode: "KR", population: 3448737 },
+  { name: "Amsterdam", countryCode: "NL", population: 872680 },
+  { name: "Stockholm", countryCode: "SE", population: 975551 },
+  { name: "Oslo", countryCode: "NO", population: 697549 },
+  { name: "Buenos Aires", countryCode: "AR", population: 3054300 },
+  { name: "Cape Town", countryCode: "ZA", population: 4618263 },
+  { name: "Cairo", countryCode: "EG", population: 10230350 },
+  { name: "Bangkok", countryCode: "TH", population: 10539415 },
+  { name: "Auckland", countryCode: "NZ", population: 1695200 },
+];
+
+// Random data generators
+const FIRST_NAMES = [
+  "James",
+  "Mary",
+  "John",
+  "Patricia",
+  "Robert",
+  "Jennifer",
+  "Michael",
+  "Linda",
+  "William",
+  "Elizabeth",
+  "David",
+  "Barbara",
+  "Richard",
+  "Susan",
+  "Joseph",
+  "Jessica",
+  "Thomas",
+  "Sarah",
+  "Christopher",
+  "Karen",
+  "Charles",
+  "Nancy",
+  "Daniel",
+  "Lisa",
+  "Matthew",
+  "Betty",
+  "Anthony",
+  "Helen",
+  "Mark",
+  "Sandra",
+  "Donald",
+  "Donna",
+  "Steven",
+  "Carol",
+  "Paul",
+  "Ruth",
+  "Andrew",
+  "Sharon",
+  "Joshua",
+  "Michelle",
+  "Kenneth",
+  "Laura",
+  "Kevin",
+  "Sarah",
+  "Brian",
+  "Kimberly",
+  "George",
+  "Deborah",
+  "Edward",
+  "Dorothy",
+  "Ronald",
+  "Lisa",
+  "Timothy",
+  "Nancy",
+  "Jason",
+  "Karen",
+  "Jeffrey",
+  "Betty",
+  "Ryan",
+  "Helen",
+  "Jacob",
+  "Sandra",
+  "Gary",
+  "Donna",
+  "Nicholas",
+  "Carol",
+  "Eric",
+  "Ruth",
+  "Jonathan",
+  "Sharon",
+  "Stephen",
+  "Michelle",
+  "Larry",
+  "Laura",
+  "Justin",
+  "Sarah",
+  "Scott",
+  "Kimberly",
+  "Brandon",
+  "Deborah",
+  "Benjamin",
+  "Dorothy",
+  "Samuel",
+  "Amy",
+  "Gregory",
+  "Angela",
+  "Alexander",
+  "Ashley",
+  "Patrick",
+  "Brenda",
+  "Frank",
+  "Emma",
+  "Raymond",
+  "Olivia",
+  "Jack",
+  "Cynthia",
+];
+
+const LAST_NAMES = [
+  "Smith",
+  "Johnson",
+  "Williams",
+  "Brown",
+  "Jones",
+  "Garcia",
+  "Miller",
+  "Davis",
+  "Rodriguez",
+  "Martinez",
+  "Hernandez",
+  "Lopez",
+  "Gonzalez",
+  "Wilson",
+  "Anderson",
+  "Thomas",
+  "Taylor",
+  "Moore",
+  "Jackson",
+  "Martin",
+  "Lee",
+  "Perez",
+  "Thompson",
+  "White",
+  "Harris",
+  "Sanchez",
+  "Clark",
+  "Ramirez",
+  "Lewis",
+  "Robinson",
+  "Walker",
+  "Young",
+  "Allen",
+  "King",
+  "Wright",
+  "Scott",
+  "Torres",
+  "Nguyen",
+  "Hill",
+  "Flores",
+  "Green",
+  "Adams",
+  "Nelson",
+  "Baker",
+  "Hall",
+  "Rivera",
+  "Campbell",
+  "Mitchell",
+  "Carter",
+  "Roberts",
+  "Gomez",
+  "Phillips",
+  "Evans",
+  "Turner",
+  "Diaz",
+  "Parker",
+  "Cruz",
+  "Edwards",
+  "Collins",
+  "Reyes",
+  "Stewart",
+  "Morris",
+  "Morales",
+  "Murphy",
+  "Cook",
+  "Rogers",
+  "Gutierrez",
+  "Ortiz",
+  "Morgan",
+  "Cooper",
+  "Peterson",
+  "Bailey",
+  "Reed",
+  "Kelly",
+  "Howard",
+  "Ramos",
+  "Kim",
+  "Cox",
+  "Ward",
+  "Richardson",
+];
+
+const PRODUCT_CATEGORIES = [
+  "Electronics",
+  "Clothing",
+  "Home & Garden",
+  "Sports",
+  "Kitchen",
+  "Books",
+  "Health & Beauty",
+  "Toys",
+  "Automotive",
+  "Office Supplies",
+  "Pet Supplies",
+  "Jewelry",
+  "Music",
+  "Movies",
+  "Games",
+  "Food & Beverages",
+];
+
+const PRODUCT_ADJECTIVES = [
+  "Premium",
+  "Professional",
+  "Deluxe",
+  "Ultra",
+  "Smart",
+  "Wireless",
+  "Portable",
+  "Compact",
+  "Heavy-duty",
+  "Lightweight",
+  "Waterproof",
+  "Eco-friendly",
+  "Vintage",
+  "Modern",
+  "Classic",
+  "Advanced",
+  "Basic",
+  "Essential",
+  "Luxury",
+  "Budget",
+];
+
+const PRODUCT_NOUNS = [
+  "Phone",
+  "Laptop",
+  "Tablet",
+  "Watch",
+  "Camera",
+  "Speaker",
+  "Headphones",
+  "Keyboard",
+  "Mouse",
+  "Monitor",
+  "Printer",
+  "Router",
+  "Charger",
+  "Cable",
+  "Case",
+  "Stand",
+  "Holder",
+  "Mount",
+  "Adapter",
+  "Battery",
+  "Light",
+  "Fan",
+  "Heater",
+  "Cooler",
+  "Blender",
+  "Mixer",
+  "Toaster",
+  "Kettle",
+  "Pot",
+  "Pan",
+  "Knife",
+  "Spoon",
+  "Fork",
+  "Plate",
+  "Bowl",
+  "Cup",
+  "Mug",
+  "Bottle",
+  "Jar",
+  "Box",
+  "Bag",
+  "Backpack",
+  "Wallet",
+  "Belt",
+  "Hat",
+  "Shirt",
+  "Pants",
+  "Shoes",
+  "Jacket",
+  "Dress",
+  "Skirt",
+  "Shorts",
+  "Socks",
+  "Gloves",
+  "Scarf",
+  "Tie",
+];
+
+// Utility functions
+function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomChoice<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+function randomDate(start: Date, end: Date): Date {
+  return new Date(
+    start.getTime() + Math.random() * (end.getTime() - start.getTime())
+  );
+}
+
+function formatDate(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function generateEmail(firstName: string, lastName: string): string {
+  const domains = [
+    "gmail.com",
+    "yahoo.com",
+    "hotmail.com",
+    "outlook.com",
+    "example.com",
+  ];
+  const separators = [".", "_", ""];
+  const numbers = Math.random() > 0.7 ? randomInt(1, 999).toString() : "";
+
+  return `${firstName.toLowerCase()}${randomChoice(
+    separators
+  )}${lastName.toLowerCase()}${numbers}@${randomChoice(domains)}`;
+}
+
+function generateProductName(): string {
+  const adjective = randomChoice(PRODUCT_ADJECTIVES);
+  const noun = randomChoice(PRODUCT_NOUNS);
+  const hasModel = Math.random() > 0.6;
+  const model = hasModel
+    ? ` ${randomChoice([
+        "Pro",
+        "Max",
+        "Plus",
+        "Elite",
+        "X",
+        "Ultra",
+        "2024",
+        "V2",
+        "HD",
+      ])}`
+    : "";
+
+  return `${adjective} ${noun}${model}`;
+}
+
+function generateProductDescription(name: string): string {
+  const features = [
+    "high-quality materials",
+    "advanced technology",
+    "user-friendly design",
+    "durable construction",
+    "energy efficient",
+    "compact size",
+    "premium finish",
+    "easy to use",
+    "versatile functionality",
+    "modern styling",
+    "reliable performance",
+    "innovative features",
+    "ergonomic design",
+    "long-lasting",
+    "professional grade",
+  ];
+
+  const benefits = [
+    "perfect for daily use",
+    "ideal for professionals",
+    "great for home or office",
+    "suitable for all ages",
+    "enhances productivity",
+    "saves time and effort",
+    "provides excellent value",
+    "meets all your needs",
+    "exceeds expectations",
+    "delivers outstanding results",
+    "offers superior performance",
+    "ensures satisfaction",
+  ];
+
+  const feature = randomChoice(features);
+  const benefit = randomChoice(benefits);
+
+  return `${name} with ${feature}, ${benefit}.`;
+}
+
 // Create admin client with service role key
 function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -166,361 +661,297 @@ export async function createTables(): Promise<void> {
 }
 
 /**
- * Insert sample data into all tables
+ * Generate and insert sample data with advanced configuration
  */
-export async function insertSampleData(): Promise<void> {
-  console.log("📊 Inserting sample data...");
+export async function insertSampleData(
+  config: DataGenerationConfig = DEFAULT_CONFIG
+): Promise<void> {
+  console.log("📊 Generating advanced sample data...");
+  console.log(`📈 Configuration:`, config);
 
   const client = createAdminClient();
 
-  // Countries data - expanded to 25 countries
+  // Insert countries (using predefined data)
+  console.log("🌍 Inserting countries...");
+  const countriesToInsert = PREDEFINED_COUNTRIES.slice(0, config.countries);
+  const countriesValues = countriesToInsert
+    .map(
+      (country) =>
+        `('${country.name}', '${country.code}', '${country.continent}')`
+    )
+    .join(",\n    ");
+
   const countriesData = `
     INSERT INTO countries (name, code, continent) VALUES
-    ('United States', 'US', 'North America'),
-    ('United Kingdom', 'UK', 'Europe'),
-    ('France', 'FR', 'Europe'),
-    ('Germany', 'DE', 'Europe'),
-    ('Japan', 'JP', 'Asia'),
-    ('Australia', 'AU', 'Oceania'),
-    ('Brazil', 'BR', 'South America'),
-    ('Canada', 'CA', 'North America'),
-    ('India', 'IN', 'Asia'),
-    ('China', 'CN', 'Asia'),
-    ('Italy', 'IT', 'Europe'),
-    ('Spain', 'ES', 'Europe'),
-    ('Mexico', 'MX', 'North America'),
-    ('Russia', 'RU', 'Europe'),
-    ('South Korea', 'KR', 'Asia'),
-    ('Netherlands', 'NL', 'Europe'),
-    ('Sweden', 'SE', 'Europe'),
-    ('Norway', 'NO', 'Europe'),
-    ('Argentina', 'AR', 'South America'),
-    ('South Africa', 'ZA', 'Africa'),
-    ('Egypt', 'EG', 'Africa'),
-    ('Thailand', 'TH', 'Asia'),
-    ('Singapore', 'SG', 'Asia'),
-    ('New Zealand', 'NZ', 'Oceania'),
-    ('Switzerland', 'CH', 'Europe')
+    ${countriesValues}
     ON CONFLICT DO NOTHING
   `;
+  await executeStatement(client, countriesData);
 
-  // Cities data - expanded to 50 cities
+  // Get country IDs for reference
+  const { data: countries } = await client.rpc("run_query", {
+    query_text: "SELECT id, code FROM countries ORDER BY id",
+  });
+  const countryMap = new Map(countries.map((c: any) => [c.code, c.id]));
+
+  // Insert cities (using predefined data)
+  console.log("🏙️ Inserting cities...");
+  const citiesToInsert = PREDEFINED_CITIES.slice(0, config.cities);
+  const citiesValues = citiesToInsert
+    .filter((city) => countryMap.has(city.countryCode))
+    .map(
+      (city) =>
+        `('${city.name}', ${countryMap.get(city.countryCode)}, ${
+          city.population
+        })`
+    )
+    .join(",\n    ");
+
   const citiesData = `
     INSERT INTO cities (name, country_id, population) VALUES
-    ('New York', 1, 8804190),
-    ('Los Angeles', 1, 3898747),
-    ('Chicago', 1, 2746388),
-    ('Houston', 1, 2304580),
-    ('Phoenix', 1, 1608139),
-    ('London', 2, 8982000),
-    ('Manchester', 2, 547627),
-    ('Birmingham', 2, 1141816),
-    ('Paris', 3, 2148271),
-    ('Lyon', 3, 516092),
-    ('Marseille', 3, 861635),
-    ('Berlin', 4, 3669491),
-    ('Munich', 4, 1488202),
-    ('Hamburg', 4, 1899160),
-    ('Tokyo', 5, 13960000),
-    ('Osaka', 5, 2691185),
-    ('Kyoto', 5, 1474570),
-    ('Sydney', 6, 5312163),
-    ('Melbourne', 6, 5078193),
-    ('Brisbane', 6, 2560720),
-    ('São Paulo', 7, 12325232),
-    ('Rio de Janeiro', 7, 6748000),
-    ('Brasília', 7, 3055149),
-    ('Toronto', 8, 2930000),
-    ('Vancouver', 8, 675218),
-    ('Montreal', 8, 1780000),
-    ('Mumbai', 9, 20411274),
-    ('Delhi', 9, 32941309),
-    ('Bangalore', 9, 12764935),
-    ('Beijing', 10, 21540000),
-    ('Shanghai', 10, 28516904),
-    ('Guangzhou', 10, 18676605),
-    ('Rome', 11, 2872800),
-    ('Milan', 11, 1396059),
-    ('Madrid', 12, 3223334),
-    ('Barcelona', 12, 1620343),
-    ('Mexico City', 13, 9209944),
-    ('Guadalajara', 13, 1385629),
-    ('Moscow', 14, 12506468),
-    ('St. Petersburg', 14, 5384342),
-    ('Seoul', 15, 9720846),
-    ('Busan', 15, 3448737),
-    ('Amsterdam', 16, 872680),
-    ('Stockholm', 17, 975551),
-    ('Oslo', 18, 697549),
-    ('Buenos Aires', 19, 3054300),
-    ('Cape Town', 20, 4618263),
-    ('Cairo', 21, 10230350),
-    ('Bangkok', 22, 10539415),
-    ('Auckland', 24, 1695200)
+    ${citiesValues}
     ON CONFLICT DO NOTHING
   `;
+  await executeStatement(client, citiesData);
 
-  // Users data - expanded to 50 users
-  const usersData = `
-    INSERT INTO users (first_name, last_name, email, country_id, city_id) VALUES
-    ('John', 'Smith', 'john.smith@example.com', 1, 1),
-    ('Emma', 'Johnson', 'emma.johnson@example.com', 2, 6),
-    ('Pierre', 'Dupont', 'pierre.dupont@example.com', 3, 9),
-    ('Hans', 'Müller', 'hans.muller@example.com', 4, 12),
-    ('Yuki', 'Tanaka', 'yuki.tanaka@example.com', 5, 15),
-    ('Olivia', 'Brown', 'olivia.brown@example.com', 6, 18),
-    ('Carlos', 'Silva', 'carlos.silva@example.com', 7, 21),
-    ('Michael', 'Wilson', 'michael.wilson@example.com', 8, 24),
-    ('Raj', 'Patel', 'raj.patel@example.com', 9, 27),
-    ('Li', 'Wei', 'li.wei@example.com', 10, 30),
-    ('Sarah', 'Miller', 'sarah.miller@example.com', 1, 3),
-    ('James', 'Taylor', 'james.taylor@example.com', 2, 7),
-    ('Sophie', 'Martin', 'sophie.martin@example.com', 3, 10),
-    ('Thomas', 'Weber', 'thomas.weber@example.com', 4, 13),
-    ('Akira', 'Sato', 'akira.sato@example.com', 5, 16),
-    ('Isabella', 'Garcia', 'isabella.garcia@example.com', 12, 35),
-    ('Diego', 'Rodriguez', 'diego.rodriguez@example.com', 13, 37),
-    ('Anna', 'Kowalski', 'anna.kowalski@example.com', 14, 39),
-    ('Kim', 'Park', 'kim.park@example.com', 15, 41),
-    ('Lars', 'Andersson', 'lars.andersson@example.com', 17, 44),
-    ('Maria', 'Rossi', 'maria.rossi@example.com', 11, 33),
-    ('Ahmed', 'Hassan', 'ahmed.hassan@example.com', 21, 48),
-    ('Priya', 'Sharma', 'priya.sharma@example.com', 9, 28),
-    ('Chen', 'Wang', 'chen.wang@example.com', 10, 31),
-    ('Lucas', 'Santos', 'lucas.santos@example.com', 7, 22),
-    ('Emily', 'Davis', 'emily.davis@example.com', 1, 4),
-    ('Oliver', 'Wilson', 'oliver.wilson@example.com', 2, 8),
-    ('Camille', 'Dubois', 'camille.dubois@example.com', 3, 11),
-    ('Maximilian', 'Schmidt', 'maximilian.schmidt@example.com', 4, 14),
-    ('Hiroshi', 'Yamamoto', 'hiroshi.yamamoto@example.com', 5, 17),
-    ('Grace', 'Thompson', 'grace.thompson@example.com', 6, 19),
-    ('Rafael', 'Oliveira', 'rafael.oliveira@example.com', 7, 23),
-    ('Chloe', 'Anderson', 'chloe.anderson@example.com', 8, 25),
-    ('Arjun', 'Kumar', 'arjun.kumar@example.com', 9, 29),
-    ('Xiao', 'Liu', 'xiao.liu@example.com', 10, 32),
-    ('Marco', 'Ferrari', 'marco.ferrari@example.com', 11, 34),
-    ('Carmen', 'Lopez', 'carmen.lopez@example.com', 12, 36),
-    ('Alejandro', 'Hernandez', 'alejandro.hernandez@example.com', 13, 38),
-    ('Natasha', 'Volkov', 'natasha.volkov@example.com', 14, 40),
-    ('Min-jun', 'Lee', 'minjun.lee@example.com', 15, 42),
-    ('Pieter', 'Van Der Berg', 'pieter.vandenberg@example.com', 16, 43),
-    ('Erik', 'Nilsson', 'erik.nilsson@example.com', 17, 44),
-    ('Ingrid', 'Hansen', 'ingrid.hansen@example.com', 18, 45),
-    ('Valentina', 'Morales', 'valentina.morales@example.com', 19, 46),
-    ('Thabo', 'Mthembu', 'thabo.mthembu@example.com', 20, 47),
-    ('Fatima', 'Al-Rashid', 'fatima.alrashid@example.com', 21, 48),
-    ('Siriporn', 'Chaiyaporn', 'siriporn.chaiyaporn@example.com', 22, 49),
-    ('Wei', 'Lim', 'wei.lim@example.com', 23, 23),
-    ('Emma', 'Clarke', 'emma.clarke@example.com', 24, 50),
-    ('Klaus', 'Zimmermann', 'klaus.zimmermann@example.com', 25, 25)
-    ON CONFLICT (email) DO NOTHING
-  `;
+  // Get city IDs for reference
+  const { data: cities } = await client.rpc("run_query", {
+    query_text: "SELECT id FROM cities ORDER BY id",
+  });
+  const cityIds = cities.map((c: any) => c.id);
 
-  // Products data - expanded to 40 products with integer prices
-  const productsData = `
-    INSERT INTO products (name, description, price, category, stock) VALUES
-    ('Smartphone X', 'Latest smartphone with high-end features', 900, 'Electronics', 120),
-    ('Laptop Pro', 'Professional laptop for creative work', 1300, 'Electronics', 50),
-    ('Coffee Maker', 'Automatic coffee maker with timer', 80, 'Kitchen', 200),
-    ('Running Shoes', 'Comfortable shoes for marathon runners', 130, 'Sports', 150),
-    ('Wireless Headphones', 'Noise-canceling wireless headphones', 250, 'Electronics', 100),
-    ('Yoga Mat', 'Non-slip yoga mat for home workouts', 30, 'Sports', 300),
-    ('Blender', 'High-speed blender for smoothies', 70, 'Kitchen', 120),
-    ('Winter Jacket', 'Waterproof jacket for cold weather', 160, 'Clothing', 80),
-    ('Smart Watch', 'Fitness tracker and smartwatch', 200, 'Electronics', 75),
-    ('Gaming Console', 'Next-gen gaming console', 500, 'Electronics', 30),
-    ('Desk Chair', 'Ergonomic office chair', 250, 'Furniture', 40),
-    ('Water Bottle', 'Insulated stainless steel bottle', 25, 'Sports', 200),
-    ('Bluetooth Speaker', 'Portable wireless speaker', 90, 'Electronics', 60),
-    ('Backpack', 'Water-resistant backpack for hiking', 80, 'Outdoors', 100),
-    ('Digital Camera', 'Professional DSLR camera', 1300, 'Electronics', 25),
-    ('Electric Kettle', 'Fast-boiling electric kettle', 45, 'Kitchen', 150),
-    ('Tennis Racket', 'Professional tennis racket', 180, 'Sports', 60),
-    ('Sunglasses', 'UV protection sunglasses', 120, 'Accessories', 200),
-    ('Mechanical Keyboard', 'RGB mechanical gaming keyboard', 150, 'Electronics', 80),
-    ('Wireless Mouse', 'Ergonomic wireless mouse', 60, 'Electronics', 120),
-    ('Hoodie', 'Comfortable cotton hoodie', 55, 'Clothing', 100),
-    ('Jeans', 'Classic denim jeans', 85, 'Clothing', 150),
-    ('Sneakers', 'Casual everyday sneakers', 95, 'Clothing', 180),
-    ('Tablet', '10-inch tablet for productivity', 400, 'Electronics', 70),
-    ('Monitor', '27-inch 4K monitor', 350, 'Electronics', 45),
-    ('Desk Lamp', 'LED desk lamp with adjustable brightness', 40, 'Furniture', 90),
-    ('Plant Pot', 'Ceramic plant pot with drainage', 20, 'Home & Garden', 250),
-    ('Book Light', 'Rechargeable LED book light', 15, 'Accessories', 300),
-    ('Protein Powder', 'Whey protein powder 2kg', 65, 'Health', 80),
-    ('Resistance Bands', 'Set of 5 resistance bands', 35, 'Sports', 120),
-    ('Air Fryer', 'Compact air fryer for healthy cooking', 110, 'Kitchen', 60),
-    ('Pillow', 'Memory foam pillow', 50, 'Home & Garden', 200),
-    ('Umbrella', 'Compact travel umbrella', 25, 'Accessories', 150),
-    ('Phone Case', 'Protective phone case', 20, 'Accessories', 400),
-    ('Charger Cable', 'USB-C charging cable 2m', 15, 'Electronics', 500),
-    ('Notebook', 'Hardcover lined notebook', 12, 'Stationery', 300),
-    ('Pen Set', 'Set of 10 ballpoint pens', 8, 'Stationery', 250),
-    ('Wall Clock', 'Modern minimalist wall clock', 35, 'Home & Garden', 100),
-    ('Candle', 'Scented soy candle', 18, 'Home & Garden', 180),
-    ('Mug', 'Ceramic coffee mug', 12, 'Kitchen', 220)
-    ON CONFLICT DO NOTHING
-  `;
+  // Generate users
+  console.log(`👥 Generating ${config.users} users...`);
+  const usersData: string[] = [];
+  const generatedEmails = new Set<string>();
 
-  const dataInserts = [
-    { name: "countries", sql: countriesData },
-    { name: "cities", sql: citiesData },
-    { name: "users", sql: usersData },
-    { name: "products", sql: productsData },
-  ];
+  for (let i = 0; i < config.users; i++) {
+    const firstName = randomChoice(FIRST_NAMES);
+    const lastName = randomChoice(LAST_NAMES);
+    let email = generateEmail(firstName, lastName);
 
-  for (const { name, sql } of dataInserts) {
-    console.log(`📊 Inserting ${name} data...`);
-    await executeStatement(client, sql);
+    // Ensure unique emails
+    while (generatedEmails.has(email)) {
+      email = generateEmail(firstName, lastName);
+    }
+    generatedEmails.add(email);
+
+    const countryId = randomChoice(Array.from(countryMap.values()));
+    const cityId = randomChoice(cityIds);
+
+    usersData.push(
+      `('${firstName}', '${lastName}', '${email}', ${countryId}, ${cityId})`
+    );
   }
 
-  // Insert orders and order items - expanded significantly
-  console.log("📊 Inserting orders data...");
-  const ordersData = `
-    INSERT INTO orders (user_id, total_amount, status, order_date, estimated_delivery, delivery_date) VALUES
-    (1, 1150, 'delivered', '2024-01-15', '2024-01-20', '2024-01-19'),
-    (2, 1550, 'delivered', '2024-01-16', '2024-01-21', '2024-01-22'),
-    (3, 700, 'delivered', '2024-01-18', '2024-01-23', '2024-01-23'),
-    (4, 1750, 'delivered', '2024-01-20', '2024-01-25', '2024-01-24'),
-    (5, 1150, 'delivered', '2024-01-22', '2024-01-27', '2024-01-28'),
-    (6, 330, 'delivered', '2024-01-25', '2024-01-30', '2024-01-29'),
-    (7, 580, 'delivered', '2024-01-28', '2024-02-02', '2024-02-01'),
-    (8, 900, 'delivered', '2024-02-01', '2024-02-06', '2024-02-07'),
-    (9, 450, 'delivered', '2024-02-03', '2024-02-08', '2024-02-08'),
-    (10, 1800, 'delivered', '2024-02-05', '2024-02-10', '2024-02-09'),
-    (11, 275, 'delivered', '2024-02-08', '2024-02-13', '2024-02-14'),
-    (12, 620, 'delivered', '2024-02-10', '2024-02-15', '2024-02-15'),
-    (13, 890, 'delivered', '2024-02-12', '2024-02-17', '2024-02-16'),
-    (14, 1200, 'delivered', '2024-02-15', '2024-02-20', '2024-02-21'),
-    (15, 340, 'delivered', '2024-02-18', '2024-02-23', '2024-02-22'),
-    (16, 750, 'delivered', '2024-02-20', '2024-02-25', '2024-02-26'),
-    (17, 480, 'delivered', '2024-02-22', '2024-02-27', '2024-02-27'),
-    (18, 1100, 'delivered', '2024-02-25', '2024-03-01', '2024-02-29'),
-    (19, 290, 'delivered', '2024-02-28', '2024-03-05', '2024-03-04'),
-    (20, 850, 'delivered', '2024-03-02', '2024-03-07', '2024-03-08'),
-    (21, 520, 'delivered', '2024-03-05', '2024-03-10', '2024-03-09'),
-    (22, 1400, 'delivered', '2024-03-08', '2024-03-13', '2024-03-14'),
-    (23, 380, 'delivered', '2024-03-10', '2024-03-15', '2024-03-15'),
-    (24, 670, 'delivered', '2024-03-12', '2024-03-17', '2024-03-16'),
-    (25, 920, 'delivered', '2024-03-15', '2024-03-20', '2024-03-21'),
-    (26, 180, 'pending', '2024-12-20', '2024-12-27', NULL),
-    (27, 450, 'pending', '2024-12-21', '2024-12-28', NULL),
-    (28, 320, 'pending', '2024-12-22', '2024-12-29', NULL),
-    (29, 780, 'pending', '2024-12-23', '2024-12-30', NULL),
-    (30, 1050, 'pending', '2024-12-24', '2024-12-31', NULL),
-    (31, 240, 'pending', '2024-12-25', '2025-01-02', NULL),
-    (32, 560, 'pending', '2024-12-26', '2025-01-03', NULL),
-    (33, 890, 'pending', '2024-12-27', '2025-01-04', NULL),
-    (34, 1300, 'delivered', '2024-03-18', '2024-03-23', '2024-03-22'),
-    (35, 420, 'delivered', '2024-03-20', '2024-03-25', '2024-03-26'),
-    (36, 680, 'cancelled', '2024-03-22', NULL, NULL),
-    (37, 150, 'cancelled', '2024-03-25', NULL, NULL),
-    (38, 950, 'cancelled', '2024-03-28', NULL, NULL),
-    (39, 370, 'cancelled', '2024-04-01', NULL, NULL),
-    (40, 1150, 'cancelled', '2024-04-03', NULL, NULL)
-    ON CONFLICT DO NOTHING
-  `;
+  // Insert users in batches
+  const batchSize = 100;
+  for (let i = 0; i < usersData.length; i += batchSize) {
+    const batch = usersData.slice(i, i + batchSize);
+    const usersBatch = `
+      INSERT INTO users (first_name, last_name, email, country_id, city_id) VALUES
+      ${batch.join(",\n      ")}
+      ON CONFLICT (email) DO NOTHING
+    `;
+    await executeStatement(client, usersBatch);
+  }
 
-  await executeStatement(client, ordersData);
+  // Generate products
+  console.log(`📦 Generating ${config.products} products...`);
+  const productsData: string[] = [];
+  const generatedProductNames = new Set<string>();
 
-  console.log("📊 Inserting order items data...");
-  const orderItemsData = `
-    INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
-    (1, 1, 1, 900),
-    (1, 3, 1, 80),
-    (1, 12, 1, 25),
-    (1, 16, 3, 45),
-    (2, 2, 1, 1300),
-    (2, 5, 1, 250),
-    (3, 9, 1, 200),
-    (3, 4, 2, 130),
-    (3, 6, 4, 30),
-    (3, 29, 1, 65),
-    (4, 2, 1, 1300),
-    (4, 10, 1, 500),
-    (5, 1, 1, 900),
-    (5, 9, 1, 200),
-    (5, 33, 2, 25),
-    (6, 8, 1, 160),
-    (6, 4, 1, 130),
-    (6, 34, 2, 20),
-    (7, 10, 1, 500),
-    (7, 14, 1, 80),
-    (8, 1, 1, 900),
-    (9, 5, 1, 250),
-    (9, 9, 1, 200),
-    (10, 15, 1, 1300),
-    (10, 10, 1, 500),
-    (11, 21, 3, 55),
-    (11, 22, 1, 85),
-    (11, 33, 1, 25),
-    (11, 38, 3, 35),
-    (12, 24, 1, 400),
-    (12, 19, 1, 150),
-    (12, 20, 1, 60),
-    (13, 1, 1, 900),
-    (14, 2, 1, 1300),
-    (15, 17, 1, 180),
-    (15, 18, 1, 120),
-    (15, 34, 2, 20),
-    (16, 25, 2, 350),
-    (16, 26, 1, 40),
-    (17, 31, 1, 110),
-    (17, 7, 1, 70),
-    (17, 3, 1, 80),
-    (17, 27, 9, 20),
-    (18, 2, 1, 1300),
-    (19, 28, 1, 15),
-    (19, 29, 1, 65),
-    (19, 30, 1, 35),
-    (19, 32, 3, 50),
-    (19, 36, 1, 12),
-    (20, 1, 1, 900),
-    (21, 13, 1, 90),
-    (21, 5, 1, 250),
-    (21, 12, 7, 25),
-    (22, 15, 1, 1300),
-    (22, 19, 1, 150),
-    (23, 23, 4, 95),
-    (24, 11, 1, 250),
-    (24, 26, 1, 40),
-    (24, 27, 19, 20),
-    (25, 1, 1, 900),
-    (25, 34, 1, 20),
-    (26, 35, 12, 15),
-    (27, 4, 2, 130),
-    (27, 6, 6, 30),
-    (28, 40, 15, 12),
-    (28, 39, 10, 18),
-    (29, 24, 1, 400),
-    (29, 25, 1, 350),
-    (29, 34, 1, 20),
-    (30, 2, 1, 1300),
-    (31, 37, 30, 8),
-    (32, 13, 1, 90),
-    (32, 5, 1, 250),
-    (32, 12, 8, 25),
-    (33, 1, 1, 900),
-    (34, 2, 1, 1300),
-    (35, 31, 1, 110),
-    (35, 7, 1, 70),
-    (35, 3, 1, 80),
-    (35, 27, 8, 20),
-    (36, 28, 10, 15),
-    (37, 36, 12, 12),
-    (37, 34, 1, 20),
-    (38, 1, 1, 900),
-    (38, 33, 2, 25),
-    (39, 23, 2, 95),
-    (39, 12, 7, 25),
-    (39, 34, 2, 20),
-    (40, 2, 1, 1300)
-    ON CONFLICT DO NOTHING
-  `;
+  for (let i = 0; i < config.products; i++) {
+    let productName = generateProductName();
 
-  await executeStatement(client, orderItemsData);
+    // Ensure unique product names
+    while (generatedProductNames.has(productName)) {
+      productName = generateProductName();
+    }
+    generatedProductNames.add(productName);
 
-  console.log("✅ All sample data inserted successfully!");
+    const description = generateProductDescription(productName);
+    const price = randomInt(5, 2000);
+    const category = randomChoice(PRODUCT_CATEGORIES);
+    const stock = randomInt(0, 500);
+
+    productsData.push(
+      `('${productName.replace(/'/g, "''")}', '${description.replace(
+        /'/g,
+        "''"
+      )}', ${price}, '${category}', ${stock})`
+    );
+  }
+
+  // Insert products in batches
+  for (let i = 0; i < productsData.length; i += batchSize) {
+    const batch = productsData.slice(i, i + batchSize);
+    const productsBatch = `
+      INSERT INTO products (name, description, price, category, stock) VALUES
+      ${batch.join(",\n      ")}
+      ON CONFLICT DO NOTHING
+    `;
+    await executeStatement(client, productsBatch);
+  }
+
+  // Get user and product IDs for orders
+  const { data: users } = await client.rpc("run_query", {
+    query_text: "SELECT id FROM users ORDER BY id",
+  });
+  const userIds = users.map((u: any) => u.id);
+
+  const { data: products } = await client.rpc("run_query", {
+    query_text: "SELECT id, price FROM products ORDER BY id",
+  });
+  const productData = products.map((p: any) => ({ id: p.id, price: p.price }));
+
+  // Generate orders with realistic date distribution
+  console.log(`🛒 Generating ${config.orders} orders...`);
+  const startDate = new Date(config.dateRange.start);
+  const endDate = new Date(config.dateRange.end);
+  const ordersData: string[] = [];
+  const orderItemsData: string[] = [];
+
+  for (let i = 0; i < config.orders; i++) {
+    const userId = randomChoice(userIds);
+    const orderDate = randomDate(startDate, endDate);
+    const orderDateStr = formatDate(orderDate);
+
+    // Determine order status based on date
+    const now = new Date();
+    const isInPast = orderDate < now;
+    const daysSinceOrder = Math.floor(
+      (now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    let status: string;
+    let estimatedDelivery: string | null = null;
+    let deliveryDate: string | null = null;
+
+    if (orderDate > now) {
+      // Future orders are pending
+      status = "pending";
+      const estimatedDays = randomInt(3, 14);
+      estimatedDelivery = formatDate(
+        new Date(orderDate.getTime() + estimatedDays * 24 * 60 * 60 * 1000)
+      );
+    } else if (daysSinceOrder < 2) {
+      // Very recent orders are pending
+      status = "pending";
+      const estimatedDays = randomInt(3, 14);
+      estimatedDelivery = formatDate(
+        new Date(orderDate.getTime() + estimatedDays * 24 * 60 * 60 * 1000)
+      );
+    } else {
+      // Older orders have various statuses
+      const statusRand = Math.random();
+      if (statusRand < 0.8) {
+        status = "delivered";
+        const estimatedDays = randomInt(3, 14);
+        estimatedDelivery = formatDate(
+          new Date(orderDate.getTime() + estimatedDays * 24 * 60 * 60 * 1000)
+        );
+
+        // Delivery can be early, on time, or late
+        const deliveryVariation = randomInt(-2, 5); // -2 to +5 days from estimated
+        const actualDeliveryDate = new Date(
+          new Date(estimatedDelivery).getTime() +
+            deliveryVariation * 24 * 60 * 60 * 1000
+        );
+
+        // Don't deliver in the future
+        if (actualDeliveryDate <= now) {
+          deliveryDate = formatDate(actualDeliveryDate);
+        }
+      } else if (statusRand < 0.9) {
+        status = "pending";
+        const estimatedDays = randomInt(3, 14);
+        estimatedDelivery = formatDate(
+          new Date(orderDate.getTime() + estimatedDays * 24 * 60 * 60 * 1000)
+        );
+      } else {
+        status = "cancelled";
+        // Cancelled orders have no delivery dates
+      }
+    }
+
+    // Generate order items
+    const numItems = randomInt(
+      config.orderItemsPerOrder.min,
+      config.orderItemsPerOrder.max
+    );
+    const selectedProducts = new Set<number>();
+    let totalAmount = 0;
+
+    for (let j = 0; j < numItems; j++) {
+      let product: { id: number; price: number } = randomChoice(productData);
+
+      // Avoid duplicate products in same order
+      while (
+        selectedProducts.has(product.id) &&
+        selectedProducts.size < productData.length
+      ) {
+        product = randomChoice(productData);
+      }
+      selectedProducts.add(product.id);
+
+      const quantity = randomInt(1, 5);
+      const itemPrice = product.price;
+      totalAmount += itemPrice * quantity;
+
+      orderItemsData.push(
+        `(${i + 1}, ${product.id}, ${quantity}, ${itemPrice})`
+      );
+    }
+
+    const orderValues = [
+      userId,
+      totalAmount.toFixed(2),
+      `'${status}'`,
+      `'${orderDateStr}'`,
+      estimatedDelivery ? `'${estimatedDelivery}'` : "NULL",
+      deliveryDate ? `'${deliveryDate}'` : "NULL",
+    ].join(", ");
+
+    ordersData.push(`(${orderValues})`);
+  }
+
+  // Insert orders in batches
+  for (let i = 0; i < ordersData.length; i += batchSize) {
+    const batch = ordersData.slice(i, i + batchSize);
+    const ordersBatch = `
+      INSERT INTO orders (user_id, total_amount, status, order_date, estimated_delivery, delivery_date) VALUES
+      ${batch.join(",\n      ")}
+      ON CONFLICT DO NOTHING
+    `;
+    await executeStatement(client, ordersBatch);
+  }
+
+  // Insert order items in batches
+  console.log("📋 Inserting order items...");
+  for (let i = 0; i < orderItemsData.length; i += batchSize) {
+    const batch = orderItemsData.slice(i, i + batchSize);
+    const orderItemsBatch = `
+      INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+      ${batch.join(",\n      ")}
+      ON CONFLICT DO NOTHING
+    `;
+    await executeStatement(client, orderItemsBatch);
+  }
+
+  console.log("✅ Advanced sample data generated successfully!");
+  console.log(`📊 Generated:`);
+  console.log(`   • ${countriesToInsert.length} countries`);
+  console.log(`   • ${citiesToInsert.length} cities`);
+  console.log(`   • ${config.users} users with unique emails`);
+  console.log(
+    `   • ${config.products} products across ${PRODUCT_CATEGORIES.length} categories`
+  );
+  console.log(
+    `   • ${config.orders} orders from ${config.dateRange.start} to ${config.dateRange.end}`
+  );
+  console.log(`   • ${orderItemsData.length} order items`);
+  console.log(`   • Realistic order statuses with proper date handling`);
 }
 
 /**
@@ -548,25 +979,37 @@ export async function dropAllTables(): Promise<void> {
 }
 
 /**
- * Set up the complete database from scratch
+ * Set up the complete database from scratch with custom configuration
+ * This function automatically drops existing tables before recreating them
  */
-export async function setupDatabase(): Promise<void> {
+export async function setupDatabase(
+  config?: DataGenerationConfig
+): Promise<void> {
   console.log("🚀 Setting up SQL Playground database...");
 
   try {
+    // Always drop existing tables first to ensure clean setup
+    console.log("🗑️ Cleaning existing database...");
+    await dropAllTables();
+
     await fixRunQueryFunction();
     await createTables();
-    await insertSampleData();
+    await insertSampleData(config);
 
+    const finalConfig = config || DEFAULT_CONFIG;
     console.log("🎉 Database setup completed successfully!");
     console.log("📊 Your database now contains:");
-    console.log("   • 25 countries with sample data");
-    console.log("   • 50 cities with population data");
-    console.log("   • 50 users with realistic profiles");
-    console.log("   • 40 products across various categories");
-    console.log("   • 40 orders with multiple statuses");
-    console.log("   • Extensive order items data");
-    console.log("   • Working run_query() function");
+    console.log(`   • ${finalConfig.countries} countries with sample data`);
+    console.log(`   • ${finalConfig.cities} cities with population data`);
+    console.log(`   • ${finalConfig.users} users with realistic profiles`);
+    console.log(
+      `   • ${finalConfig.products} products across multiple categories`
+    );
+    console.log(
+      `   • ${finalConfig.orders} orders with realistic date distribution`
+    );
+    console.log(`   • Order items with proper relationships`);
+    console.log(`   • Working run_query() function`);
   } catch (error) {
     console.error("💥 Database setup failed:", error);
     throw error;
@@ -574,15 +1017,36 @@ export async function setupDatabase(): Promise<void> {
 }
 
 /**
+ * Set up database with large dataset for testing
+ */
+export async function setupLargeDatabase(): Promise<void> {
+  const largeConfig: DataGenerationConfig = {
+    countries: 30,
+    cities: 100,
+    users: 1000,
+    products: 500,
+    orders: 2000,
+    orderItemsPerOrder: { min: 1, max: 8 },
+    dateRange: {
+      start: "2024-01-01",
+      end: "2025-06-30",
+    },
+  };
+
+  console.log("🚀 Setting up large SQL Playground database...");
+  await setupDatabase(largeConfig);
+}
+
+/**
+ * @deprecated Use setupDatabase() instead. This function is kept for backward compatibility.
  * Reset the database by dropping and recreating everything
  */
 export async function resetDatabase(): Promise<void> {
   console.log("🔄 Resetting SQL Playground database...");
+  console.log("⚠️ resetDatabase() is deprecated. Use setupDatabase() instead.");
 
   try {
-    await dropAllTables();
     await setupDatabase();
-
     console.log("🎉 Database reset completed successfully!");
   } catch (error) {
     console.error("💥 Database reset failed:", error);

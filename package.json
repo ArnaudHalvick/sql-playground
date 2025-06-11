@@ -9,9 +9,13 @@
     "lint": "next lint",
     "db:compile": "npx tsc utils/supabase/database-manager.ts --outDir scripts --target es2020 --module commonjs --esModuleInterop --skipLibCheck",
     "db:setup": "npm run db:compile && node scripts/db.js setup",
-    "db:reset": "npm run db:compile && node scripts/db.js reset",
     "db:info": "npm run db:compile && node scripts/db.js info",
-    "db:fix": "npm run db:compile && node scripts/db.js fix"
+    "db:fix": "npm run db:compile && node scripts/db.js fix",
+    "db:setup-small": "npm run db:compile && node scripts/advanced-db-setup.js small",
+    "db:setup-medium": "npm run db:compile && node scripts/advanced-db-setup.js medium",
+    "db:setup-large": "npm run db:compile && node scripts/advanced-db-setup.js large",
+    "db:setup-realistic": "npm run db:compile && node scripts/advanced-db-setup.js realistic",
+    "db:setup-custom": "npm run db:compile && node scripts/advanced-db-setup.js custom"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.5.4",

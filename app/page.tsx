@@ -376,19 +376,14 @@ export default function Home() {
           <div className="col-span-8 xl:col-span-9 flex flex-col gap-4">
             {/* SQL Editor */}
             <Card className="flex-none">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-medium flex items-center gap-2">
-                  <CodeIcon size={18} />
-                  SQL Editor
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <SqlEditor
                   defaultValue={query}
                   onExecute={executeUserQuery}
                   onChange={setQuery}
                   isExecuting={isExecuting}
                   resetQuery={handleResetQuery}
+                  showTitle={true}
                 />
               </CardContent>
             </Card>

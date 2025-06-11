@@ -64,9 +64,7 @@ export function SchemaViewer({
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              window.open("/supabase-schema-fdhqqarfkamvcaueiiqa.png", "_blank")
-            }
+            onClick={() => window.open("/supabase-schema.png", "_blank")}
             className="h-6 px-2 text-xs"
           >
             <ExternalLinkIcon size={12} className="mr-1" />

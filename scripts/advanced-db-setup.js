@@ -7,6 +7,21 @@
 
 require("dotenv").config({ path: ".env.local" });
 
+// Helper function to get dynamic date range
+function getDynamicDateRange() {
+  const now = new Date();
+
+  // Start from 2 years ago to have good historical data
+  const startDate = new Date(now);
+  startDate.setFullYear(startDate.getFullYear() - 2);
+  const start = startDate.toISOString().split("T")[0];
+
+  // End today (orders are placed up to today, not in the future)
+  const end = now.toISOString().split("T")[0];
+
+  return { start, end };
+}
+
 async function main() {
   const command = process.argv[2];
   const amount = process.argv[3];
@@ -27,10 +42,7 @@ async function main() {
           products: 50,
           orders: 100,
           orderItemsPerOrder: { min: 1, max: 3 },
-          dateRange: {
-            start: "2024-01-01",
-            end: "2025-06-30",
-          },
+          dateRange: getDynamicDateRange(),
         };
         await dbManager.setupDatabase(smallConfig);
         break;
@@ -44,10 +56,7 @@ async function main() {
           products: 150,
           orders: 500,
           orderItemsPerOrder: { min: 1, max: 5 },
-          dateRange: {
-            start: "2024-01-01",
-            end: "2025-06-30",
-          },
+          dateRange: getDynamicDateRange(),
         };
         await dbManager.setupDatabase(mediumConfig);
         break;
@@ -77,10 +86,7 @@ async function main() {
           products: 100 * multiplier,
           orders: 500 * multiplier,
           orderItemsPerOrder: { min: 1, max: Math.min(8, 3 + multiplier) },
-          dateRange: {
-            start: "2024-01-01",
-            end: "2025-06-30",
-          },
+          dateRange: getDynamicDateRange(),
         };
         await dbManager.setupDatabase(customConfig);
         break;
@@ -94,10 +100,7 @@ async function main() {
           products: 300,
           orders: 1500,
           orderItemsPerOrder: { min: 1, max: 6 },
-          dateRange: {
-            start: "2024-01-01",
-            end: "2025-06-30",
-          },
+          dateRange: getDynamicDateRange(),
         };
         await dbManager.setupDatabase(realisticConfig);
         break;
@@ -125,9 +128,9 @@ async function main() {
         console.log("• Configurable number of records per table");
         console.log("• Random but realistic user names and emails");
         console.log("• Dynamic product generation with descriptions");
-        console.log("• Smart order date distribution (Jan 2024 - Jun 2025)");
+        console.log("• Smart order date distribution (2 years ago to today)");
         console.log("• Realistic order statuses (delivered/pending/cancelled)");
-        console.log("• Proper delivery date logic (early/on-time/late/null)");
+        console.log("• Proper delivery date logic (past/present/future/null)");
         console.log("• Batch processing for large datasets");
         console.log("");
         console.log("Make sure your .env.local file contains:");

@@ -33,16 +33,14 @@ import { Badge } from "@/components/ui/feedback/badge";
 // Helper function to get dynamic date range
 function getDynamicDateRange(): { start: string; end: string } {
   const now = new Date();
-  const currentYear = now.getFullYear();
 
-  // Start from January of the previous year to have good historical data
-  const startYear = currentYear - 1;
-  const start = `${startYear}-01-01`;
+  // Start from 2 years ago to have good historical data
+  const startDate = new Date(now);
+  startDate.setFullYear(startDate.getFullYear() - 2);
+  const start = startDate.toISOString().split("T")[0];
 
-  // End 6 months from now to allow for future orders
-  const endDate = new Date(now);
-  endDate.setMonth(endDate.getMonth() + 6);
-  const end = endDate.toISOString().split("T")[0];
+  // End today (orders are placed up to today, not in the future)
+  const end = now.toISOString().split("T")[0];
 
   return { start, end };
 }
@@ -389,9 +387,9 @@ export function DatabaseSetupModal({
               <ul className="text-sm text-muted-foreground space-y-1">
                 <li>• Realistic user names and unique email addresses</li>
                 <li>• Dynamic product catalog with descriptions</li>
-                <li>• Orders from last year to 6 months in the future</li>
+                <li>• Orders from 2 years ago to today</li>
                 <li>• Proper order statuses (delivered/pending/cancelled)</li>
-                <li>• Realistic delivery dates (early/on-time/late)</li>
+                <li>• Realistic delivery dates (past, present, and future)</li>
                 <li>• Complete relational data with proper foreign keys</li>
               </ul>
             </div>

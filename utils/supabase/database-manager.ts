@@ -14,7 +14,22 @@ export interface DataGenerationConfig {
   };
 }
 
-// Default configuration
+// Helper function to get dynamic date range
+function getDynamicDateRange(): { start: string; end: string } {
+  const now = new Date();
+
+  // Start from 2 years ago to have good historical data
+  const startDate = new Date(now);
+  startDate.setFullYear(startDate.getFullYear() - 2);
+  const start = startDate.toISOString().split("T")[0];
+
+  // End today (orders are placed up to today, not in the future)
+  const end = now.toISOString().split("T")[0];
+
+  return { start, end };
+}
+
+// Default configuration with dynamic dates
 export const DEFAULT_CONFIG: DataGenerationConfig = {
   countries: 25,
   cities: 50,
@@ -22,10 +37,7 @@ export const DEFAULT_CONFIG: DataGenerationConfig = {
   products: 100,
   orders: 500,
   orderItemsPerOrder: { min: 1, max: 5 },
-  dateRange: {
-    start: "2024-01-01",
-    end: "2025-06-30",
-  },
+  dateRange: getDynamicDateRange(),
 };
 
 // Predefined data that shouldn't be random
@@ -1027,10 +1039,7 @@ export async function setupLargeDatabase(): Promise<void> {
     products: 500,
     orders: 2000,
     orderItemsPerOrder: { min: 1, max: 8 },
-    dateRange: {
-      start: "2024-01-01",
-      end: "2025-06-30",
-    },
+    dateRange: getDynamicDateRange(),
   };
 
   console.log("🚀 Setting up large SQL Playground database...");

@@ -174,67 +174,92 @@ const challengeTypes = [
 
 // Database schema for AI prompts
 const databaseSchema = `
--- Database Schema Structure
+-- Supabase PostgreSQL Database Schema for SQL Playground
+
+-- countries table
+CREATE TABLE countries (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  code TEXT NOT NULL,
+  continent TEXT NOT NULL
+);
+
+-- cities table  
+CREATE TABLE cities (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  country_id INTEGER REFERENCES countries(id),
+  population INTEGER
+);
+
+-- users table
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  country_id INTEGER REFERENCES countries(id),
+  city_id INTEGER REFERENCES cities(id)
+);
 
 -- products table
 CREATE TABLE products (
-  id INT PRIMARY KEY,
-  name TEXT,
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
   description TEXT,
-  price DECIMAL,
+  price DECIMAL(10, 2) NOT NULL,
   category TEXT,
-  stock INT
+  stock INTEGER DEFAULT 0
 );
 
 -- orders table
 CREATE TABLE orders (
-  id INT PRIMARY KEY,
-  user_id INT,
-  total_amount DECIMAL,
-  status TEXT,
-  order_date DATE,
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  total_amount DECIMAL(10, 2) NOT NULL,
+  status TEXT DEFAULT 'pending',
+  order_date DATE DEFAULT CURRENT_DATE,
   estimated_delivery DATE,
   delivery_date DATE
 );
 
 -- order_items table
 CREATE TABLE order_items (
-  id INT PRIMARY KEY,
-  order_id INT,
-  product_id INT,
-  quantity INT,
-  price DECIMAL
+  id SERIAL PRIMARY KEY,
+  order_id INTEGER REFERENCES orders(id),
+  product_id INTEGER REFERENCES products(id),
+  quantity INTEGER NOT NULL,
+  price DECIMAL(10, 2) NOT NULL
 );
 
--- users table
-CREATE TABLE users (
-  id INT PRIMARY KEY,
-  first_name TEXT,
-  last_name TEXT,
-  email TEXT,
-  country_id INT,
-  city_id INT
-);
+-- IMPORTANT DATA SPECIFICATIONS:
 
--- cities table
-CREATE TABLE cities (
-  id INT PRIMARY KEY,
-  name TEXT,
-  country_id INT,
-  population INT
-);
+-- Order Status Values (ONLY these 3 values exist):
+-- • 'pending' - Orders not yet delivered (has estimated_delivery, delivery_date is NULL)
+-- • 'delivered' - Completed orders (has both estimated_delivery and delivery_date)  
+-- • 'cancelled' - Cancelled orders (both estimated_delivery and delivery_date are NULL)
 
--- countries table
-CREATE TABLE countries (
-  id INT PRIMARY KEY,
-  name TEXT,
-  code TEXT,
-  continent TEXT
-);
+-- Product Categories (16 categories available):
+-- Electronics, Clothing, Home & Garden, Sports, Kitchen, Books, Health & Beauty, 
+-- Toys, Automotive, Office Supplies, Pet Supplies, Jewelry, Music, Movies, Games, Food & Beverages
+
+-- Date Ranges:
+-- • order_date: Ranges from 2 years ago to today (never future dates)
+-- • estimated_delivery: 3-14 days after order_date
+-- • delivery_date: Can be early (-2 days) to late (+5 days) from estimated_delivery, only for delivered orders
+
+-- Countries: 25-30 real countries with proper codes (US, UK, FR, DE, JP, AU, BR, CA, IN, CN, etc.)
+-- Cities: 50-100 real cities with actual population data
+-- Users: Realistic names with unique email addresses
+-- Products: Generated names like "Premium Laptop Pro", "Wireless Headphones Ultra", etc.
+
+-- Database Platform: Supabase (PostgreSQL)
+-- Query Execution: Use run_query() function for custom queries
+-- Data Types: SERIAL (auto-increment), TEXT, INTEGER, DECIMAL(10,2), DATE
 
 -- Relationships:
 -- orders.user_id → users.id
--- order_items.order_id → orders.id
+-- order_items.order_id → orders.id  
 -- order_items.product_id → products.id
 -- users.country_id → countries.id
 -- users.city_id → cities.id
@@ -244,324 +269,349 @@ CREATE TABLE countries (
 // AI prompts for each challenge type
 const challengePrompts = {
   "basic-queries": {
-    beginner: `Generate a SQL challenge for a beginner level focusing on basic queries. Use this database schema:
+    beginner: `Generate a SQL challenge for a beginner level focusing on basic queries. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Simple SELECT statements
-- Basic WHERE clauses
-- LIMIT and ORDER BY
+- Simple SELECT statements with specific columns
+- Basic WHERE clauses with realistic conditions
+- LIMIT and ORDER BY clauses
 - Basic filtering with comparison operators
+- Use actual data values (order status: 'pending', 'delivered', 'cancelled')
 
 The challenge should:
-1. Have a clear, specific question
-2. Be solvable with basic SQL knowledge
-3. Use realistic business scenarios
-4. Include the expected difficulty level: BEGINNER
-5. Provide a brief hint if needed
+1. Have a clear, specific business question
+2. Be solvable with basic SQL knowledge (SELECT, WHERE, ORDER BY, LIMIT)
+3. Use realistic e-commerce scenarios
+4. Reference actual column names and data types from the schema
+5. Include the expected difficulty level: BEGINNER
+6. Provide a brief hint about which table(s) to query
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   joins: {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on table joins. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on table joins. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- INNER JOIN, LEFT JOIN, or RIGHT JOIN
-- Joining 2-3 tables
-- Meaningful business questions requiring data from multiple tables
-- Proper use of foreign key relationships
+- INNER JOIN, LEFT JOIN, or RIGHT JOIN between 2-3 tables
+- Meaningful business questions requiring data from multiple related tables
+- Proper use of foreign key relationships (user_id, country_id, city_id, order_id, product_id)
+- Realistic filtering conditions using actual data values
 
 The challenge should:
-1. Have a clear, specific question
-2. Require understanding of table relationships
-3. Use realistic business scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide a brief hint about which tables to join
+1. Have a clear, specific business question
+2. Require understanding of table relationships and foreign keys
+3. Use realistic e-commerce scenarios (customers, orders, products, locations)
+4. Reference actual column names and relationships from the schema
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide a brief hint about which tables to join and the relationship
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   aggregations: {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on aggregations. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on aggregations. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- GROUP BY clauses
-- Aggregate functions (COUNT, SUM, AVG, MAX, MIN)
+- GROUP BY clauses with meaningful grouping (by country, category, status, date)
+- Aggregate functions (COUNT, SUM, AVG, MAX, MIN) on appropriate columns
 - HAVING clauses for filtering groups
-- Meaningful business metrics
+- Business metrics calculation (revenue, order counts, average prices)
+- Use actual data values (order status: 'pending', 'delivered', 'cancelled')
 
 The challenge should:
-1. Have a clear, specific question
-2. Require grouping and calculating metrics
-3. Use realistic business scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide a brief hint about grouping strategy
+1. Have a clear, specific business question about metrics or summaries
+2. Require grouping data and calculating meaningful aggregates
+3. Use realistic e-commerce scenarios (sales analysis, customer metrics, product performance)
+4. Reference actual column names and data types (total_amount, price, quantity, etc.)
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide a brief hint about grouping strategy and which aggregates to use
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   subqueries: {
-    advanced: `Generate a SQL challenge for an advanced level focusing on subqueries. Use this database schema:
+    advanced: `Generate a SQL challenge for an advanced level focusing on subqueries. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Nested SELECT statements
-- Correlated or non-correlated subqueries
+- Nested SELECT statements (correlated or non-correlated subqueries)
 - EXISTS, IN, or comparison operators with subqueries
-- Complex business logic
+- Complex business logic requiring multi-step data retrieval
+- Use actual data values and relationships from the schema
 
 The challenge should:
-1. Have a clear, specific question
-2. Require advanced SQL thinking
-3. Use realistic business scenarios
-4. Include the expected difficulty level: ADVANCED
-5. Provide a brief hint about the subquery approach
+1. Have a clear, specific business question requiring advanced SQL thinking
+2. Require nested queries to solve complex business problems
+3. Use realistic e-commerce scenarios (customer analysis, product comparisons, order patterns)
+4. Reference actual column names, relationships, and data types
+5. Include the expected difficulty level: ADVANCED
+6. Provide a brief hint about the subquery approach (EXISTS, IN, correlated, etc.)
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "window-functions": {
-    advanced: `Generate a SQL challenge for an advanced level focusing on window functions. Use this database schema:
+    advanced: `Generate a SQL challenge for an advanced level focusing on window functions. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Window functions (ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD)
-- PARTITION BY and ORDER BY in window functions
-- Running totals or moving averages
-- Advanced analytical queries
+- Window functions (ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, SUM, AVG)
+- PARTITION BY and ORDER BY clauses in window functions
+- Running totals, moving averages, or ranking analysis
+- Advanced analytical queries for business insights
 
 The challenge should:
-1. Have a clear, specific question
-2. Require advanced analytical thinking
-3. Use realistic business scenarios
-4. Include the expected difficulty level: ADVANCED
-5. Provide a brief hint about which window function to use
+1. Have a clear, specific business question requiring analytical thinking
+2. Require window functions to solve ranking, running totals, or comparative analysis
+3. Use realistic e-commerce scenarios (customer rankings, sales trends, product comparisons)
+4. Reference actual column names and data types (order_date, total_amount, price, etc.)
+5. Include the expected difficulty level: ADVANCED
+6. Provide a brief hint about which window function to use and partitioning strategy
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "ecommerce-analysis": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on e-commerce analysis. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on e-commerce analysis. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Sales and revenue analysis
-- Customer behavior patterns
-- Product performance metrics
-- Order and inventory insights
+- Sales and revenue analysis using total_amount, price, quantity
+- Customer behavior patterns across orders and products
+- Product performance metrics by category or individual products
+- Order fulfillment insights using order status ('pending', 'delivered', 'cancelled')
+- Geographic analysis using countries and cities data
 
 The challenge should:
-1. Have a clear, specific business question
-2. Require joining multiple tables
-3. Use realistic e-commerce scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about the business goal
+1. Have a clear, specific e-commerce business question
+2. Require joining multiple tables (orders, users, products, order_items)
+3. Use realistic business scenarios (revenue analysis, customer insights, product performance)
+4. Reference actual column names, order statuses, and product categories
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about the business goal and expected insights
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "geographic-queries": {
-    beginner: `Generate a SQL challenge for a beginner level focusing on geographic queries. Use this database schema:
+    beginner: `Generate a SQL challenge for a beginner level focusing on geographic queries. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Country and city data analysis
-- Geographic filtering and grouping
-- Population or location-based queries
-- Simple geographic relationships
+- Country and city data analysis using the countries and cities tables
+- Geographic filtering and grouping by continent, country, or city
+- Population-based queries using the population column in cities
+- Simple geographic relationships between users, cities, and countries
 
 The challenge should:
-1. Have a clear, specific question
-2. Be solvable with basic to intermediate SQL
-3. Use realistic geographic scenarios
-4. Include the expected difficulty level: BEGINNER
-5. Provide context about the geographic aspect
+1. Have a clear, specific question about geographic data
+2. Be solvable with basic to intermediate SQL (SELECT, WHERE, JOIN, GROUP BY)
+3. Use realistic geographic scenarios (population analysis, user distribution, regional insights)
+4. Reference actual column names (continent, population, country_id, city_id)
+5. Include the expected difficulty level: BEGINNER
+6. Provide context about the geographic aspect and expected results
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "data-modification": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on data modification. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on data modification. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- INSERT statements with proper data types
-- UPDATE operations with conditions
-- DELETE operations with safety considerations
-- UPSERT or INSERT...ON CONFLICT scenarios
+- INSERT statements with proper data types (TEXT, INTEGER, DECIMAL(10,2), DATE)
+- UPDATE operations with realistic conditions and value changes
+- DELETE operations with safety considerations and proper WHERE clauses
+- Consider foreign key relationships and data integrity
 
 The challenge should:
-1. Have a clear, specific business scenario
-2. Require understanding of data integrity
-3. Use realistic data modification scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about the business need for data changes
+1. Have a clear, specific business scenario requiring data changes
+2. Require understanding of data types and constraints
+3. Use realistic data modification scenarios (updating order status, adding products, user management)
+4. Reference actual column names, data types, and relationships
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about the business need for data changes and safety considerations
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "performance-optimization": {
-    advanced: `Generate a SQL challenge for an advanced level focusing on performance optimization. Use this database schema:
+    advanced: `Generate a SQL challenge for an advanced level focusing on performance optimization. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Query optimization techniques
-- Index usage and recommendations
-- Execution plan analysis
-- Performance bottleneck identification
+- Query optimization techniques for Supabase/PostgreSQL
+- Index recommendations for improving query performance
+- Efficient JOIN strategies and query structure
+- Performance considerations for large datasets
 
 The challenge should:
-1. Present a performance problem scenario
-2. Require advanced SQL optimization knowledge
-3. Use realistic performance scenarios
-4. Include the expected difficulty level: ADVANCED
-5. Provide context about performance requirements
+1. Present a realistic performance problem scenario
+2. Require advanced SQL optimization knowledge for PostgreSQL/Supabase
+3. Use realistic performance scenarios (slow queries, large table joins, complex aggregations)
+4. Reference actual table structures and relationships
+5. Include the expected difficulty level: ADVANCED
+6. Provide context about performance requirements and expected improvements
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "date-time-queries": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on date and time analysis. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on date and time analysis. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Date functions and calculations
-- Time series analysis
-- Date range filtering
-- Temporal data aggregation
+- Date functions and calculations using order_date, estimated_delivery, delivery_date
+- Time series analysis of orders over time (2 years of historical data)
+- Date range filtering and temporal data aggregation
+- Delivery performance analysis (early, on-time, late deliveries)
 
 The challenge should:
 1. Have a clear, time-based business question
-2. Require understanding of date/time functions
-3. Use realistic temporal scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about the time-based analysis
+2. Require understanding of PostgreSQL date/time functions
+3. Use realistic temporal scenarios (order trends, delivery performance, seasonal analysis)
+4. Reference actual date columns and their relationships
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about the time-based analysis and business insights
+
+Note: order_date ranges from 2 years ago to today, estimated_delivery is 3-14 days after order_date, delivery_date exists only for delivered orders.
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "string-manipulation": {
-    beginner: `Generate a SQL challenge for a beginner level focusing on string manipulation. Use this database schema:
+    beginner: `Generate a SQL challenge for a beginner level focusing on string manipulation. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- String functions (CONCAT, SUBSTRING, LENGTH, etc.)
-- Pattern matching with LIKE
-- Case conversion (UPPER, LOWER)
-- String cleaning and formatting
+- String functions (CONCAT, SUBSTRING, LENGTH, UPPER, LOWER, etc.)
+- Pattern matching with LIKE and ILIKE (PostgreSQL case-insensitive)
+- String cleaning and formatting of names, emails, or product descriptions
+- Text processing on actual data fields (first_name, last_name, email, product names)
 
 The challenge should:
-1. Have a clear, specific question
-2. Be solvable with basic string functions
-3. Use realistic text processing scenarios
-4. Include the expected difficulty level: BEGINNER
-5. Provide context about the string manipulation need
+1. Have a clear, specific question about text processing
+2. Be solvable with basic PostgreSQL string functions
+3. Use realistic text processing scenarios (name formatting, email validation, product search)
+4. Reference actual text columns (first_name, last_name, email, name, description)
+5. Include the expected difficulty level: BEGINNER
+6. Provide context about the string manipulation need and expected output format
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "conditional-logic": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on conditional logic. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on conditional logic. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- CASE statements for conditional logic
-- IF/THEN logic implementation
-- Nested conditions
-- Logical operators (AND, OR, NOT)
+- CASE statements for conditional logic based on actual data values
+- IF/THEN logic implementation using order status ('pending', 'delivered', 'cancelled')
+- Nested conditions and complex business rules
+- Logical operators (AND, OR, NOT) with realistic conditions
 
 The challenge should:
 1. Have a clear business logic requirement
-2. Require understanding of conditional statements
-3. Use realistic business rule scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about the business logic
+2. Require understanding of CASE statements and conditional expressions
+3. Use realistic business rule scenarios (order categorization, customer segmentation, product classification)
+4. Reference actual column values and business logic
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about the business logic and expected categorization
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "data-quality": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on data quality and validation. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on data quality and validation. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- NULL value handling and detection
-- Data validation rules
-- Data cleansing operations
-- Duplicate detection and removal
+- NULL value handling and detection in delivery_date, estimated_delivery
+- Data validation rules for email format, price ranges, quantity values
+- Data consistency checks across related tables
+- Identifying data anomalies or inconsistencies
 
 The challenge should:
-1. Present a data quality problem
-2. Require understanding of data validation techniques
-3. Use realistic data quality scenarios
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about data quality requirements
+1. Present a realistic data quality problem
+2. Require understanding of NULL handling and data validation techniques
+3. Use realistic data quality scenarios (missing delivery dates, invalid emails, price inconsistencies)
+4. Reference actual column constraints and relationships
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about data quality requirements and business impact
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "reporting-analytics": {
-    advanced: `Generate a SQL challenge for an advanced level focusing on reporting and analytics. Use this database schema:
+    advanced: `Generate a SQL challenge for an advanced level focusing on reporting and analytics. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Complex business reports
-- KPI calculations
-- Multi-dimensional analysis
-- Advanced analytical functions
+- Complex business reports combining multiple tables and metrics
+- KPI calculations (revenue, conversion rates, customer lifetime value)
+- Multi-dimensional analysis (by geography, product category, time period)
+- Advanced analytical functions and business intelligence queries
 
 The challenge should:
-1. Present a comprehensive reporting requirement
-2. Require advanced analytical thinking
-3. Use realistic business intelligence scenarios
-4. Include the expected difficulty level: ADVANCED
-5. Provide context about the business reporting need
+1. Present a comprehensive reporting requirement for business stakeholders
+2. Require advanced analytical thinking and complex SQL
+3. Use realistic business intelligence scenarios (executive dashboards, performance reports, trend analysis)
+4. Reference actual business metrics and data relationships
+5. Include the expected difficulty level: ADVANCED
+6. Provide context about the business reporting need and stakeholder requirements
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "complex-business-logic": {
-    advanced: `Generate a SQL challenge for an advanced level focusing on complex business logic. Use this database schema:
+    advanced: `Generate a SQL challenge for an advanced level focusing on complex business logic. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Multi-step calculations
-- Complex business rule implementation
-- Hierarchical data processing
-- Advanced logical operations
+- Multi-step calculations using order amounts, quantities, and prices
+- Complex business rule implementation (customer tiers, product recommendations, order prioritization)
+- Hierarchical data processing using geographic relationships
+- Advanced logical operations combining multiple business conditions
 
 The challenge should:
-1. Present a complex business scenario
-2. Require advanced SQL problem-solving skills
-3. Use realistic enterprise-level scenarios
-4. Include the expected difficulty level: ADVANCED
-5. Provide context about the complex business requirements
+1. Present a complex business scenario requiring sophisticated SQL logic
+2. Require advanced SQL problem-solving skills and business understanding
+3. Use realistic enterprise-level scenarios (customer segmentation, inventory management, pricing strategies)
+4. Reference actual business relationships and data constraints
+5. Include the expected difficulty level: ADVANCED
+6. Provide context about the complex business requirements and expected outcomes
 
 Format: Provide only the challenge question and context, no solution.`,
   },
   "delivery-analysis": {
-    intermediate: `Generate a SQL challenge for an intermediate level focusing on delivery and order status analysis. Use this database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on delivery and order status analysis. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Order status tracking (pending, delivered, cancelled)
-- Delivery performance analysis (early, on-time, late deliveries)
+- Order status tracking using the 3 specific statuses: 'pending', 'delivered', 'cancelled'
+- Delivery performance analysis comparing estimated_delivery vs delivery_date
 - Date calculations between order_date, estimated_delivery, and delivery_date
-- Order fulfillment metrics and trends
+- Order fulfillment metrics and delivery trends over time
 
 The challenge should:
 1. Present a realistic delivery/logistics scenario
-2. Require understanding of date functions and NULL handling
-3. Use meaningful business questions about order fulfillment
-4. Include the expected difficulty level: INTERMEDIATE
-5. Provide context about delivery performance goals
+2. Require understanding of date functions and NULL handling for delivery dates
+3. Use meaningful business questions about order fulfillment and delivery performance
+4. Reference the specific order status values and date column relationships
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide context about delivery performance goals and business metrics
 
-Note: pending orders have estimated_delivery but NULL delivery_date, delivered orders have both dates filled, cancelled orders have both delivery dates as NULL.
+Important: 
+- Pending orders have estimated_delivery but delivery_date is NULL
+- Delivered orders have both estimated_delivery and delivery_date filled
+- Cancelled orders have both delivery dates as NULL
+- Delivery can be early (delivery_date < estimated_delivery) or late (delivery_date > estimated_delivery)
 
 Format: Provide only the challenge question and context, no solution.`,
   },

@@ -47,9 +47,9 @@ import { Badge } from "@/components/ui/feedback/badge";
 import { Button } from "@/components/ui/inputs/button";
 
 export default function Home() {
-  const [query, setQuery] = useState<string>(
-    "SELECT id, first_name, last_name, email, country_id, city_id FROM users LIMIT 10"
-  );
+  const defaultQuery =
+    "SELECT id, first_name, last_name, email, country_id, city_id FROM users LIMIT 10";
+  const [query, setQuery] = useState<string>(defaultQuery);
   const [results, setResults] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);
   const [isExecuting, setIsExecuting] = useState<boolean>(false);
@@ -187,6 +187,14 @@ export default function Home() {
     });
     return counts;
   }, []);
+
+  const handleResetQuery = () => {
+    setQuery(defaultQuery);
+    setResults(null);
+    setColumns([]);
+    setError(null);
+    setActiveExercise(null);
+  };
 
   useEffect(() => {
     const exercise = exercises.find((ex) => ex.query === query);
@@ -380,6 +388,7 @@ export default function Home() {
                   onExecute={executeUserQuery}
                   onChange={setQuery}
                   isExecuting={isExecuting}
+                  resetQuery={handleResetQuery}
                 />
               </CardContent>
             </Card>

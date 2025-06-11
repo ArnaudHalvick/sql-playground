@@ -148,15 +148,30 @@ export default function Home() {
 
   // Filtered exercises based on search and difficulty
   const filteredExercises = useMemo(() => {
-    return exercises.filter((exercise) => {
-      const matchesSearch =
-        exercise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        exercise.description.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDifficulty =
-        difficultyFilter === "all" || exercise.difficulty === difficultyFilter;
+    // Define difficulty order for sorting
+    const difficultyOrder = { beginner: 1, intermediate: 2, advanced: 3 };
 
-      return matchesSearch && matchesDifficulty;
-    });
+    return exercises
+      .filter((exercise) => {
+        const matchesSearch =
+          exercise.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          exercise.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDifficulty =
+          difficultyFilter === "all" ||
+          exercise.difficulty === difficultyFilter;
+
+        return matchesSearch && matchesDifficulty;
+      })
+      .sort((a, b) => {
+        // First sort by difficulty level
+        const difficultyComparison =
+          difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+        if (difficultyComparison !== 0) {
+          return difficultyComparison;
+        }
+        // If same difficulty, sort alphabetically by title
+        return a.title.localeCompare(b.title);
+      });
   }, [searchTerm, difficultyFilter]);
 
   // Get difficulty counts for the filter badges

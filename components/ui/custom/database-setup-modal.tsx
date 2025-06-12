@@ -27,8 +27,19 @@ import {
   XCircleIcon,
   AlertTriangleIcon,
   Loader2,
+  Settings,
+  Bug,
 } from "lucide-react";
 import { Badge } from "@/components/ui/feedback/badge";
+import { Switch } from "@/components/ui/forms/switch";
+import { Slider } from "@/components/ui/forms/slider";
+import { Label } from "@/components/ui/forms/label";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/navigation/tabs";
 
 // Helper function to get dynamic date range
 function getDynamicDateRange(): { start: string; end: string } {
@@ -50,7 +61,7 @@ interface DatabaseSetupModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-interface DatabaseConfig {
+interface DatabaseSize {
   id: string;
   name: string;
   description: string;
@@ -69,14 +80,19 @@ interface DatabaseConfig {
     products: number;
     orders: number;
     orderItemsPerOrder: { min: number; max: number };
-    dateRange: {
-      start: string;
-      end: string;
-    };
   };
 }
 
-const databaseConfigs: DatabaseConfig[] = [
+interface ErrorConfig {
+  enabled: boolean;
+  emailErrors: number;
+  deliveryErrors: number;
+  pricingErrors: number;
+  locationErrors: number;
+  quantityErrors: number;
+}
+
+const databaseSizes: DatabaseSize[] = [
   {
     id: "small",
     name: "Small Dataset",
@@ -92,7 +108,6 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 50,
       orders: 100,
       orderItemsPerOrder: { min: 1, max: 3 },
-      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -108,7 +123,6 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 150,
       orders: 500,
       orderItemsPerOrder: { min: 1, max: 5 },
-      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -126,7 +140,6 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 500,
       orders: 2000,
       orderItemsPerOrder: { min: 1, max: 8 },
-      dateRange: getDynamicDateRange(),
     },
   },
   {
@@ -144,7 +157,6 @@ const databaseConfigs: DatabaseConfig[] = [
       products: 300,
       orders: 1500,
       orderItemsPerOrder: { min: 1, max: 6 },
-      dateRange: getDynamicDateRange(),
     },
   },
 ];
@@ -153,28 +165,47 @@ export function DatabaseSetupModal({
   open,
   onOpenChange,
 }: DatabaseSetupModalProps) {
-  const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>("small");
+  const [errorConfig, setErrorConfig] = useState<ErrorConfig>({
+    enabled: false,
+    emailErrors: 10,
+    deliveryErrors: 8,
+    pricingErrors: 5,
+    locationErrors: 7,
+    quantityErrors: 3,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState<string>("");
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  const handleConfigSelect = (configId: string) => {
-    setSelectedConfig(configId);
+  const handleSizeSelect = (sizeId: string) => {
+    setSelectedSize(sizeId);
     setStatus("idle");
     setMessage("");
   };
 
+  const handleErrorToggle = (enabled: boolean) => {
+    setErrorConfig((prev) => ({ ...prev, enabled }));
+  };
+
+  const handleErrorSliderChange = (
+    errorType: keyof Omit<ErrorConfig, "enabled">,
+    value: number[]
+  ) => {
+    setErrorConfig((prev) => ({ ...prev, [errorType]: value[0] }));
+  };
+
   const handleSetupClick = () => {
-    if (!selectedConfig) return;
+    if (!selectedSize) return;
     setShowConfirmation(true);
   };
 
   const handleConfirmSetup = async () => {
-    if (!selectedConfig) return;
+    if (!selectedSize) return;
 
-    const config = databaseConfigs.find((c) => c.id === selectedConfig);
-    if (!config) return;
+    const sizeConfig = databaseSizes.find((s) => s.id === selectedSize);
+    if (!sizeConfig) return;
 
     setIsLoading(true);
     setShowConfirmation(false);
@@ -182,12 +213,27 @@ export function DatabaseSetupModal({
     setMessage("");
 
     try {
+      const finalConfig = {
+        ...sizeConfig.config,
+        dateRange: getDynamicDateRange(),
+        errorConfig: errorConfig.enabled
+          ? errorConfig
+          : {
+              enabled: false,
+              emailErrors: 0,
+              deliveryErrors: 0,
+              pricingErrors: 0,
+              locationErrors: 0,
+              quantityErrors: 0,
+            },
+      };
+
       const response = await fetch("/api/database/setup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ config: config.config }),
+        body: JSON.stringify({ config: finalConfig }),
       });
 
       const result = await response.json();
@@ -196,9 +242,13 @@ export function DatabaseSetupModal({
         throw new Error(result.error || "Database setup failed");
       }
 
+      const errorSummary = errorConfig.enabled
+        ? ` with data quality challenges (${errorConfig.emailErrors}% email errors, ${errorConfig.deliveryErrors}% delivery errors, etc.)`
+        : " with clean data";
+
       setStatus("success");
       setMessage(
-        `Database setup completed successfully! Created ${config.stats.users} users, ${config.stats.products} products, and ${config.stats.orders} orders with realistic data.`
+        `Database setup completed successfully! Created ${sizeConfig.stats.users} users, ${sizeConfig.stats.products} products, and ${sizeConfig.stats.orders} orders${errorSummary}.`
       );
     } catch (error: any) {
       setStatus("error");
@@ -211,7 +261,15 @@ export function DatabaseSetupModal({
 
   const handleClose = () => {
     if (!isLoading) {
-      setSelectedConfig(null);
+      setSelectedSize("small");
+      setErrorConfig({
+        enabled: false,
+        emailErrors: 10,
+        deliveryErrors: 8,
+        pricingErrors: 5,
+        locationErrors: 7,
+        quantityErrors: 3,
+      });
       setStatus("idle");
       setMessage("");
       setShowConfirmation(false);
@@ -241,8 +299,9 @@ export function DatabaseSetupModal({
     }
   };
 
-  if (showConfirmation && selectedConfig) {
-    const config = databaseConfigs.find((c) => c.id === selectedConfig);
+  const selectedSizeConfig = databaseSizes.find((s) => s.id === selectedSize);
+
+  if (showConfirmation && selectedSizeConfig) {
     return (
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">
@@ -266,15 +325,42 @@ export function DatabaseSetupModal({
               </AlertDescription>
             </Alert>
 
-            <div className="bg-muted p-4 rounded-lg">
-              <h4 className="font-medium mb-2">Selected Configuration:</h4>
-              <p className="text-sm text-muted-foreground mb-2">
-                {config?.name} - {config?.description}
-              </p>
-              <div className="flex gap-4 text-sm">
-                <span>{config?.stats.users} users</span>
-                <span>{config?.stats.products} products</span>
-                <span>{config?.stats.orders} orders</span>
+            <div className="bg-muted p-4 rounded-lg space-y-3">
+              <h4 className="font-medium">Configuration Summary:</h4>
+              <div className="space-y-2 text-sm">
+                <p>
+                  <strong>Size:</strong> {selectedSizeConfig.name} -{" "}
+                  {selectedSizeConfig.description}
+                </p>
+                <div className="flex gap-4">
+                  <span>{selectedSizeConfig.stats.users} users</span>
+                  <span>{selectedSizeConfig.stats.products} products</span>
+                  <span>{selectedSizeConfig.stats.orders} orders</span>
+                </div>
+                {errorConfig.enabled ? (
+                  <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200">
+                    <p className="font-medium text-amber-800 mb-1">
+                      Data Quality Challenges Enabled:
+                    </p>
+                    <div className="text-xs text-amber-700 space-y-1">
+                      <div>• Email errors: {errorConfig.emailErrors}%</div>
+                      <div>
+                        • Delivery errors: {errorConfig.deliveryErrors}%
+                      </div>
+                      <div>• Pricing errors: {errorConfig.pricingErrors}%</div>
+                      <div>
+                        • Location errors: {errorConfig.locationErrors}%
+                      </div>
+                      <div>
+                        • Quantity errors: {errorConfig.quantityErrors}%
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-green-700 bg-green-50 p-2 rounded border border-green-200">
+                    ✓ Clean data (no intentional errors)
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -297,19 +383,19 @@ export function DatabaseSetupModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="w-[50vw] h-[85vh] max-w-none max-h-none overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <DatabaseIcon className="h-5 w-5" />
             Database Setup
           </DialogTitle>
           <DialogDescription>
-            Choose a database configuration to set up your SQL playground.
+            Choose your database size and configure data quality challenges.
             {status === "idle" && " All existing data will be replaced."}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="flex-1 overflow-y-auto space-y-6 pr-2">
           {/* Status Message */}
           {message && (
             <Alert className={getStatusColor()}>
@@ -322,62 +408,207 @@ export function DatabaseSetupModal({
             </Alert>
           )}
 
-          {/* Configuration Options */}
+          {/* Main Configuration */}
           {status !== "success" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {databaseConfigs.map((config) => (
-                <Card
-                  key={config.id}
-                  className={`cursor-pointer transition-all hover:shadow-md ${
-                    selectedConfig === config.id
-                      ? "ring-2 ring-primary border-primary"
-                      : ""
-                  }`}
-                  onClick={() => handleConfigSelect(config.id)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        {config.icon}
-                        <CardTitle className="text-base">
-                          {config.name}
+            <Tabs defaultValue="size" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="size" className="flex gap-2 items-center">
+                  <Settings className="h-4 w-4" />
+                  Database Size
+                </TabsTrigger>
+                <TabsTrigger value="errors" className="flex gap-2 items-center">
+                  <Bug className="h-4 w-4" />
+                  Data Quality
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="size" className="space-y-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {databaseSizes.map((size) => (
+                    <Card
+                      key={size.id}
+                      className={`cursor-pointer transition-all hover:shadow-md ${
+                        selectedSize === size.id
+                          ? "ring-2 ring-primary border-primary"
+                          : ""
+                      }`}
+                      onClick={() => handleSizeSelect(size.id)}
+                    >
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            {size.icon}
+                            <CardTitle className="text-base">
+                              {size.name}
+                            </CardTitle>
+                          </div>
+                          {size.badge && (
+                            <Badge variant={size.badgeVariant || "default"}>
+                              {size.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription className="text-sm">
+                          {size.description}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="grid grid-cols-3 gap-2 text-sm">
+                          <div className="text-center">
+                            <div className="font-medium text-lg">
+                              {size.stats.users.toLocaleString()}
+                            </div>
+                            <div className="text-muted-foreground">Users</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-medium text-lg">
+                              {size.stats.products.toLocaleString()}
+                            </div>
+                            <div className="text-muted-foreground">
+                              Products
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="font-medium text-lg">
+                              {size.stats.orders.toLocaleString()}
+                            </div>
+                            <div className="text-muted-foreground">Orders</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="errors" className="space-y-4 mt-6">
+                <Card>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg">
+                          Data Quality Challenges
                         </CardTitle>
+                        <CardDescription>
+                          Add intentional data quality issues to practice
+                          validation and cleaning queries
+                        </CardDescription>
                       </div>
-                      {config.badge && (
-                        <Badge variant={config.badgeVariant || "default"}>
-                          {config.badge}
-                        </Badge>
-                      )}
+                      <Switch
+                        checked={errorConfig.enabled}
+                        onCheckedChange={handleErrorToggle}
+                      />
                     </div>
-                    <CardDescription className="text-sm">
-                      {config.description}
-                    </CardDescription>
                   </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-3 gap-2 text-sm">
-                      <div className="text-center">
-                        <div className="font-medium text-lg">
-                          {config.stats.users.toLocaleString()}
+
+                  {errorConfig.enabled && (
+                    <CardContent className="space-y-6">
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Email Validation Issues: {errorConfig.emailErrors}%
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Missing @ symbols, invalid domains, formatting
+                            errors
+                          </p>
+                          <Slider
+                            value={[errorConfig.emailErrors]}
+                            onValueChange={(value: number[]) =>
+                              handleErrorSliderChange("emailErrors", value)
+                            }
+                            max={50}
+                            step={1}
+                            className="w-full"
+                          />
                         </div>
-                        <div className="text-muted-foreground">Users</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-medium text-lg">
-                          {config.stats.products.toLocaleString()}
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Delivery Date Issues: {errorConfig.deliveryErrors}%
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Missing delivery dates, status inconsistencies
+                          </p>
+                          <Slider
+                            value={[errorConfig.deliveryErrors]}
+                            onValueChange={(value: number[]) =>
+                              handleErrorSliderChange("deliveryErrors", value)
+                            }
+                            max={50}
+                            step={1}
+                            className="w-full"
+                          />
                         </div>
-                        <div className="text-muted-foreground">Products</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="font-medium text-lg">
-                          {config.stats.orders.toLocaleString()}
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Pricing Anomalies: {errorConfig.pricingErrors}%
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Negative prices, zero values, excessive amounts
+                          </p>
+                          <Slider
+                            value={[errorConfig.pricingErrors]}
+                            onValueChange={(value: number[]) =>
+                              handleErrorSliderChange("pricingErrors", value)
+                            }
+                            max={50}
+                            step={1}
+                            className="w-full"
+                          />
                         </div>
-                        <div className="text-muted-foreground">Orders</div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Location Mismatches: {errorConfig.locationErrors}%
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            City-country relationship errors
+                          </p>
+                          <Slider
+                            value={[errorConfig.locationErrors]}
+                            onValueChange={(value: number[]) =>
+                              handleErrorSliderChange("locationErrors", value)
+                            }
+                            max={50}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium">
+                            Quantity Issues: {errorConfig.quantityErrors}%
+                          </Label>
+                          <p className="text-xs text-muted-foreground">
+                            Zero or negative quantities in orders
+                          </p>
+                          <Slider
+                            value={[errorConfig.quantityErrors]}
+                            onValueChange={(value: number[]) =>
+                              handleErrorSliderChange("quantityErrors", value)
+                            }
+                            max={50}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
+
+                      <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                        <p className="text-sm text-amber-800">
+                          <strong>Tip:</strong> Start with low percentages
+                          (5-10%) to get familiar with data quality patterns,
+                          then increase as you become more comfortable with
+                          validation queries.
+                        </p>
+                      </div>
+                    </CardContent>
+                  )}
                 </Card>
-              ))}
-            </div>
+              </TabsContent>
+            </Tabs>
           )}
 
           {/* Features Info */}
@@ -391,12 +622,17 @@ export function DatabaseSetupModal({
                 <li>• Proper order statuses (delivered/pending/cancelled)</li>
                 <li>• Realistic delivery dates (past, present, and future)</li>
                 <li>• Complete relational data with proper foreign keys</li>
+                {errorConfig.enabled && (
+                  <li className="text-amber-600 font-medium">
+                    • Configurable data quality issues for advanced practice
+                  </li>
+                )}
               </ul>
             </div>
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex-shrink-0 mt-6">
           {status === "success" ? (
             <Button onClick={handleClose} className="w-full">
               Close
@@ -412,7 +648,7 @@ export function DatabaseSetupModal({
               </Button>
               <Button
                 onClick={handleSetupClick}
-                disabled={!selectedConfig || isLoading}
+                disabled={!selectedSize || isLoading}
               >
                 {isLoading ? (
                   <>

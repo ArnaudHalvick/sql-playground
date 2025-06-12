@@ -59,6 +59,19 @@ async function main() {
           "  npm run db:setup-realistic  - Realistic e-commerce (500 users, 1500 orders)"
         );
         console.log("  npm run db:setup-custom X   - Custom with X multiplier");
+        console.log("\nChallenge Mode (Data Quality Issues):");
+        console.log(
+          "  npm run db:challenge-light  - Light errors (2-5% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-medium - Medium errors (5-15% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-heavy  - Heavy errors (10-25% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-custom X - Custom error rate (e.g., 'custom 12')"
+        );
         console.log("\nMake sure your .env.local file contains:");
         console.log("  NEXT_PUBLIC_SUPABASE_URL=your_project_url");
         console.log("  SUPABASE_SERVICE_ROLE_KEY=your_service_role_key");

@@ -15,7 +15,11 @@
     "db:setup-medium": "npm run db:compile && node scripts/advanced-db-setup.js medium",
     "db:setup-large": "npm run db:compile && node scripts/advanced-db-setup.js large",
     "db:setup-realistic": "npm run db:compile && node scripts/advanced-db-setup.js realistic",
-    "db:setup-custom": "npm run db:compile && node scripts/advanced-db-setup.js custom"
+    "db:setup-custom": "npm run db:compile && node scripts/advanced-db-setup.js custom",
+    "db:challenge-light": "npm run db:compile && node scripts/challenge-db-setup.js light",
+    "db:challenge-medium": "npm run db:compile && node scripts/challenge-db-setup.js medium",
+    "db:challenge-heavy": "npm run db:compile && node scripts/challenge-db-setup.js heavy",
+    "db:challenge-custom": "npm run db:compile && node scripts/challenge-db-setup.js custom"
   },
   "dependencies": {
     "@codemirror/lang-sql": "^6.5.4",

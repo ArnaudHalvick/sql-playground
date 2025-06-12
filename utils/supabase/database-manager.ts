@@ -12,6 +12,15 @@ export interface DataGenerationConfig {
     start: string; // YYYY-MM-DD
     end: string; // YYYY-MM-DD
   };
+  // Data quality error configuration
+  errorConfig?: {
+    enabled: boolean;
+    emailErrors: number; // Percentage of users with invalid emails (0-100)
+    deliveryErrors: number; // Percentage of orders with delivery inconsistencies (0-100)
+    pricingErrors: number; // Percentage of products/order_items with pricing issues (0-100)
+    locationErrors: number; // Percentage of users with mismatched city-country relationships (0-100)
+    quantityErrors: number; // Percentage of order_items with invalid quantities (0-100)
+  };
 }
 
 // Helper function to get dynamic date range
@@ -38,6 +47,14 @@ export const DEFAULT_CONFIG: DataGenerationConfig = {
   orders: 500,
   orderItemsPerOrder: { min: 1, max: 5 },
   dateRange: getDynamicDateRange(),
+  errorConfig: {
+    enabled: false,
+    emailErrors: 0,
+    deliveryErrors: 0,
+    pricingErrors: 0,
+    locationErrors: 0,
+    quantityErrors: 0,
+  },
 };
 
 // Predefined data that shouldn't be random
@@ -507,6 +524,42 @@ function generateProductDescription(name: string): string {
   return `${name} with ${feature}, ${benefit}.`;
 }
 
+// Error injection helper functions
+function shouldInjectError(percentage: number): boolean {
+  return Math.random() * 100 < percentage;
+}
+
+function injectEmailError(email: string): string {
+  const errorTypes = [
+    () => email.replace("@", ""), // Missing @ symbol
+    () => email.replace(/\.(com|net|org)$/, ".xyz"), // Invalid domain extension
+    () => email.replace("@", "@@"), // Double @ symbol
+    () => email.replace(/\.(com|net|org)$/, ""), // Missing domain extension
+    () => email + ".", // Trailing dot
+  ];
+
+  return randomChoice(errorTypes)();
+}
+
+function injectPricingError(): number {
+  const errorTypes = [
+    () => -randomInt(1, 100), // Negative price
+    () => randomInt(10001, 50000), // Price too high (over $10,000)
+    () => 0, // Zero price
+  ];
+
+  return randomChoice(errorTypes)();
+}
+
+function injectQuantityError(): number {
+  const errorTypes = [
+    () => 0, // Zero quantity
+    () => -randomInt(1, 5), // Negative quantity
+  ];
+
+  return randomChoice(errorTypes)();
+}
+
 // Create admin client with service role key
 function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -746,10 +799,27 @@ export async function insertSampleData(
     while (generatedEmails.has(email)) {
       email = generateEmail(firstName, lastName);
     }
+
+    // Inject email errors if configured
+    if (config.errorConfig?.enabled && config.errorConfig.emailErrors > 0) {
+      if (shouldInjectError(config.errorConfig.emailErrors)) {
+        email = injectEmailError(email);
+      }
+    }
+
     generatedEmails.add(email);
 
-    const countryId = randomChoice(Array.from(countryMap.values()));
-    const cityId = randomChoice(cityIds);
+    let countryId = randomChoice(Array.from(countryMap.values()));
+    let cityId = randomChoice(cityIds);
+
+    // Inject location errors if configured (mismatched city-country relationships)
+    if (config.errorConfig?.enabled && config.errorConfig.locationErrors > 0) {
+      if (shouldInjectError(config.errorConfig.locationErrors)) {
+        // Intentionally mismatch city and country
+        countryId = randomChoice(Array.from(countryMap.values()));
+        cityId = randomChoice(cityIds); // This might not match the country
+      }
+    }
 
     usersData.push(
       `('${firstName}', '${lastName}', '${email}', ${countryId}, ${cityId})`
@@ -783,7 +853,15 @@ export async function insertSampleData(
     generatedProductNames.add(productName);
 
     const description = generateProductDescription(productName);
-    const price = randomInt(5, 2000);
+    let price = randomInt(5, 2000);
+
+    // Inject pricing errors if configured
+    if (config.errorConfig?.enabled && config.errorConfig.pricingErrors > 0) {
+      if (shouldInjectError(config.errorConfig.pricingErrors)) {
+        price = injectPricingError();
+      }
+    }
+
     const category = randomChoice(PRODUCT_CATEGORIES);
     const stock = randomInt(0, 500);
 
@@ -887,6 +965,45 @@ export async function insertSampleData(
       }
     }
 
+    // Inject delivery errors if configured
+    if (config.errorConfig?.enabled && config.errorConfig.deliveryErrors > 0) {
+      if (shouldInjectError(config.errorConfig.deliveryErrors)) {
+        // Create delivery inconsistencies
+        const errorType = randomInt(1, 4);
+        switch (errorType) {
+          case 1:
+            // Delivered status but no delivery_date
+            if (status === "delivered") {
+              deliveryDate = null;
+            }
+            break;
+          case 2:
+            // Pending/delivered status but no estimated_delivery
+            if (status === "pending" || status === "delivered") {
+              estimatedDelivery = null;
+            }
+            break;
+          case 3:
+            // Cancelled status but has delivery dates
+            if (status === "cancelled") {
+              estimatedDelivery = formatDate(
+                new Date(
+                  orderDate.getTime() + randomInt(3, 14) * 24 * 60 * 60 * 1000
+                )
+              );
+              if (Math.random() < 0.5) {
+                deliveryDate = formatDate(
+                  new Date(
+                    orderDate.getTime() + randomInt(5, 20) * 24 * 60 * 60 * 1000
+                  )
+                );
+              }
+            }
+            break;
+        }
+      }
+    }
+
     // Generate order items
     const numItems = randomInt(
       config.orderItemsPerOrder.min,
@@ -907,8 +1024,26 @@ export async function insertSampleData(
       }
       selectedProducts.add(product.id);
 
-      const quantity = randomInt(1, 5);
-      const itemPrice = product.price;
+      let quantity = randomInt(1, 5);
+      let itemPrice = product.price;
+
+      // Inject quantity errors if configured
+      if (
+        config.errorConfig?.enabled &&
+        config.errorConfig.quantityErrors > 0
+      ) {
+        if (shouldInjectError(config.errorConfig.quantityErrors)) {
+          quantity = injectQuantityError();
+        }
+      }
+
+      // Inject pricing errors for order items if configured
+      if (config.errorConfig?.enabled && config.errorConfig.pricingErrors > 0) {
+        if (shouldInjectError(config.errorConfig.pricingErrors)) {
+          itemPrice = injectPricingError();
+        }
+      }
+
       totalAmount += itemPrice * quantity;
 
       orderItemsData.push(
@@ -964,6 +1099,54 @@ export async function insertSampleData(
   );
   console.log(`   • ${orderItemsData.length} order items`);
   console.log(`   • Realistic order statuses with proper date handling`);
+
+  // Log error injection information
+  if (config.errorConfig?.enabled) {
+    console.log(`🐛 Data Quality Errors Injected:`);
+    if (config.errorConfig.emailErrors > 0) {
+      console.log(
+        `   • ~${Math.round(
+          (config.users * config.errorConfig.emailErrors) / 100
+        )} users with invalid emails (${config.errorConfig.emailErrors}%)`
+      );
+    }
+    if (config.errorConfig.deliveryErrors > 0) {
+      console.log(
+        `   • ~${Math.round(
+          (config.orders * config.errorConfig.deliveryErrors) / 100
+        )} orders with delivery inconsistencies (${
+          config.errorConfig.deliveryErrors
+        }%)`
+      );
+    }
+    if (config.errorConfig.pricingErrors > 0) {
+      console.log(
+        `   • ~${Math.round(
+          ((config.products + orderItemsData.length) *
+            config.errorConfig.pricingErrors) /
+            100
+        )} items with pricing issues (${config.errorConfig.pricingErrors}%)`
+      );
+    }
+    if (config.errorConfig.locationErrors > 0) {
+      console.log(
+        `   • ~${Math.round(
+          (config.users * config.errorConfig.locationErrors) / 100
+        )} users with mismatched city-country relationships (${
+          config.errorConfig.locationErrors
+        }%)`
+      );
+    }
+    if (config.errorConfig.quantityErrors > 0) {
+      console.log(
+        `   • ~${Math.round(
+          (orderItemsData.length * config.errorConfig.quantityErrors) / 100
+        )} order items with invalid quantities (${
+          config.errorConfig.quantityErrors
+        }%)`
+      );
+    }
+  }
 }
 
 /**
@@ -1040,6 +1223,14 @@ export async function setupLargeDatabase(): Promise<void> {
     orders: 2000,
     orderItemsPerOrder: { min: 1, max: 8 },
     dateRange: getDynamicDateRange(),
+    errorConfig: {
+      enabled: false,
+      emailErrors: 0,
+      deliveryErrors: 0,
+      pricingErrors: 0,
+      locationErrors: 0,
+      quantityErrors: 0,
+    },
   };
 
   console.log("🚀 Setting up large SQL Playground database...");

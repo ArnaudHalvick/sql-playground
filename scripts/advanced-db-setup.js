@@ -133,6 +133,29 @@ async function main() {
         console.log("• Proper delivery date logic (past/present/future/null)");
         console.log("• Batch processing for large datasets");
         console.log("");
+        console.log("Challenge Mode (Data Quality Issues):");
+        console.log("====================================");
+        console.log(
+          "  npm run db:challenge-light  - Light errors (2-5% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-medium - Medium errors (5-15% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-heavy  - Heavy errors (10-25% error rates)"
+        );
+        console.log(
+          "  npm run db:challenge-custom X - Custom error rate (e.g., 'custom 12')"
+        );
+        console.log("");
+        console.log("Challenge Features:");
+        console.log("• Invalid email formats for validation practice");
+        console.log("• Delivery date inconsistencies");
+        console.log("• Pricing anomalies (negative, zero, excessive prices)");
+        console.log("• Location relationship errors");
+        console.log("• Quantity validation issues");
+        console.log("• Perfect for data quality audit practice");
+        console.log("");
         console.log("Make sure your .env.local file contains:");
         console.log("  NEXT_PUBLIC_SUPABASE_URL=your_project_url");
         console.log("  SUPABASE_SERVICE_ROLE_KEY=your_service_role_key");

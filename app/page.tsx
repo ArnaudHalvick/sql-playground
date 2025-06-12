@@ -47,8 +47,7 @@ import { Badge } from "@/components/ui/feedback/badge";
 import { Button } from "@/components/ui/inputs/button";
 
 export default function Home() {
-  const defaultQuery =
-    "SELECT id, first_name, last_name, email, country_id, city_id FROM users LIMIT 10";
+  const defaultQuery = "";
   const [query, setQuery] = useState<string>(defaultQuery);
   const [results, setResults] = useState<any[] | null>(null);
   const [columns, setColumns] = useState<string[]>([]);

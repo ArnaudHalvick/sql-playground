@@ -686,11 +686,14 @@ async function insertSampleData(config = exports.DEFAULT_CONFIG) {
     ON CONFLICT DO NOTHING
   `;
     await executeStatement(client, citiesData);
-    // Get city IDs for reference
+    // Get city IDs with their country relationships for reference
     const { data: cities } = await client.rpc("run_query", {
-        query_text: "SELECT id FROM cities ORDER BY id",
+        query_text: "SELECT id, country_id FROM cities ORDER BY id",
     });
-    const cityIds = cities.map((c) => c.id);
+    const cityData = cities.map((c) => ({
+        id: c.id,
+        countryId: c.country_id,
+    }));
     // Generate users
     console.log(`👥 Generating ${config.users} users...`);
     const usersData = [];
@@ -710,15 +713,31 @@ async function insertSampleData(config = exports.DEFAULT_CONFIG) {
             }
         }
         generatedEmails.add(email);
-        let countryId = randomChoice(Array.from(countryMap.values()));
-        let cityId = randomChoice(cityIds);
+        let countryId;
+        let cityId;
         // Inject location errors if configured (mismatched city-country relationships)
-        if (config.errorConfig?.enabled && config.errorConfig.locationErrors > 0) {
-            if (shouldInjectError(config.errorConfig.locationErrors)) {
-                // Intentionally mismatch city and country
-                countryId = randomChoice(Array.from(countryMap.values()));
-                cityId = randomChoice(cityIds); // This might not match the country
+        if (config.errorConfig?.enabled &&
+            config.errorConfig.locationErrors > 0 &&
+            shouldInjectError(config.errorConfig.locationErrors)) {
+            // Intentionally create mismatched city-country relationships
+            const city = randomChoice(cityData);
+            const differentCountries = Array.from(countryMap.values()).filter((id) => id !== city.countryId);
+            // Ensure we have at least one different country to choose from
+            if (differentCountries.length > 0) {
+                countryId = randomChoice(differentCountries);
+                cityId = city.id;
             }
+            else {
+                // Fallback: use properly matched relationship if no different countries available
+                countryId = city.countryId;
+                cityId = city.id;
+            }
+        }
+        else {
+            // Create properly matched city-country relationships
+            const city = randomChoice(cityData);
+            countryId = city.countryId;
+            cityId = city.id;
         }
         usersData.push(`('${firstName}', '${lastName}', '${email}', ${countryId}, ${cityId})`);
     }

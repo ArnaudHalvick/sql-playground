@@ -224,8 +224,8 @@ export default function Home() {
       </header>
 
       {/* Main Content Grid - Full Width */}
-      <div className="flex-1 px-6 py-4">
-        <div className="grid grid-cols-12 gap-6 h-[calc(100vh-8rem)]">
+      <div className="flex-1 px-4 py-4">
+        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-8rem)]">
           {/* Left Sidebar - Exercises & Schema */}
           <div className="col-span-4 xl:col-span-3">
             <Card className="h-full">
@@ -327,7 +327,7 @@ export default function Home() {
 
                     {/* Exercise List */}
                     <ScrollArea className="h-[calc(100vh-18rem)]">
-                      <div className="space-y-3 pr-2">
+                      <div className="space-y-3 px-3 py-3">
                         {filteredExercises.length > 0 ? (
                           filteredExercises.map((exercise) => (
                             <ExerciseCard
@@ -341,7 +341,7 @@ export default function Home() {
                             />
                           ))
                         ) : (
-                          <div className="text-center py-8 text-muted-foreground">
+                          <div className="text-center py-8 px-3 text-muted-foreground">
                             <BookIcon
                               size={32}
                               className="mx-auto mb-2 opacity-50"

@@ -45,7 +45,7 @@ export function ExerciseCard({
   return (
     <Card
       className={cn(
-        "w-full transition-all duration-200 cursor-pointer hover:shadow-md",
+        "w-full max-w-full transition-all duration-200 cursor-pointer hover:shadow-md",
         isActive && "ring-2 ring-primary/50 shadow-sm",
         className
       )}
@@ -60,8 +60,10 @@ export function ExerciseCard({
         </div>
         <CardDescription className="text-xs">{description}</CardDescription>
       </CardHeader>
-      <CardContent className="text-xs font-mono bg-muted/50 p-2 rounded overflow-x-auto">
-        <pre className="whitespace-pre-wrap">{query}</pre>
+      <CardContent className="text-xs font-mono bg-muted/50 p-2 rounded overflow-x-auto max-w-full">
+        <pre className="whitespace-pre-wrap break-words max-w-full overflow-hidden">
+          {query}
+        </pre>
       </CardContent>
       <CardFooter className="pt-2 pb-3"></CardFooter>
     </Card>

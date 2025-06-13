@@ -2,14 +2,51 @@
 
 Complete setup guide for your SQL Playground with Supabase. **No manual copy/paste required** - everything is automated!
 
+## ⚠️ Prerequisites
+
+**You MUST have the service role key configured** for database setup to work!
+
+### Required Environment Variables
+
+Create `.env.local` in your project root with:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+```
+
+### Why Service Role Key is Required
+
+The SQL Playground needs **admin privileges** to:
+
+- ✅ Create and drop database tables
+- ✅ Insert sample data with proper relationships
+- ✅ Create the `run_query()` function for SQL execution
+- ✅ Reset the database when needed
+- ✅ Set up challenge mode with data quality issues
+
+**Without the service role key, database setup will fail!**
+
+### How to Get Your Keys
+
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project
+3. Navigate to **Settings > API**
+4. Copy these values:
+   - **Project URL** (at the top)
+   - **anon/public key** (for regular queries)
+   - **service_role key** (for database management)
+
 ## 🚀 Quick Start (Recommended)
 
 ### Option 1: Use the App Interface
 
-1. Start your Next.js app: `npm run dev`
-2. Go to the **Schema** tab
-3. Click **"Setup DB"** button
-4. Done! Your database is ready with sample data
+1. **Set up environment**: Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials
+2. **Start your app**: `npm run dev`
+3. **Go to Schema tab** in the app
+4. **Click "Setup DB"** button
+5. **Done!** Your database is ready with sample data
 
 ### Option 2: Use CLI Commands
 
@@ -25,9 +62,6 @@ npm run db:info
 
 # Fix query function if needed
 npm run db:fix
-
-# Run custom SQL query
-npm run db:query "SELECT * FROM users LIMIT 5"
 ```
 
 ## 📋 What Gets Created
@@ -113,6 +147,14 @@ SELECT id, user_id, total_amount, status FROM orders LIMIT 3;
 
 ## 🔍 Troubleshooting
 
+### "Missing Supabase environment variables" Error?
+
+This means your `.env.local` file is missing or incomplete:
+
+1. **Copy the template**: `cp .env.local.example .env.local`
+2. **Fill in your Supabase credentials** (URL, anon key, service role key)
+3. **Restart your app**: `npm run dev`
+
 ### Query Button Not Working?
 
 ```bash
@@ -139,11 +181,11 @@ Shows table counts and verifies everything is working.
 
 ### CLI Commands Failing?
 
-Use the web interface instead:
-
-1. Go to Schema tab in your app
-2. Use the Database Manager buttons
-3. All functionality is available in both places
+1. **Check your `.env.local`** - make sure all three keys are present
+2. **Use the web interface instead**:
+   - Go to Schema tab in your app
+   - Use the Database Manager buttons
+   - All functionality is available in both places
 
 ## 📊 Sample Queries to Try
 
@@ -175,16 +217,6 @@ FROM users u
 LEFT JOIN orders o ON u.id = o.user_id
 GROUP BY u.id, u.first_name, u.last_name
 ORDER BY total_spent DESC;
-```
-
-## 🔐 Environment Setup
-
-Make sure you have these environment variables in `.env.local`:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
 ## 🎉 You're All Set!

@@ -625,10 +625,15 @@ export async function fixRunQueryFunction(): Promise<void> {
       result JSONB;
       rec RECORD;
       results JSONB := '[]'::JSONB;
+      trimmed_query TEXT;
     BEGIN
+      -- Trim and normalize the query
+      trimmed_query := UPPER(TRIM(query_text));
+      
       -- Handle different types of queries
-      IF UPPER(TRIM(query_text)) LIKE 'SELECT%' THEN
-        -- For SELECT queries, collect all rows
+      -- Check for SELECT queries (including CTEs that start with WITH)
+      IF trimmed_query LIKE 'SELECT%' OR trimmed_query LIKE 'WITH%' THEN
+        -- For SELECT queries and CTEs, collect all rows
         FOR rec IN EXECUTE query_text LOOP
           results := results || to_jsonb(rec);
         END LOOP;

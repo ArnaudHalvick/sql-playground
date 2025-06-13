@@ -82,7 +82,10 @@ products (1) -> (many) order_items
   - Future orders: pending
   - Recent orders: pending
   - Older orders: 80% delivered, 10% pending, 10% cancelled
-- **Delivery Dates**: Realistic delivery timing with variations
+- **Delivery Dates**: Realistic delivery timing with balanced distribution
+  - Early delivery: -3 to -1 days from estimated (60%)
+  - On-time delivery: exactly on estimated date (20%)
+  - Late delivery: +1 day from estimated (20%)
 
 ## Challenge Mode - Data Quality Issues
 
@@ -224,6 +227,38 @@ npm run db:compile  # Compiles utils/supabase/database-manager.ts
 - **Medium datasets**: 1-2 seconds setup, balanced for learning
 - **Large datasets**: 5-10 seconds setup, good for performance testing
 - **Batch processing**: Large datasets use batched inserts for efficiency
+
+## Recent Updates
+
+### v2.1.0 - Delivery Date Distribution Fix
+
+**Issue**: Clean databases were generating ~60% late deliveries, which was unrealistic for learning SQL.
+
+**Fix**: Updated delivery variation logic from `randomInt(-2, 5)` to `randomInt(-3, 2)`:
+
+- **Before**: 62.5% late deliveries (heavily skewed)
+- **After**: 20% late deliveries (realistic distribution)
+
+**Files Updated**:
+
+- `scripts/database-manager.js` (line 871)
+- `utils/supabase/database-manager.ts` (line 966)
+
+**Verification Query**:
+
+```sql
+SELECT
+  COUNT(*) as total_delivered,
+  COUNT(CASE WHEN delivery_date > estimated_delivery THEN 1 END) as late_deliveries,
+  ROUND(
+    COUNT(CASE WHEN delivery_date > estimated_delivery THEN 1 END) * 100.0 / COUNT(*),
+    1
+  ) as late_percentage
+FROM orders
+WHERE status = 'delivered'
+  AND delivery_date IS NOT NULL
+  AND estimated_delivery IS NOT NULL;
+```
 
 ## Troubleshooting
 

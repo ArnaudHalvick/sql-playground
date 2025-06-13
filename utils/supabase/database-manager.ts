@@ -963,8 +963,8 @@ export async function insertSampleData(
           new Date(orderDate.getTime() + estimatedDays * 24 * 60 * 60 * 1000)
         );
 
-        // Delivery can be early, on time, or late
-        const deliveryVariation = randomInt(-2, 5); // -2 to +5 days from estimated
+        // Delivery can be early, on time, or late (realistic distribution)
+        const deliveryVariation = randomInt(-3, 2); // -3 to +1 days from estimated
         const actualDeliveryDate = new Date(
           new Date(estimatedDelivery).getTime() +
             deliveryVariation * 24 * 60 * 60 * 1000

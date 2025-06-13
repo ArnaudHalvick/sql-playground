@@ -156,8 +156,8 @@ ORDER BY unique_products_ordered DESC`,
     description: "Analyze orders by month and year.",
     difficulty: "intermediate",
     query: `SELECT 
-  EXTRACT(YEAR FROM created_at) as year,
-  EXTRACT(MONTH FROM created_at) as month,
+  EXTRACT(YEAR FROM order_date) as year,
+  EXTRACT(MONTH FROM order_date) as month,
   COUNT(*) as order_count,
   SUM(total_amount) as total_sales
 FROM orders

@@ -6,6 +6,8 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat&logo=supabase)](https://supabase.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2+-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 
+**Video Presentation:** [Watch on YouTube](https://youtu.be/uPUUJFIIJhc)
+
 ## 🌟 Why I Built This
 
 I wanted to learn SQL but couldn't find a platform that made it **fun, interactive, and practical**. Most resources were either too theoretical or lacked real-world scenarios. So I created this playground to:

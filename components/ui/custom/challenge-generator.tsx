@@ -77,7 +77,15 @@ const challengeTypes = [
   {
     id: "window-functions",
     title: "Window Functions",
-    description: "ROW_NUMBER, RANK, LAG, LEAD, and partitioning",
+    description: "ROW_NUMBER, RANK, and basic partitioning",
+    difficulty: "intermediate" as const,
+    icon: TrendingUp,
+    color: "bg-blue-100 text-blue-800 border-blue-200",
+  },
+  {
+    id: "advanced-window-functions",
+    title: "Advanced Window Functions",
+    description: "LAG, LEAD, complex partitioning, and analytical functions",
     difficulty: "advanced" as const,
     icon: TrendingUp,
     color: "bg-purple-100 text-purple-800 border-purple-200",
@@ -355,23 +363,56 @@ The challenge should:
 Format: Provide only the challenge question and context, no solution.`,
   },
   "window-functions": {
-    advanced: `Generate a SQL challenge for an advanced level focusing on window functions. Use this Supabase PostgreSQL database schema:
+    intermediate: `Generate a SQL challenge for an intermediate level focusing on basic window functions. Use this Supabase PostgreSQL database schema:
 
 ${databaseSchema}
 
 Create a challenge that involves:
-- Window functions (ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, SUM, AVG)
-- PARTITION BY and ORDER BY clauses in window functions
-- Running totals, moving averages, or ranking analysis
-- Advanced analytical queries for business insights
+- Basic window functions (ROW_NUMBER, RANK, DENSE_RANK)
+- Simple PARTITION BY and ORDER BY clauses
+- Ranking customers, products, or orders within categories
+- Straightforward analytical queries for business insights
 
 The challenge should:
-1. Have a clear, specific business question requiring analytical thinking
-2. Require window functions to solve ranking, running totals, or comparative analysis
-3. Use realistic e-commerce scenarios (customer rankings, sales trends, product comparisons)
+1. Have a clear, specific business question requiring basic ranking or numbering
+2. Require simple window functions to solve ranking problems (top customers, best-selling products, recent orders)
+3. Use realistic e-commerce scenarios that are easy to understand
+4. Reference actual column names and data types (total_amount, price, order_date, etc.)
+5. Include the expected difficulty level: INTERMEDIATE
+6. Provide a brief hint about which basic window function to use (ROW_NUMBER or RANK)
+
+Focus on simple scenarios like:
+- Ranking customers by total order value
+- Finding the top 3 products in each category
+- Numbering orders by date for each customer
+- Ranking cities by population
+
+Format: Provide only the challenge question and context, no solution.`,
+  },
+  "advanced-window-functions": {
+    advanced: `Generate a SQL challenge for an advanced level focusing on complex window functions. Use this Supabase PostgreSQL database schema:
+
+${databaseSchema}
+
+Create a challenge that involves:
+- Advanced window functions (LAG, LEAD, SUM, AVG with window frames)
+- Complex PARTITION BY and ORDER BY clauses with multiple columns
+- Running totals, moving averages, or comparative analysis between rows
+- Advanced analytical queries requiring sophisticated window function knowledge
+
+The challenge should:
+1. Have a clear, specific business question requiring advanced analytical thinking
+2. Require complex window functions to solve time-series analysis, running calculations, or row comparisons
+3. Use realistic e-commerce scenarios (sales trends over time, customer behavior patterns, performance comparisons)
 4. Reference actual column names and data types (order_date, total_amount, price, etc.)
 5. Include the expected difficulty level: ADVANCED
-6. Provide a brief hint about which window function to use and partitioning strategy
+6. Provide a brief hint about which advanced window function to use and complex partitioning strategy
+
+Focus on advanced scenarios like:
+- Calculating running totals of sales over time
+- Comparing current month sales to previous month (LAG/LEAD)
+- Finding moving averages over specific time windows
+- Calculating percentage of total within partitions
 
 Format: Provide only the challenge question and context, no solution.`,
   },

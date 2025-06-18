@@ -75,6 +75,14 @@ const challengeTypes = [
     color: "bg-purple-100 text-purple-800 border-purple-200",
   },
   {
+    id: "basic-window-functions",
+    title: "Basic Window Functions",
+    description: "Simple ROW_NUMBER and basic ranking",
+    difficulty: "beginner" as const,
+    icon: TrendingUp,
+    color: "bg-green-100 text-green-800 border-green-200",
+  },
+  {
     id: "window-functions",
     title: "Window Functions",
     description: "ROW_NUMBER, RANK, and basic partitioning",
@@ -359,6 +367,35 @@ The challenge should:
 4. Reference actual column names, relationships, and data types
 5. Include the expected difficulty level: ADVANCED
 6. Provide a brief hint about the subquery approach (EXISTS, IN, correlated, etc.)
+
+Format: Provide only the challenge question and context, no solution.`,
+  },
+  "basic-window-functions": {
+    beginner: `Generate a SQL challenge for a beginner level focusing on very basic window functions. Use this Supabase PostgreSQL database schema:
+
+${databaseSchema}
+
+Create a challenge that involves:
+- Only ROW_NUMBER() window function (the simplest to understand)
+- Simple ORDER BY clause (no PARTITION BY needed)
+- Straightforward numbering of rows in a result set
+- Clear, easy-to-understand business scenarios
+
+The challenge should:
+1. Have a very clear, simple business question that requires numbering rows
+2. Use only ROW_NUMBER() to assign sequential numbers to rows
+3. Use realistic but simple e-commerce scenarios (listing products, customers, or orders in order)
+4. Reference actual column names from the schema (name, total_amount, order_date, etc.)
+5. Include the expected difficulty level: BEGINNER
+6. Provide a clear hint that ROW_NUMBER() is needed to number the rows
+
+Focus on very simple scenarios like:
+- Number all products by price (highest to lowest)
+- Assign row numbers to customers by their last name alphabetically
+- Number orders by date (most recent first)
+- List cities numbered by population size
+
+Keep it simple - no partitioning, no complex logic, just basic row numbering.
 
 Format: Provide only the challenge question and context, no solution.`,
   },

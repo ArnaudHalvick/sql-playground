@@ -8,17 +8,6 @@
 
 **Video Presentation:** [Watch on YouTube](https://youtu.be/uPUUJFIIJhc)
 
-## 🌟 Why I Built This
-
-I wanted to learn SQL but couldn't find a platform that made it **fun, interactive, and practical**. Most resources were either too theoretical or lacked real-world scenarios. So I created this playground to:
-
-- 🎓 **Learn SQL** through hands-on practice with realistic data
-- 🛠️ **Master Next.js** and modern web development
-- 🔗 **Explore Supabase** and database integration
-- 🎮 **Make learning enjoyable** with gamified challenges
-
-Now I'm sharing it so others can learn and have fun too! 🚀
-
 ## ✨ Features
 
 ### 🎯 Interactive Learning
@@ -164,6 +153,21 @@ Complete e-commerce database with:
 
 Perfect for learning JOINs, aggregations, and real-world queries!
 
+---
+
+## 🔍 SEO Relevance Note
+
+While this was built as a learning project, the database architecture skills demonstrated here are directly applicable to **technical SEO for e-commerce**:
+
+- **Query optimization** impacts site performance and Core Web Vitals (ranking factors)
+- **Schema design** influences how easily you can build SEO-friendly URL structures
+- **Table relationships** affect the scalability of large product catalogs (10k+ SKUs)
+- **Data modeling** determines whether filter combinations create crawl budget issues
+
+If you're interested in how I apply technical skills to solve SEO problems, check out my [SEO Workshop](https://github.com/ArnaudHalvick/SEO-Workshop) which focuses specifically on technical + strategic SEO solutions.
+
+---
+
 ## 🎯 Use Cases
 
 - **Students** learning SQL fundamentals
@@ -198,4 +202,6 @@ Built with love for the SQL learning community. Special thanks to:
 
 **⭐ Star this repo if it helped you learn SQL!**
 
-**🔗 [GitHub](https://github.com/ArnaudHalvick/sql-playground) | 📧 [Contact](mailto:your-email@example.com) | 💼 [Portfolio](https://your-portfolio.com)**
+**Built by [Arnaud Halvick](https://arnaudhalvick.github.io/) - Full-Stack SEO Expert**
+
+📧 halvick.arnaud@gmail.com | 💼 [Hire on Upwork](https://www.upwork.com/freelancers/~017740c356da4ab81f) (12k+ hours, 100% Job Success, Top Rated)
